@@ -1,0 +1,9 @@
+/* App-specific styles */
+/* Most styling is handled by Tailwind CSS classes */
+/* Add custom component styles here if needed */
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
