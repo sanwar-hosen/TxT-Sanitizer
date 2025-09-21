@@ -2,7 +2,7 @@
 // This is the main landing page of the TxT Sanitizer application
 // Features input/output textareas with mode selection and sanitize functionality
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -40,49 +40,8 @@ function Home() {
     }
   }, []);
 
-  // Combine base presets with selected dropdown preset for display
-  const visiblePresets = selectedFromDropdown 
-    ? [...baseVisiblePresets, selectedFromDropdown]
-    : baseVisiblePresets;
-
-  // Get remaining presets for dropdown (excluding base visible ones and selected dropdown preset)
-  const dropdownPresets = allPresets.filter(preset => 
-    !baseVisiblePresets.some(visible => visible.id === preset.id) &&
-    (!selectedFromDropdown || selectedFromDropdown.id !== preset.id)
-  );
-
-  // Calculate character counts
-  const inputCharCount = inputText.length;
-  const outputCharCount = outputText.length;
-
-  // Handle paste text from clipboard
-  const handlePasteText = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      setInputText(text); // Replace existing text with clipboard content
-    } catch (error) {
-      console.error('Failed to read clipboard:', error);
-    }
-  };
-
-  // Handle clear input text
-  const handleClearInput = () => {
-    setInputText('');
-    setOutputText(''); // Also clear output when clearing input
-  };
-
-  // Handle copy output text to clipboard
-  const handleCopyText = async () => {
-    try {
-      await navigator.clipboard.writeText(outputText);
-      // Could add a toast notification here later
-    } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-    }
-  };
-
   // Handle sanitize button click - now functional
-  const handleSanitize = () => {
+  const handleSanitize = useCallback(() => {
     if (!inputText.trim()) {
       setOutputText('');
       return;
@@ -144,6 +103,66 @@ function Home() {
     }
     
     console.log('Sanitized text using preset:', selectedMode);
+  }, [inputText, allPresets, selectedMode]);
+
+  // Add keyboard shortcut listener for Ctrl+Enter to trigger sanitization
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Check for Ctrl+Enter combination
+      if (event.ctrlKey && event.key === 'Enter') {
+        event.preventDefault(); // Prevent default behavior
+        handleSanitize(); // Trigger sanitize function
+      }
+    };
+
+    // Add event listener to document
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleSanitize]); // Only depend on handleSanitize since it already has its own dependencies
+
+  // Combine base presets with selected dropdown preset for display
+  const visiblePresets = selectedFromDropdown 
+    ? [...baseVisiblePresets, selectedFromDropdown]
+    : baseVisiblePresets;
+
+  // Get remaining presets for dropdown (excluding base visible ones and selected dropdown preset)
+  const dropdownPresets = allPresets.filter(preset => 
+    !baseVisiblePresets.some(visible => visible.id === preset.id) &&
+    (!selectedFromDropdown || selectedFromDropdown.id !== preset.id)
+  );
+
+  // Calculate character counts
+  const inputCharCount = inputText.length;
+  const outputCharCount = outputText.length;
+
+  // Handle paste text from clipboard
+  const handlePasteText = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      setInputText(text); // Replace existing text with clipboard content
+    } catch (error) {
+      console.error('Failed to read clipboard:', error);
+    }
+  };
+
+  // Handle clear input text
+  const handleClearInput = () => {
+    setInputText('');
+    setOutputText(''); // Also clear output when clearing input
+  };
+
+  // Handle copy output text to clipboard
+  const handleCopyText = async () => {
+    try {
+      await navigator.clipboard.writeText(outputText);
+      // Could add a toast notification here later
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
   };
 
   // Handle mode selection from dropdown
@@ -273,6 +292,7 @@ function Home() {
                 <Button 
                   onClick={handleSanitize}
                   className="absolute bottom-4 right-4 bg-brand-blue hover:bg-blue-700 text-white px-6 py-2 text-sm font-medium"
+                  title="Sanitize text (Ctrl+Enter)"
                 >
                   Sanitize
                 </Button>
@@ -286,6 +306,19 @@ function Home() {
                   readOnly
                   className="flex-1 min-h-[400px] resize-none border-0 rounded-none bg-gray-50 cursor-default focus:ring-0 focus:border-0"
                 />
+                
+                {/* Copy Text Button - Bottom Right of Right Textarea */}
+                {outputText && (
+                  <Button 
+                    onClick={handleCopyText}
+                    variant="outline" 
+                    className="absolute bottom-4 right-4 text-brand-blue border-brand-blue hover:bg-blue-50"
+                    size="sm"
+                  >
+                    <Icon icon="mdi:content-copy" className="w-4 h-4 mr-2" />
+                    Copy Text
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -297,20 +330,9 @@ function Home() {
                 <span>{inputCharCount} Char</span>
               </div>
 
-              {/* Right Side - Output Character Count + Copy Button */}
+              {/* Right Side - Output Character Count */}
               <div className="flex items-center gap-4 text-sm text-gray-500">
                 <span>{outputCharCount} Char</span>
-                {outputText && (
-                  <Button 
-                    onClick={handleCopyText}
-                    variant="outline" 
-                    className="text-brand-blue border-brand-blue hover:bg-blue-50"
-                    size="sm"
-                  >
-                    <Icon icon="mdi:content-copy" className="w-4 h-4 mr-2" />
-                    Copy Text
-                  </Button>
-                )}
               </div>
             </div>
           </div>
