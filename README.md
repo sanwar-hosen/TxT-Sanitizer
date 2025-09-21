@@ -7,7 +7,7 @@
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-4.4.5-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.17-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Non--Commercial-orange.svg)](LICENSE)
 
 **Clean, format, and sanitize text content with predefined or custom rules**
 
@@ -258,7 +258,24 @@ git push origin feature/your-feature-name
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is licensed under a **Non-Commercial License**.
+
+### ✅ **What You CAN Do:**
+- **Personal Use** - Use for your own projects and learning
+- **Educational Use** - Use in academic institutions and coursework
+- **Modify & Adapt** - Create your own versions and improvements
+- **Share & Distribute** - Share with others (with same license restrictions)
+- **Portfolio Showcase** - Include in your portfolio and demonstrations
+- **Open Source Contributions** - Contribute back to the project
+
+### ❌ **What You CANNOT Do:**
+- **Commercial Use** - Cannot sell or use in for-profit business
+- **Monetization** - Cannot make money from ads, subscriptions, etc.
+- **Commercial Products** - Cannot integrate into commercial software/services
+
+For commercial licensing opportunities, please [contact the creator](https://www.linkedin.com/in/sanwar-hosen/).
+
+**Full License**: [LICENSE](LICENSE)
 
 ---
 

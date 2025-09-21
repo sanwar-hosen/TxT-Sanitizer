@@ -459,7 +459,7 @@ function About() {
                   <strong>Version:</strong> 1.0.0 • <strong>Updated:</strong> September 2025
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  Open source and available for educational and personal use
+                  Available for personal and educational use under Non-Commercial License
                 </p>
               </div>
             </div>
