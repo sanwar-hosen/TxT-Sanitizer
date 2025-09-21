@@ -33,7 +33,7 @@ function Navbar() {
               {/* Show logo image if no error, otherwise show text fallback */}
               {!logoError ? (
                 <img 
-                  src="/src/assets/TxT Sanitizer Logo.png"
+                  src="/TxT-Sanitizer-Logo.png"
                   alt="TxT Sanitizer Logo"
                   className="h-8 w-auto sm:h-10"
                   onError={handleLogoError}
