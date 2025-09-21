@@ -273,6 +273,7 @@ export default function Settings() {
                           type="text"
                           value={editingName}
                           onChange={(e) => setEditingName(e.target.value)}
+                          maxLength={20}
                           className="text-lg font-semibold border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-brand-blue"
                         />
                       ) : (
@@ -505,9 +506,11 @@ export default function Settings() {
                   type="text"
                   value={newPresetName}
                   onChange={(e) => setNewPresetName(e.target.value)}
+                  maxLength={20}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
                   placeholder="Enter preset name..."
                 />
+                <p className="text-xs text-gray-500 mt-1">{newPresetName.length}/20 characters</p>
               </div>
               
               <div>

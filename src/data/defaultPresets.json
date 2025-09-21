@@ -1,0 +1,32 @@
+[
+  {
+    "id": "basic_cleanup",
+    "name": "Basic Cleanup",
+    "rules": [
+      { "priority": 1, "find": "  ", "replace": " " },
+      { "priority": 2, "find": "\t", "replace": " " },
+      { "priority": 3, "find": "\n\n\n", "replace": "\n\n" }
+    ],
+    "isDefault": true
+  },
+  {
+    "id": "remove_special",
+    "name": "Remove Special Characters",
+    "rules": [
+      { "priority": 1, "find": "[!@#$%^&*()]", "replace": "" },
+      { "priority": 2, "find": "[{}[\\]]", "replace": "" },
+      { "priority": 3, "find": "[|\\\\]", "replace": "" }
+    ],
+    "isDefault": true
+  },
+  {
+    "id": "normalize_quotes",
+    "name": "Normalize Quotes",
+    "rules": [
+      { "priority": 1, "find": "[\"\"]", "replace": "\"" },
+      { "priority": 2, "find": "['']", "replace": "'" },
+      { "priority": 3, "find": "[`´]", "replace": "'" }
+    ],
+    "isDefault": true
+  }
+]

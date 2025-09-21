@@ -1,6 +1,21 @@
 // Storage utility functions for TxT Sanitizer
 // Manages localStorage operations for device identification, presets, and history
 
+import defaultPresetsData from '@/data/defaultPresets.json';
+
+/**
+ * Generate a short 5-character random ID
+ * @returns {string} 5-character random ID
+ */
+function generateShortId() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 /**
  * Get or create device ID for current user
  * @returns {string} Device ID
@@ -36,45 +51,14 @@ export function getPresets() {
 }
 
 /**
- * Get default sanitization presets
+ * Get default sanitization presets from JSON file
  * @returns {Array} Default preset configurations
  */
 function getDefaultPresets() {
-  return [
-    {
-      id: 'basic_cleanup',
-      name: 'Basic Cleanup',
-      rules: [
-        { priority: 1, find: '  ', replace: ' ' },
-        { priority: 2, find: '\t', replace: ' ' },
-        { priority: 3, find: '\n\n\n', replace: '\n\n' }
-      ],
-      isDefault: true,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'remove_special',
-      name: 'Remove Special Characters',
-      rules: [
-        { priority: 1, find: '[!@#$%^&*()]', replace: '' },
-        { priority: 2, find: '[{}[\\]]', replace: '' },
-        { priority: 3, find: '[|\\\\]', replace: '' }
-      ],
-      isDefault: true,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'normalize_quotes',
-      name: 'Normalize Quotes',
-      rules: [
-        { priority: 1, find: '[""]', replace: '"' },
-        { priority: 2, find: "['']", replace: "'" },
-        { priority: 3, find: '[`´]', replace: "'" }
-      ],
-      isDefault: true,
-      createdAt: new Date().toISOString()
-    }
-  ];
+  return defaultPresetsData.map(preset => ({
+    ...preset,
+    createdAt: new Date().toISOString()
+  }));
 }
 
 /**
@@ -99,7 +83,7 @@ export function savePreset(preset) {
       // Add new preset
       const newPreset = {
         ...preset,
-        id: preset.id || crypto.randomUUID(),
+        id: preset.id || generateShortId(),
         createdAt: new Date().toISOString(),
         isDefault: false
       };
@@ -165,7 +149,7 @@ export function saveHistory(entry) {
     const history = getHistory();
     
     const newEntry = {
-      id: crypto.randomUUID(),
+      id: generateShortId(),
       timestamp: new Date().toISOString(),
       ...entry
     };
@@ -265,7 +249,7 @@ export function importPresets(json) {
         // Add imported preset with new ID and timestamp
         const newPreset = {
           ...preset,
-          id: crypto.randomUUID(),
+          id: generateShortId(),
           importedAt: new Date().toISOString(),
           isDefault: false
         };
