@@ -5,10 +5,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Icon } from '@iconify/react';
 import { getPresets, saveHistory } from '@/utils/storage';
+import PresetTabs from '@/components/PresetTabs';
+import TextAreaPanel from '@/components/TextAreaPanel';
+import ControlBar from '@/components/ControlBar';
 
 function Home() {
   const location = useLocation();
@@ -200,6 +200,13 @@ function Home() {
     setOutputText(''); // Also clear output when clearing input
   };
 
+  // Handle file upload callback from FileUpload component
+  const handleFileLoad = (content, filename) => {
+    setInputText(content);
+    setOutputText(''); // Clear output when new file is loaded
+    console.log(`File loaded: ${filename}`);
+  };
+
   // Handle copy output text to clipboard
   const handleCopyText = async () => {
     try {
@@ -234,153 +241,40 @@ function Home() {
   };
 
   // Only show "More" dropdown if there are presets not in visible list
-  const hasMorePresets = dropdownPresets.length > 0;
+  // This logic is now handled within the PresetTabs component
 
   return (
     <div className="w-full max-w-7xl mx-auto p-3">
       <Card className="w-full">
         <CardContent className="p-5">
           {/* Mode Selection Tabs */}
-          <div className="flex items-center mb-4 border-b relative">
-            <span className="text-sm font-medium text-gray-600 mr-4">Modes:</span>
-            
-            {/* Visible Preset Tabs */}
-            {visiblePresets.map((preset, index) => (
-              <button
-                key={preset.id}
-                onClick={() => {
-                  // If it's one of the first 4 presets, handle differently
-                  if (index < 4) {
-                    handleBasePresetSelect(preset.name);
-                  } else {
-                    // If it's the 5th preset, just set as selected
-                    setSelectedMode(preset.name);
-                  }
-                }}
-                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                  selectedMode === preset.name
-                    ? 'text-brand-blue border-brand-blue'
-                    : 'text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {preset.name}
-              </button>
-            ))}
-            
-            {/* More Dropdown */}
-            {hasMorePresets && (
-              <div className="relative">
-                <button
-                  onClick={() => setShowMoreDropdown(!showMoreDropdown)}
-                  className="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-                >
-                  More
-                  <Icon 
-                    icon={showMoreDropdown ? "mdi:chevron-up" : "mdi:chevron-down"} 
-                    className="w-4 h-4 ml-1" 
-                  />
-                </button>
-                
-                {/* Dropdown Menu */}
-                {showMoreDropdown && (
-                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
-                    {dropdownPresets.map((preset) => (
-                      <button
-                        key={preset.id}
-                        onClick={() => handleModeSelect(preset.name)}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors text-gray-700"
-                      >
-                        {preset.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <PresetTabs
+            visiblePresets={visiblePresets}
+            selectedMode={selectedMode}
+            dropdownPresets={dropdownPresets}
+            onBasePresetSelect={handleBasePresetSelect}
+            onModeSelect={handleModeSelect}
+            showMoreDropdown={showMoreDropdown}
+            setShowMoreDropdown={setShowMoreDropdown}
+          />
 
           {/* Main Textarea Area */}
-          <div className="relative">
-            <div className="grid grid-cols-2 gap-0 border rounded-lg overflow-hidden">
-              {/* Input Textarea */}
-              <div className="relative flex flex-col">
-                <Textarea
-                  placeholder="To rewrite text, enter or paste it here and press 'Sanitize.'"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  className="flex-1 min-h-[400px] resize-none border-0 rounded-none focus:ring-0 focus:border-0"
-                />
-                
-                {/* Clear Input Button - Top Right */}
-                {inputText && (
-                  <Button 
-                    onClick={handleClearInput}
-                    variant="outline" 
-                    size="icon"
-                    className="absolute top-4 right-4 w-6 h-6 text-gray-400 border-gray-300 hover:text-red-600 hover:border-red-300 hover:bg-red-50"
-                  >
-                    <Icon icon="mdi:close" className="w-3 h-3" />
-                  </Button>
-                )}
-                
-                {/* Paste Text Button - Bottom Left */}
-                <Button 
-                  onClick={handlePasteText}
-                  variant="outline" 
-                  size="icon"
-                  className="absolute bottom-4 left-4 text-brand-blue border-brand-blue hover:bg-blue-50"
-                >
-                  <Icon icon="mdi:clipboard-outline" className="w-4 h-4" />
-                </Button>
+          <TextAreaPanel
+            inputText={inputText}
+            outputText={outputText}
+            onInputChange={setInputText}
+            onClear={handleClearInput}
+            onPaste={handlePasteText}
+            onSanitize={handleSanitize}
+            onCopy={handleCopyText}
+          />
 
-                {/* Sanitize Button - Bottom Right of Left Textarea */}
-                <Button 
-                  onClick={handleSanitize}
-                  className="absolute bottom-4 right-4 bg-brand-blue hover:bg-blue-700 text-white px-6 py-2 text-sm font-medium"
-                  title="Sanitize text (Ctrl+Enter)"
-                >
-                  Sanitize
-                </Button>
-              </div>
-
-              {/* Dividing Line */}
-              <div className="relative border-l flex flex-col">
-                <Textarea
-                  placeholder="Sanitized text will appear here..."
-                  value={outputText}
-                  readOnly
-                  className="flex-1 min-h-[400px] resize-none border-0 rounded-none bg-gray-50 cursor-default focus:ring-0 focus:border-0"
-                />
-                
-                {/* Copy Text Button - Bottom Right of Right Textarea */}
-                {outputText && (
-                  <Button 
-                    onClick={handleCopyText}
-                    variant="outline" 
-                    className="absolute bottom-4 right-4 text-brand-blue border-brand-blue hover:bg-blue-50"
-                    size="sm"
-                  >
-                    <Icon icon="mdi:content-copy" className="w-4 h-4 mr-2" />
-                    Copy Text
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Bottom Control Bar */}
-            <div className="flex items-center justify-between mt-4 px-2">
-              {/* Left Side - Attachment Icon + Input Character Count */}
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <Icon icon="mdi:attachment" className="w-5 h-5" />
-                <span>{inputCharCount} Char</span>
-              </div>
-
-              {/* Right Side - Output Character Count */}
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span>{outputCharCount} Char</span>
-              </div>
-            </div>
-          </div>
+          {/* Bottom Control Bar */}
+          <ControlBar
+            inputCharCount={inputCharCount}
+            outputCharCount={outputCharCount}
+            onFileLoad={handleFileLoad}
+          />
         </CardContent>
       </Card>
     </div>
