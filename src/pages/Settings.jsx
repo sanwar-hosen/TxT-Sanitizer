@@ -422,7 +422,7 @@ export default function Settings() {
               variant="outline"
               className="text-brand-blue border-brand-blue hover:bg-blue-50"
             >
-              <Icon icon="mdi:download" className="w-4 h-4 mr-2" />
+              <Icon icon="mdi:upload" className="w-4 h-4 mr-2" />
               Export Presets
             </Button>
             <div>
@@ -438,7 +438,7 @@ export default function Settings() {
                 variant="outline"
                 className="text-brand-blue border-brand-blue hover:bg-blue-50"
               >
-                <Icon icon="mdi:upload" className="w-4 h-4 mr-2" />
+                <Icon icon="mdi:download" className="w-4 h-4 mr-2" />
                 Import Presets
               </Button>
             </div>

@@ -25,7 +25,7 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-14">
           {/* Logo/Brand */}
-          <div className="flex items-center">
+          <div className="flex items-end gap-x-2">
             <Link 
               to="/" 
               className="flex items-center"
@@ -44,6 +44,18 @@ function Navbar() {
                 </span>
               )}
             </Link>
+            {/* By Sano text - positioned at bottom */}
+            <div className="text-xs text-gray-500 mb-1">
+              <span>By </span>
+              <a 
+                href="https://www.linkedin.com/in/sanwar-hosen/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-blue hover:text-blue-800 hover:underline transition-colors duration-200 font-medium"
+              >
+                Sano
+              </a>
+            </div>
           </div>
           
           {/* Navigation Links */}

@@ -11,7 +11,7 @@ import { Icon } from '@iconify/react';
  * Features:
  * - Dual textarea layout (input/output)
  * - Input area: Clear button (top-right), Paste button (bottom-left), Sanitize button (bottom-right)
- * - Output area: Copy button (bottom-right) when text is present
+ * - Output area: Redo button and Copy button (bottom-right) when text is present
  * - Proper keyboard shortcut support (Ctrl+Enter for sanitize)
  * - Read-only output area with distinct styling
  */
@@ -22,7 +22,8 @@ function TextAreaPanel({
   onClear,
   onPaste,
   onSanitize,
-  onCopy
+  onCopy,
+  onReinput
 }) {
   return (
     <div className="relative">
@@ -77,17 +78,31 @@ function TextAreaPanel({
             className="flex-1 min-h-[400px] resize-none border-0 rounded-none bg-gray-50 cursor-default focus:ring-0 focus:border-0"
           />
           
-          {/* Copy Text Button - Bottom Right of Right Textarea */}
+          {/* Copy and Redo Buttons - Bottom Right of Right Textarea */}
           {outputText && (
-            <Button 
-              onClick={onCopy}
-              variant="outline" 
-              className="absolute bottom-4 right-4 text-brand-blue border-brand-blue hover:bg-blue-50"
-              size="sm"
-            >
-              <Icon icon="mdi:content-copy" className="w-4 h-4 mr-2" />
-              Copy Text
-            </Button>
+            <div className="absolute bottom-4 right-4 flex items-center gap-2">
+              {/* Redo Button - Reinput output to input */}
+              <Button 
+                onClick={onReinput}
+                variant="outline" 
+                size="sm"
+                className="text-brand-blue border-brand-blue hover:bg-blue-50"
+                title="Reinput text - Move output back to input for further processing"
+              >
+                <Icon icon="streamline:ai-redo-spark" className="w-4 h-4" />
+              </Button>
+              
+              {/* Copy Text Button */}
+              <Button 
+                onClick={onCopy}
+                variant="outline" 
+                className="text-brand-blue border-brand-blue hover:bg-blue-50"
+                size="sm"
+              >
+                <Icon icon="mdi:content-copy" className="w-4 h-4 mr-2" />
+                Copy Text
+              </Button>
+            </div>
           )}
         </div>
       </div>

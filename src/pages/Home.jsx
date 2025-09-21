@@ -86,7 +86,7 @@ function Home() {
         if (rule.find.startsWith('[') && rule.find.endsWith(']')) {
           // Handle character class patterns like [!@#$%^&*()]
           const pattern = rule.find.slice(1, -1); // Remove brackets
-          const regex = new RegExp(`[${pattern.replace(/\\/g, '\\\\')}]`, 'g');
+          const regex = new RegExp(`[${pattern.replace(/\\/g, '\\\\')}]`, 'gi'); // Added 'i' flag for case-insensitive
           sanitizedText = sanitizedText.replace(regex, rule.replace);
         } else if (rule.find.includes('\\n') || rule.find.includes('\\t') || rule.find.includes('\\r')) {
           // Handle escape sequences
@@ -94,10 +94,10 @@ function Home() {
             .replace(/\\n/g, '\n')
             .replace(/\\t/g, '\t')
             .replace(/\\r/g, '\r');
-          sanitizedText = sanitizedText.replace(new RegExp(processedFind, 'g'), rule.replace);
+          sanitizedText = sanitizedText.replace(new RegExp(escapeRegex(processedFind), 'gi'), rule.replace); // Added 'i' flag for case-insensitive
         } else {
-          // Handle simple string replacement
-          sanitizedText = sanitizedText.replace(new RegExp(rule.find, 'g'), rule.replace);
+          // Handle simple string replacement - escape special regex characters with case-insensitive matching
+          sanitizedText = sanitizedText.replace(new RegExp(escapeRegex(rule.find), 'gi'), rule.replace); // Added 'i' flag for case-insensitive
         }
       } catch (error) {
         console.error('Error applying rule:', rule, error);
@@ -106,6 +106,11 @@ function Home() {
     });
 
     setOutputText(sanitizedText);
+    
+    // Helper function to escape regex special characters
+    function escapeRegex(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
     
     // Save to history if text was actually changed
     console.log('Sanitization completed:', {
@@ -217,6 +222,12 @@ function Home() {
     }
   };
 
+  // Handle reinput - move output text back to input for further processing
+  const handleReinput = () => {
+    setInputText(outputText);
+    setOutputText(''); // Clear output when reinputting
+  };
+
   // Handle mode selection from dropdown
   const handleModeSelect = (presetName) => {
     // Find the selected preset
@@ -267,6 +278,7 @@ function Home() {
             onPaste={handlePasteText}
             onSanitize={handleSanitize}
             onCopy={handleCopyText}
+            onReinput={handleReinput}
           />
 
           {/* Bottom Control Bar */}
