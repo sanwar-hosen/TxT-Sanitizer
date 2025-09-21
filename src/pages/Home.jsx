@@ -3,6 +3,7 @@
 // Features input/output textareas with mode selection and sanitize functionality
 
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,8 @@ import { Icon } from '@iconify/react';
 import { getPresets, saveHistory } from '@/utils/storage';
 
 function Home() {
+  const location = useLocation();
+  
   // State for managing input and output text
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
@@ -39,6 +42,22 @@ function Home() {
       setBaseVisiblePresets([]);
     }
   }, []);
+
+  // Handle navigation from History page (edit functionality)
+  useEffect(() => {
+    if (location.state?.editText) {
+      // Set the input text from history
+      setInputText(location.state.editText);
+      
+      // Set the preset if specified
+      if (location.state.presetName) {
+        setSelectedMode(location.state.presetName);
+      }
+      
+      // Clear the navigation state to prevent re-triggering
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Handle sanitize button click - now functional
   const handleSanitize = useCallback(() => {
@@ -89,6 +108,15 @@ function Home() {
     setOutputText(sanitizedText);
     
     // Save to history if text was actually changed
+    console.log('Sanitization completed:', {
+      inputText: inputText.substring(0, 50) + '...',
+      outputText: sanitizedText.substring(0, 50) + '...',
+      textChanged: sanitizedText !== inputText,
+      inputTrimmed: inputText.trim(),
+      selectedMode,
+      activePreset: activePreset?.id
+    });
+    
     if (sanitizedText !== inputText && inputText.trim()) {
       try {
         saveHistory({
@@ -97,13 +125,30 @@ function Home() {
           presetName: selectedMode,
           presetId: activePreset.id
         });
+        console.log('History saved successfully');
       } catch (error) {
         console.error('Failed to save to history:', error);
       }
+    } else {
+      console.log('History not saved:', {
+        reason: sanitizedText === inputText ? 'No changes made' : 'Input text is empty'
+      });
     }
     
     console.log('Sanitized text using preset:', selectedMode);
   }, [inputText, allPresets, selectedMode]);
+
+  // Auto-sanitize effect for history edit functionality
+  useEffect(() => {
+    if (location.state?.autoSanitize && inputText.trim() && selectedMode && allPresets.length > 0) {
+      // Small delay to ensure all states are set
+      const timeoutId = setTimeout(() => {
+        handleSanitize();
+      }, 200);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [inputText, selectedMode, allPresets, location.state?.autoSanitize, handleSanitize]);
 
   // Add keyboard shortcut listener for Ctrl+Enter to trigger sanitization
   useEffect(() => {
