@@ -57,7 +57,7 @@
       {
         "priority": 6,
         "find": "outside",
-        "replace": ""
+        "replace": "out-side"
       },
       {
         "priority": 7,
