@@ -26,15 +26,15 @@ function TextAreaPanel({
   onReinput
 }) {
   return (
-    <div className="relative">
-      <div className="grid grid-cols-2 gap-0 border rounded-lg overflow-hidden">
+    <div className="relative w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border rounded-lg overflow-hidden w-full">
         {/* Input Textarea */}
         <div className="relative flex flex-col">
           <Textarea
             placeholder="To rewrite text, enter or paste it here and press 'Sanitize.'"
             value={inputText}
             onChange={(e) => onInputChange(e.target.value)}
-            className="flex-1 min-h-[400px] resize-none border-0 rounded-none focus:ring-0 focus:border-0"
+            className="flex-1 min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] xl:min-h-[600px] resize-none border-0 rounded-none focus:ring-0 focus:border-0"
           />
           
           {/* Clear Input Button - Top Right */}
@@ -70,12 +70,12 @@ function TextAreaPanel({
         </div>
 
         {/* Dividing Line */}
-        <div className="relative border-l flex flex-col">
+        <div className="relative flex flex-col lg:border-l border-t lg:border-t-0">
           <Textarea
             placeholder="Sanitized text will appear here..."
             value={outputText}
             readOnly
-            className="flex-1 min-h-[400px] resize-none border-0 rounded-none bg-gray-50 cursor-default focus:ring-0 focus:border-0"
+            className="flex-1 min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] xl:min-h-[600px] resize-none border-0 rounded-none bg-gray-50 cursor-default focus:ring-0 focus:border-0"
           />
           
           {/* Copy and Redo Buttons - Bottom Right of Right Textarea */}

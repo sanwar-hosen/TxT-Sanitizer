@@ -130,13 +130,13 @@ function About() {
   ];
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             TxT Sanitizer
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 w-full max-w-4xl mx-auto">
             A powerful, modern text cleaning and sanitization tool built with React, designed to help users clean, format, and sanitize various types of text content efficiently.
           </p>
         </div>

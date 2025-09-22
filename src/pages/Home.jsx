@@ -255,9 +255,9 @@ function Home() {
   // This logic is now handled within the PresetTabs component
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-3">
-      <Card className="w-full">
-        <CardContent className="p-5">
+    <div className="w-full h-full px-3 sm:px-6 lg:px-8 py-3">
+      <Card className="w-full h-full">
+        <CardContent className="p-5 h-full">
           {/* Mode Selection Tabs */}
           <PresetTabs
             visiblePresets={visiblePresets}

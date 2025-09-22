@@ -13,7 +13,7 @@ function Layout() {
       <Navbar />
       
       {/* Main content area - child routes will be rendered here via Outlet */}
-          <main className="flex-1 bg-gray-100 flex items-center justify-center">
+      <main className="flex-1 bg-gray-100 w-full h-full">
         <Outlet />
       </main>
       
