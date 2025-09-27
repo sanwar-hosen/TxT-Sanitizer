@@ -168,7 +168,7 @@ function History() {
 
   // SEO: Update document title for History page
   useEffect(() => {
-    document.title = 'Text Sanitization History - TxT Sanitizer';
+    document.title = 'History - TxT Sanitizer';
     return () => {
       // Reset title when component unmounts
       document.title = 'TxT Sanitizer';

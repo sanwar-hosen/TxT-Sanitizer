@@ -34,7 +34,7 @@ function TextAreaPanel({
             placeholder="To rewrite text, enter or paste it here and press 'Sanitize.'"
             value={inputText}
             onChange={(e) => onInputChange(e.target.value)}
-            className="flex-1 min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] xl:min-h-[600px] resize-none border-0 rounded-none focus:ring-0 focus:border-0"
+            className="flex-1 min-h-[65vh] sm:min-h-[400px] lg:min-h-[65vh] resize-none border-0 rounded-none focus:ring-0 focus:border-0"
           />
           
           {/* Clear Input Button - Top Right */}
@@ -43,7 +43,7 @@ function TextAreaPanel({
               onClick={onClear}
               variant="outline" 
               size="icon"
-              className="absolute top-4 right-4 w-6 h-6 text-gray-400 border-gray-300 hover:text-red-600 hover:border-red-300 hover:bg-red-50"
+              className="absolute top-4 right-4 w-7 h-7 text-gray-400 border-gray-300 hover:text-red-600 hover:border-red-300 hover:bg-red-50"
             >
               <Icon icon="mdi:close" className="w-3 h-3" />
             </Button>
@@ -71,11 +71,13 @@ function TextAreaPanel({
 
         {/* Dividing Line */}
         <div className="relative flex flex-col lg:border-l border-t lg:border-t-0">
+          {/* Output Textarea */ }
+
           <Textarea
             placeholder="Sanitized text will appear here..."
             value={outputText}
             readOnly
-            className="flex-1 min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] xl:min-h-[600px] resize-none border-0 rounded-none bg-gray-50 cursor-default focus:ring-0 focus:border-0"
+            className="flex-1 min-h-[50vh] sm:min-h-[400px] lg:min-h-[60vh] resize-none border-0 rounded-none bg-gray-50 cursor-default focus:ring-0 focus:border-0"
           />
           
           {/* Copy and Redo Buttons - Bottom Right of Right Textarea */}
