@@ -1,8 +1,20 @@
 // About page component
 // This page provides comprehensive information about the TxT Sanitizer application
 // Features detailed documentation, usage instructions, and technical information
+// Updated with SEO optimizations for better search engine visibility
+
+import { useEffect } from 'react';
 
 function About() {
+  // SEO: Update document title for About page
+  useEffect(() => {
+    document.title = 'About TxT Sanitizer - Features & Documentation';
+    return () => {
+      // Reset title when component unmounts
+      document.title = 'TxT Sanitizer';
+    };
+  }, []);
+
   // Content data structures for easier maintenance
   const coreFeatures = [
     "Smart Text Sanitization: Apply predefined or custom rules to clean and format text",

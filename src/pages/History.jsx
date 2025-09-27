@@ -1,5 +1,6 @@
 // History page component
 // This page will display user's text sanitization history
+// Updated with SEO optimizations for better search engine visibility
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -164,6 +165,15 @@ function History() {
   const [sortOrder, setSortOrder] = useState('newest'); // 'newest' or 'oldest'
   const [showClearAllDialog, setShowClearAllDialog] = useState(false);
   const navigate = useNavigate();
+
+  // SEO: Update document title for History page
+  useEffect(() => {
+    document.title = 'Text Sanitization History - TxT Sanitizer';
+    return () => {
+      // Reset title when component unmounts
+      document.title = 'TxT Sanitizer';
+    };
+  }, []);
 
   // Load history on component mount
   useEffect(() => {

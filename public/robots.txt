@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap location for search engines
+Sitemap: https://txt-sanitizer.pages.dev/sitemap.xml
+
+# Crawl delay helps with server performance
+Crawl-delay: 1

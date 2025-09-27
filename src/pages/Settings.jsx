@@ -1,4 +1,5 @@
 // Settings page component for managing presets and application settings
+// Updated with SEO optimizations for better search engine visibility
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,15 @@ export default function Settings() {
     }
     return String(pattern || '');
   };
+
+  // SEO: Update document title for Settings page
+  useEffect(() => {
+    document.title = 'Settings & Preferences - TxT Sanitizer';
+    return () => {
+      // Reset title when component unmounts
+      document.title = 'TxT Sanitizer';
+    };
+  }, []);
 
   // Load presets when component mounts
   useEffect(() => {

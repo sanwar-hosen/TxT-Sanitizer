@@ -1,6 +1,7 @@
 // Home page component
 // This is the main landing page of the TxT Sanitizer application
 // Features input/output textareas with mode selection and sanitize functionality
+// Updated with SEO optimizations for better search engine visibility
 
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -21,6 +22,15 @@ function Home() {
   const [baseVisiblePresets, setBaseVisiblePresets] = useState([]); // First 4 presets (permanent)
   const [selectedFromDropdown, setSelectedFromDropdown] = useState(null); // 5th preset (temporary)
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
+
+  // SEO: Update document title dynamically
+  useEffect(() => {
+    document.title = 'TxT Sanitizer - Free Online Text Cleaning Tool';
+    return () => {
+      // Reset title when component unmounts (cleanup)
+      document.title = 'TxT Sanitizer';
+    };
+  }, []);
 
   // Load all presets from localStorage on component mount
   useEffect(() => {
