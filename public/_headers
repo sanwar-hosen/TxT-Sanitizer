@@ -1,20 +1,19 @@
-/*
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
-  X-XSS-Protection: 1; mode=block
-  Referrer-Policy: strict-origin-when-cross-origin
-
-/*.xml
-  Content-Type: application/xml
+# SEO files with proper content types
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
   Cache-Control: public, max-age=3600
+  Access-Control-Allow-Origin: *
 
-/*.txt
-  Content-Type: text/plain
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600
+  Access-Control-Allow-Origin: *
 
+# HTML pages
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
+# Static assets
 /*.js
   Cache-Control: public, max-age=31536000, immutable
 
@@ -23,3 +22,10 @@
 
 /*.png
   Cache-Control: public, max-age=31536000, immutable
+
+# General security headers for all files
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin

@@ -1,6 +1,15 @@
-# Don't redirect XML files (sitemaps) and txt files (robots.txt)
-/sitemap.xml /sitemap.xml 200
-/robots.txt /robots.txt 200
+# Static SEO files - serve directly without SPA redirect
+/sitemap.xml    /sitemap.xml    200
+/robots.txt     /robots.txt     200
 
-# SPA fallback for all other routes
-/* /index.html 200
+# Favicon and images - serve directly  
+/favicon.ico    /favicon.ico    200
+/*.png          /*.png          200
+/*.jpg          /*.jpg          200
+/*.svg          /*.svg          200
+
+# API endpoints (if added in future) - exclude from SPA
+/api/*          /api/*          200
+
+# SPA fallback - all other routes go to React app
+/*              /index.html     200
