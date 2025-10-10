@@ -2,8 +2,10 @@
 /sitemap.xml    /sitemap.xml    200
 /robots.txt     /robots.txt     200
 
-# Favicon and images - serve directly  
+# Favicon and images - serve directly with exact file matching
 /favicon.ico    /favicon.ico    200
+/TxT.png        /TxT.png        200
+/TxT-Sanitizer-Logo.png    /TxT-Sanitizer-Logo.png    200
 /*.png          /*.png          200
 /*.jpg          /*.jpg          200
 /*.svg          /*.svg          200
@@ -11,5 +13,5 @@
 # API endpoints (if added in future) - exclude from SPA
 /api/*          /api/*          200
 
-# SPA fallback - all other routes go to React app
+# SPA fallback - all other routes go to React app (MUST be last)
 /*              /index.html     200
