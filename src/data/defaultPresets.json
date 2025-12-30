@@ -1,195 +1,211 @@
 [
-  {"id": "default01",
-    "name": "ChatGPT → Normal",
-    "rules": [
-      {
-        "priority": 1,
-        "find": "**",
-        "replace": ""
-      },
-      {
-        "priority": 2,
-        "find": "*",
-        "replace": "-"
-      },
-      {
-        "priority": 3,
-        "find": "##",
-        "replace": ""
-      },
-      {
-        "priority": 4,
-        "find": "#",
-        "replace": ""
-      }
-    ],
+  {
+      "id": "default01",
+      "name": "ChatGPT → Normal",
+      "rules": [
+        {
+          "priority": 1,
+          "find": "**",
+          "replace": ""
+        },
+        {
+          "priority": 2,
+          "find": "*",
+          "replace": "-"
+        },
+        {
+          "priority": 3,
+          "find": "##",
+          "replace": ""
+        },
+        {
+          "priority": 4,
+          "find": "#",
+          "replace": ""
+        },
+        {
+          "priority": 5,
+          "find": "---",
+          "replace": ""
+        },
+        {
+          "priority": 6,
+          "find": "—",
+          "replace": ""
+        }
+      ],
     "isDefault": true
   },
-  {
-    "id": "default02",
-    "name": "Fiverr Words",
-    "rules": [
-      {
-        "priority": 1,
-        "find": "email",
-        "replace": "em-ail"
-      },
-      {
-        "priority": 2,
-        "find": "mail",
-        "replace": "ma-il"
-      },
-      {
-        "priority": 3,
-        "find": "phone",
-        "replace": "pho-ne"
-      },
-      {
-        "priority": 4,
-        "find": "number",
-        "replace": "num-ber"
-      },
-      {
-        "priority": 5,
-        "find": "call",
-        "replace": "ca-ll"
-      },
-      {
-        "priority": 6,
-        "find": "outside",
-        "replace": "out-side"
-      },
-      {
-        "priority": 7,
-        "find": "WhatsApp",
-        "replace": "What-sApp"
-      },
-      {
-        "priority": 8,
-        "find": "Telegram",
-        "replace": "Teleg-ram"
-      },
-      {
-        "priority": 9,
-        "find": "Signal",
-        "replace": "Sig-nal"
-      },
-      {
-        "priority": 10,
-        "find": "Skype",
-        "replace": "Sky-pe"
-      },
-      {
-        "priority": 11,
-        "find": "Discord",
-        "replace": "Disc-ord"
-      },
-      {
-        "priority": 12,
-        "find": "WeChat",
-        "replace": "WeC-hat"
-      },
-      {
-        "priority": 13,
-        "find": "Instagram",
-        "replace": "Insta-gram"
-      },
-      {
-        "priority": 14,
-        "find": "Messenger",
-        "replace": "Mess-enger"
-      },
-      {
-        "priority": 15,
-        "find": "Facebook",
-        "replace": "Face-book"
-      },
-      {
-        "priority": 16,
-        "find": "Twitter",
-        "replace": "Tw-itter"
-      },
-      {
-        "priority": 17,
-        "find": "bank",
-        "replace": "ba-nk"
-      },
-      {
-        "priority": 18,
-        "find": "pay",
-        "replace": "pa-y"
-      },
-      {
-        "priority": 19,
-        "find": "onlyfans",
-        "replace": "only-fans"
-      },
-      {
-        "priority": 20,
-        "find": "porn",
-        "replace": "po-rn"
-      },
-      {
-        "priority": 21,
-        "find": "nude",
-        "replace": "nu-de"
-      },
-      {
-        "priority": 22,
-        "find": "sexual",
-        "replace": "sex-ual"
-      },
-      {
-        "priority": 23,
-        "find": "drugs",
-        "replace": "dru-gs"
-      },
-      {
-        "priority": 24,
-        "find": "cracked",
-        "replace": "crac-ked"
-      },
-      {
-        "priority": 25,
-        "find": "pirated",
-        "replace": "pira-ted"
-      },
-      {
-        "priority": 26,
-        "find": "scam",
-        "replace": "sc-am"
-      },
-      {
-        "priority": 27,
-        "find": "fraud",
-        "replace": "fra-ud"
-      },
-      {
-        "priority": 28,
-        "find": "review",
-        "replace": "rev-iew"
-      },
-      {
-        "priority": 29,
-        "find": "rating",
-        "replace": "ra-ting"
-      },
-      {
-        "priority": 30,
-        "find": "sex",
-        "replace": "se-x"
-      },
-      {
-        "priority": 31,
-        "find": "stripe",
-        "replace": "stri-pe"
-      },
-      {
-        "priority": 32,
-        "find": "money",
-        "replace": "mo-ney"
-      }
-    ],
+ {
+      "id": "default02",
+      "name": "Fiverr Words",
+      "rules": [
+        {
+          "priority": 1,
+          "find": "email",
+          "replace": "em-ail"
+        },
+        {
+          "priority": 2,
+          "find": "mail",
+          "replace": "ma-il"
+        },
+        {
+          "priority": 3,
+          "find": "phone",
+          "replace": "pho-ne"
+        },
+        {
+          "priority": 4,
+          "find": "number",
+          "replace": "num-ber"
+        },
+        {
+          "priority": 5,
+          "find": "call",
+          "replace": "ca-ll"
+        },
+        {
+          "priority": 6,
+          "find": "outside",
+          "replace": "out-side"
+        },
+        {
+          "priority": 7,
+          "find": "WhatsApp",
+          "replace": "What-sApp"
+        },
+        {
+          "priority": 8,
+          "find": "Telegram",
+          "replace": "Teleg-ram"
+        },
+        {
+          "priority": 9,
+          "find": "Signal",
+          "replace": "Sig-nal"
+        },
+        {
+          "priority": 10,
+          "find": "Skype",
+          "replace": "Sky-pe"
+        },
+        {
+          "priority": 11,
+          "find": "Discord",
+          "replace": "Disc-ord"
+        },
+        {
+          "priority": 12,
+          "find": "WeChat",
+          "replace": "WeC-hat"
+        },
+        {
+          "priority": 13,
+          "find": "Instagram",
+          "replace": "Insta-gram"
+        },
+        {
+          "priority": 14,
+          "find": "Messenger",
+          "replace": "Mess-enger"
+        },
+        {
+          "priority": 15,
+          "find": "Facebook",
+          "replace": "Face-book"
+        },
+        {
+          "priority": 16,
+          "find": "Twitter",
+          "replace": "Tw-itter"
+        },
+        {
+          "priority": 17,
+          "find": "bank",
+          "replace": "ba-nk"
+        },
+        {
+          "priority": 18,
+          "find": "pay",
+          "replace": "pa-y"
+        },
+        {
+          "priority": 19,
+          "find": "onlyfans",
+          "replace": "only-fans"
+        },
+        {
+          "priority": 20,
+          "find": "porn",
+          "replace": "po-rn"
+        },
+        {
+          "priority": 21,
+          "find": "nude",
+          "replace": "nu-de"
+        },
+        {
+          "priority": 22,
+          "find": "sexual",
+          "replace": "sex-ual"
+        },
+        {
+          "priority": 23,
+          "find": "drugs",
+          "replace": "dru-gs"
+        },
+        {
+          "priority": 24,
+          "find": "cracked",
+          "replace": "crac-ked"
+        },
+        {
+          "priority": 25,
+          "find": "pirated",
+          "replace": "pira-ted"
+        },
+        {
+          "priority": 26,
+          "find": "scam",
+          "replace": "sc-am"
+        },
+        {
+          "priority": 27,
+          "find": "fraud",
+          "replace": "fra-ud"
+        },
+        {
+          "priority": 28,
+          "find": "review",
+          "replace": "rev-iew"
+        },
+        {
+          "priority": 29,
+          "find": "rating",
+          "replace": "ra-ting"
+        },
+        {
+          "priority": 30,
+          "find": "sex",
+          "replace": "se-x"
+        },
+        {
+          "priority": 31,
+          "find": "stripe",
+          "replace": "stri-pe"
+        },
+        {
+          "priority": 32,
+          "find": "money",
+          "replace": "mo-ney"
+        },
+        {
+          "priority": 33,
+          "find": "slack",
+          "replace": "sl-ack"
+        }
+      ],
     "isDefault": true
   }
 ]
