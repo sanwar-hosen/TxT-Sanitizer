@@ -1,0 +1,494 @@
+# TxT Sanitizer V2 — Finalized Implementation Plan
+
+## Status: 🚀 Phase 6 Complete — Moving to Phase 7
+
+---
+
+## 1. Resolved Decisions
+
+| Question | Decision |
+|---|---|
+| **Q1 Database** | **Cloudflare D1** — free, native Cloudflare Pages integration |
+| **Q2 Admin Auth** | **Hardcoded password via `.env`** — single `ADMIN_PASSWORD` env var + session cookie |
+| **Q3 Feedback Email** | **Nodemailer + Gmail SMTP** — see setup guide in §2.4 |
+| **Q4 UI Style** | **Modernized** — same blue palette (`#004AAD`) + Rubik font, but premium feel: richer shadows, micro-animations, glassmorphism cards |
+| **Q5 Preset Tabs** | Max 3 visible. Default order: last-selected preset first → rest in natural order. Overflow via "More" icon button; selecting from overflow moves that preset to position 1 |
+| **Q6 Feedback** | **Footer link** — clicking opens a feedback modal |
+| **Q7 About CMS** | **Phase 7** — About page content editable via admin dashboard, stored in D1 |
+
+---
+
+## 2. Tech Stack (Final)
+
+| Layer | Choice | Notes |
+|---|---|---|
+| Framework | **Next.js 14** (App Router) | SSR for About/SEO |
+| Styling | **Tailwind CSS** | Primary; raw CSS only if something truly can't be done with Tailwind |
+| State | React local state + custom hooks | No global state library |
+| Tab Persistence | **localStorage** | Tabs persist across reloads |
+| User Data | **localStorage** | Presets, history, dark mode pref |
+| System Data | **Cloudflare D1** | System presets, popup config, About content, analytics |
+| Email | **Nodemailer + Gmail SMTP** | Free, no external service |
+| Deployment | **Cloudflare Pages** | Existing, no change |
+| Font | **Rubik** (Google Fonts via `next/font`) | Brand consistency |
+
+### 2.1 Tailwind Config
+```js
+// tailwind.config.js
+theme: {
+  extend: {
+    colors: {
+      brand: '#004AAD',
+      'brand-hover': '#0056C7',
+      'brand-light': '#3370CC',
+    },
+    fontFamily: {
+      sans: ['Rubik', 'Verdana', 'sans-serif'],
+    }
+  }
+}
+```
+
+**Dark mode strategy:** Tailwind `dark:` variant with `class` strategy — toggling `dark` class on `<html>`, persisted in localStorage.
+
+### 2.2 Cloudflare D1 Schema
+
+```sql
+CREATE TABLE IF NOT EXISTS presets (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  rules TEXT NOT NULL,           -- JSON: Rule[]
+  is_default INTEGER DEFAULT 0,
+  version INTEGER DEFAULT 1,     -- incremented on update for cache-busting
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS popup_config (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  content TEXT NOT NULL DEFAULT '',
+  enabled INTEGER DEFAULT 0,
+  version INTEGER DEFAULT 1,
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS about_content (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  html_content TEXT NOT NULL DEFAULT '',
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS analytics (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_type TEXT NOT NULL,   -- 'page_view' | 'sanitize' | 'feedback'
+  metadata TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+```
+
+### 2.3 Preset JSON Format (Canonical)
+
+```json
+[
+  {
+    "id": "default01",
+    "name": "ChatGPT → Normal",
+    "rules": [
+      { "priority": 1, "find": "**", "replace": "" },
+      { "priority": 2, "find": "*",  "replace": "-" },
+      { "priority": 3, "find": "##", "replace": "" },
+      { "priority": 4, "find": "#",  "replace": "" }
+    ],
+    "isDefault": true
+  },
+  {
+    "id": "default02",
+    "name": "Fiverr Words",
+    "rules": [
+      { "priority": 1,  "find": "email",     "replace": "em-ail" },
+      { "priority": 2,  "find": "mail",      "replace": "ma-il" },
+      { "priority": 3,  "find": "phone",     "replace": "pho-ne" }
+    ],
+    "isDefault": true
+  }
+]
+```
+
+**Rule contract:**
+- `id`: unique string — `default01`, `default02`, user-generated UUID
+- `name`: human-readable label shown in the preset tab
+- `rules[]`: ordered by `priority` (lower = applied first)
+- `find`: literal string (no regex)
+- `replace`: literal string, can be empty (deletion)
+- `isDefault`: `true` = system preset (fetched from D1)
+
+### 2.4 Nodemailer Gmail SMTP Setup
+
+> **What you need to give me (only needed when we reach Phase 6):**
+> 1. A Gmail address that will be the **sender** (e.g. `txtsanitizer@gmail.com` or your own)
+> 2. A **Gmail App Password** — NOT your regular Gmail password
+>
+> **How to get an App Password:**
+> 1. Go to your Google Account → Security
+> 2. Enable **2-Step Verification** (required)
+> 3. Search "App Passwords" → Create one → App: Mail, Device: Other (Custom name)
+> 4. Copy the 16-character password Google generates
+> 5. Provide: `GMAIL_USER=youremail@gmail.com` and `GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx`
+>
+> These go in `.env.local` (never committed to git) and Cloudflare Pages environment variables.
+
+---
+
+## 3. Feature Inventory
+
+### 3.1 Preserved from V1 (must not regress)
+- [x] Dual-pane text editor (input + read-only output)
+- [x] Preset tab system with "More" overflow dropdown
+- [x] Sanitize via button click or `Ctrl+Enter`
+- [x] **Sanitize button hidden/disabled when input is empty**
+- [x] Copy output button
+- [x] History tracking — **max 50 entries**, saved only on Sanitize click
+- [x] History actions: copy, edit (sends back to workspace), delete, sort
+- [x] Settings: user preset CRUD, import/export presets, clear history, clear all data
+- [x] About page (SEO content preserved)
+- [x] Footer with links
+
+### 3.2 Removed from V2
+- ~~File upload (.txt, .md)~~ — **removed**
+
+### 3.3 New in V2
+
+| # | Feature | Complexity |
+|---|---|---|
+| 1 | **Multi-tab workspace** — max 3 tabs, full state persisted per tab in localStorage | Medium |
+| 2 | **Word count** beside char count on input side | Low |
+| 3 | **Matched word count** on output side | Low |
+| 4 | **Preset highlighting** — matched/changed words highlighted amber in output | High |
+| 5 | **Restore button** — hover-only, floats under cursor (`position:fixed`), no layout shift | High |
+| 6 | **Find & Replace tool** — 🔍 icon at top-right of Output panel, expands full tool, operates on output text | High |
+| 7 | **Search highlighting** in output (blue tone, distinct from amber preset highlights) | Medium |
+| 8 | **Dark mode toggle** in navbar | Medium |
+| 9 | **Feedback form** in Footer — modal with email/subject/message → Nodemailer | Medium |
+| 10 | **System presets** — fetched once, cached in localStorage, user-editable locally, "Reset to default" per preset | Medium |
+| 11 | **Admin dashboard** (`/admin`) — CRUD presets, popup, About CMS, ads toggle, analytics | High |
+| 12 | **Popup system** — first-visit, admin-controlled content + enabled flag | Low |
+| 13 | **Ads-ready layout** — reserved slots (below navbar, right sidebar), **admin-toggleable** | Low |
+| 14 | **Button opacity on typing** — sanitize button dims while typing, restores on blur/stop | Low |
+| 15 | **Reinput button** — icon only, moves output → input, clears output | Low |
+
+---
+
+## 4. Architecture
+
+```
+/app
+  page.tsx                    ← Homepage (client-first)
+  /history/page.tsx
+  /settings/page.tsx
+  /about/page.tsx             ← Server Component (SSR for SEO)
+  /admin/page.tsx             ← Admin dashboard
+  /api/presets/route.ts       ← GET (public) / POST,PUT,DELETE (admin)
+  /api/popup/route.ts         ← GET popup config
+  /api/about/route.ts         ← GET/PUT about content
+  /api/feedback/route.ts      ← POST → Nodemailer
+  /api/admin/login/route.ts   ← POST admin login
+  /api/analytics/route.ts     ← POST event log
+
+/components
+  /navbar
+    Navbar.tsx
+  /footer
+    Footer.tsx
+    FeedbackModal.tsx
+  /sanitizer
+    PresetTabs.tsx             ← max 3 visible, last-selected first, More overflow
+    MorePresetsDropdown.tsx
+    InputPanel.tsx
+    OutputPanel.tsx
+    FindReplacePanel.tsx       ← slides in from output panel top-right icon
+    SanitizeButton.tsx
+  /tabs
+    TabBar.tsx                 ← multi-tab workspace (max 3)
+  /history
+    HistoryList.tsx
+    HistoryItem.tsx
+  /settings
+    PresetEditor.tsx
+    ImportExport.tsx
+    StorageManager.tsx
+  /admin
+    AdminPresetManager.tsx
+    AdminPopupConfig.tsx
+    AdminAboutEditor.tsx
+    AdminAnalytics.tsx
+    AdminAdsControl.tsx
+  /shared
+    Modal.tsx
+    Tooltip.tsx
+
+/lib
+  sanitizer.ts                 ← pure fn: sanitize(text, rules) → { output, matches[] }
+  highlight.ts                 ← build mark segments from matches[]
+  restore.ts                   ← splice original back at [start, end]
+  storage.ts                   ← localStorage abstraction
+
+/hooks
+  useTabs.ts                   ← tab state (persisted to localStorage)
+  useSanitizer.ts              ← sanitize action + match metadata
+  useHighlight.ts              ← highlight state
+  useFindReplace.ts            ← search state + navigation + replace (output-side)
+  usePresets.ts                ← merge system + user presets, last-selected ordering
+  useDarkMode.ts               ← theme toggle + localStorage
+
+/data
+  defaultPresets.ts            ← Fallback if API unreachable
+```
+
+---
+
+## 5. Detailed Feature Specs
+
+### 5.1 Sanitizer Engine
+- Pure function: `sanitize(text, rules) → { output, matches[] }`
+- `matches[]`: `{ original, replaced, startIndex, endIndex }` per transformation
+- Literal text only (no regex)
+- Rules applied sequentially (each rule operates on the result of the prior)
+- Empty input → button hidden, no processing, no history entry
+
+### 5.2 Multi-Tab Workspace
+- Max **3 tabs**
+- Each tab state: `{ id, label, inputText, outputText, selectedPresetId, matchMetadata }`
+- **Persisted to localStorage** — survives page refresh
+- Tab label: "Tab 1", "Tab 2", "Tab 3"
+- Close button hidden when only 1 tab; Add button hidden when 3 tabs exist
+
+### 5.3 Preset Tab UX
+
+**Ordering Logic:**
+1. Last preset the user actively selected → always shown **first**
+2. Remaining presets fill positions 2 and 3 in natural order
+3. Any beyond 3 go into the **More** overflow
+
+**"More" Button Behavior:**
+- Appears only when total presets > 3
+- Icon button (e.g. `⋯`) at the end of the tab row
+- Clicking opens a dropdown list of hidden presets
+- Selecting from dropdown → makes it active + **moves it to position 1**
+- Previous position-1 moves to position 2, etc.
+- Dropdown closes after selection
+
+```ts
+interface PresetTabState {
+  visiblePresets: Preset[];   // max 3
+  overflowPresets: Preset[];  // rest
+  activePresetId: string;
+  lastSelectedId: string;     // persisted in localStorage
+}
+```
+
+### 5.4 System Presets Behavior
+
+```
+On first visit:
+  1. Fetch system presets from GET /api/presets
+  2. Store in localStorage under "systemPresets" key with a version field
+
+On subsequent visits:
+  1. Load from localStorage (no re-fetch unless version changed)
+
+User editing a system preset:
+  - Changes saved to localStorage only (under user's copy)
+  - Original system preset in DB is untouched
+  - Admin pushing a new version does NOT override user's local edits
+  - "Reset to default" button per preset restores the admin version
+
+Merge for display:
+  finalPresets = [...systemPresets_with_local_overrides, ...userPresets]
+```
+
+### 5.5 Preset Highlighting (Output Panel)
+- After sanitize, output rendered as `<div contenteditable="false">` with inline `<mark>` spans
+- Each `<mark>` = one word/segment matched and replaced by a rule
+- Style: amber/warning tone (`bg-amber-200` / dark: `bg-amber-800/40`)
+- Matched word count shown in output footer: e.g. `12 matches · 430 Char`
+
+### 5.6 Restore Button
+- **Zero inline DOM presence** — no button rendered in default state
+- On `mouseenter` of a `<mark>` span → show floating button via `position: fixed` + mouse coordinates
+- Small delay on `mouseleave` before hiding (to allow clicking the button)
+- On click → restore that segment to its pre-sanitize value, update matched word count
+- **Zero layout shift** — button is outside document flow
+
+### 5.7 Find & Replace Tool
+- Triggered by **🔍 icon button at the top-right of the Output panel**
+- Clicking expands a slide-in panel (above or below the output area)
+- Also triggerable via `Ctrl+Shift+F`
+- **Operates on output text** (find/replace in the sanitized result)
+- Features:
+  - Literal text search + replace
+  - Case sensitivity toggle
+  - Match navigation: Previous / Next (with keyboard shortcuts when open)
+  - Replace One (current match) / Replace All
+  - Match counter: `3 of 12 matches`
+  - Search highlights use **blue tone** — distinct from amber preset highlights
+- Closing the tool clears search highlights; preset highlights are preserved
+
+### 5.8 Feedback Modal
+- Footer link: "Send Feedback"
+- Clicking opens a centered modal
+- Fields: **Email** (optional), **Subject**, **Message** (all except email required)
+- Submit → `POST /api/feedback` → Nodemailer → Gmail inbox
+- Rate limiting: max 5 submissions per IP per hour
+- Success and error states shown inline
+
+### 5.9 Admin Dashboard (`/admin`)
+- **Auth:** `POST /api/admin/login` — compare password against `process.env.ADMIN_PASSWORD`, set `HttpOnly` session cookie (24h)
+- Sections:
+  1. **Preset Manager** — CRUD system presets, import/export JSON
+  2. **Popup Config** — enabled toggle, content, version bump (to re-trigger for all users)
+  3. **About Page Editor** — markdown/rich-text editor for About page content, stored in D1
+  4. **Ads Slots Control** — toggle show/hide for below-navbar slot and right-sidebar slot
+  5. **Analytics** — page views, sanitize count, feedback count (last 7/30 days)
+  6. **Email Config** — display current GMAIL_USER status (read-only, set via env)
+
+### 5.10 Ads Layout
+- Two reserved `<div>` slots built into the HTML from day one:
+  - `<div id="ad-below-navbar">` — hidden by default
+  - `<div id="ad-sidebar">` — hidden by default
+- Admin dashboard toggle controls visibility of each slot
+- When visible: empty container ready for ad code; layout already accounts for width/height
+
+### 5.11 Popup System
+- On page load: check localStorage for `"popupSeen"` + stored version
+- If not seen (or version changed): fetch `GET /api/popup`, check `enabled`
+- If enabled: show modal with admin-configured content
+- On dismiss: store `"popupSeen": true` + current version in localStorage
+
+---
+
+## 6. Build Phases
+
+### Phase 1 — Project Foundation ✅ DONE
+- [x] `npx create-next-app@latest ./` with TypeScript + App Router + Tailwind
+- [x] Configure Tailwind: brand colors (`#004AAD`), Rubik font (`next/font`), full color token system
+- [x] Static skeleton prototype matching `docs/asd.html` layout
+- [x] Browser-tab style preset tabs + workspace tabs in toolbar
+- [x] Dual-pane card layout with status bar
+- [ ] Dark mode: Tailwind `class` strategy, `useDarkMode` hook (Phase 5)
+- [ ] Navbar/Footer components (Phase 5)
+- [ ] Basic routing (Phase 5)
+- [ ] `wrangler.toml` setup with D1 binding (Phase 6)
+
+### Phase 2 — Core Sanitizer + Workspace ✅ DONE
+- [x] Sanitizer engine (`/lib/sanitizer.ts`) — returns `{ output, matches[] }`
+- [x] `useTabs` hook with localStorage persistence (max 3 tabs)
+- [x] `usePresets` hook (last-selected ordering, overflow split, max 3 visible)
+- [x] `PresetTabs` component + overflow "More" dropdown
+- [x] `TabBar` component (add/close tabs)
+- [x] Input panel — textarea, live word+char count bottom-left, paste button, Sanitize hidden when empty, Ctrl+Enter
+- [x] Output panel — char count, match count, Copy button (Copied! feedback), Reinput button, Find & Replace icon stub
+- [x] Sanitize button hidden when input empty, Ctrl+Enter shortcut
+- [x] Full flow wired: tab state → preset → sanitize → output → history
+- [x] `defaultPresets.ts` with two default presets (ChatGPT→Normal, Fiverr Words)
+- [x] `useHistory` hook + `storage.ts` localStorage abstraction
+- [x] `src/types/preset.ts` — shared TypeScript types
+
+### Phase 3 — Highlighting + Restore ✅ DONE
+- [x] Highlight engine (`/lib/highlight.ts`) — maps `matches[]` to `<mark>` segments
+- [x] Output panel renders rich `<div>` with `<mark>` spans
+- [x] Hover → floating restore button (`position:fixed`, mouse coords)
+- [x] Restore engine (`/lib/restore.ts`) — splices original back
+- [x] Update matched word count after restore
+
+### Phase 4 — Find & Replace ✅ DONE
+- [x] 🔍 icon button at top-right of the Input panel
+- [x] `useFindReplace` hook (query, case toggle, match nav, replace)
+- [x] Slide-in F&R panel (animated)
+- [x] Match navigation (prev/next + keyboard shortcuts)
+- [x] Replace One / Replace All
+- [x] `Ctrl+Shift+F` shortcut
+
+### Phase 5 — History & Settings ✅ DONE
+- [x] History page (sort, expand/collapse, copy, edit-to-workspace, delete)
+- [x] Settings page (user preset CRUD, system preset local edit + "Reset to default")
+- [x] Import/Export user presets
+- [x] Clear History, Clear All Data
+- [x] Reusable `<Modal>` shared component
+- [x] `<FeedbackModal>` component wired to footer
+
+### Phase 6 — Backend & System Presets ✅ DONE
+- [x] D1 schema migration (`wrangler d1 execute`) — `docs/schema.sql` created with seeds
+- [x] `GET /api/presets` — return system presets with version
+- [x] `GET /api/popup` — return popup config
+- [x] `GET /api/about` — return about content
+- [x] `POST /api/feedback` — validate + Nodemailer send (rate-limited 5/hr/IP)
+- [x] `POST /api/analytics` — log events to D1
+- [x] Client: `useSystemPresets` hook — fetch + cache system presets in localStorage, merge with user presets
+- [x] "Reset to default" per system preset (settings page wired to fetched presets)
+
+### Phase 7 — Admin Dashboard
+- [ ] Admin login page + `POST /api/admin/login`
+- [ ] Session cookie middleware for all admin API routes
+- [ ] Preset Manager UI (full CRUD → D1)
+- [ ] Popup Config UI (content, enabled, version bump)
+- [ ] **About Page Editor** (markdown editor → D1 via `/api/about`)
+- [ ] Ads Slots Control (toggle show/hide per slot)
+- [ ] Analytics view (events from D1)
+
+### Phase 8 — Popup System + Ads
+- [ ] Popup component (version-aware localStorage check + API fetch)
+- [ ] Ads slot divs integrated into layout (hidden by default, admin-toggled)
+
+### Phase 9 — About Page + SEO
+- [ ] About page as SSR Server Component — fetches content from D1
+- [ ] Title tags + meta descriptions for all routes
+- [ ] OG tags
+- [ ] Semantic HTML hierarchy
+- [ ] JSON-LD structured data
+
+### Phase 10 — Polish & QA
+- [ ] Keyboard shortcut audit
+- [ ] Responsive layout (desktop-first, tablet acceptable)
+- [ ] Accessibility: focus management, ARIA labels, contrast
+- [ ] Performance: code splitting, font optimization
+- [ ] Cross-browser testing
+- [ ] Final deploy to Cloudflare Pages
+
+---
+
+## 7. What You Need to Provide Before Phase 6
+
+> [!IMPORTANT]
+> Before Phase 6 (backend), provide:
+> 1. **Gmail address** — the sender address for feedback emails
+> 2. **Gmail App Password** — see setup steps in §2.4
+>
+> These go in `.env.local` as `GMAIL_USER` and `GMAIL_APP_PASSWORD`. I'll remind you when we get there.
+
+---
+
+## 8. V1 → V2 Delta Summary
+
+| Dimension | V1 | V2 |
+|---|---|---|
+| Framework | React + Vite | Next.js 14 App Router |
+| Styling | Tailwind CSS | **Tailwind CSS** (same) |
+| File upload | ✅ | ❌ Removed |
+| History limit | 100 | **50 entries** |
+| Tab persistence | No | **Yes (localStorage)** |
+| Presets | User-local only | System (D1, locally editable) + User |
+| Workspace tabs | 1 | **Up to 3, each persisted** |
+| Output area | Plain textarea | **Rich div with `<mark>` highlights** |
+| Visual feedback | None | **Amber highlights on matched words** |
+| Restore | None | **Hover-only floating button under cursor** |
+| Find & Replace | None | **Output panel 🔍 icon → full tool** |
+| Dark mode | None | **Yes, toggle in navbar** |
+| Feedback | None | **Footer link → modal → Nodemailer** |
+| Admin | None | **Full dashboard at `/admin`** |
+| About CMS | Static | **Admin-editable via D1** |
+| Popup | None | **Admin-controlled first-visit popup** |
+| Ads layout | None | **Reserved slots, admin-toggled** |
+| Sanitize button | Always visible | **Hidden when input is empty** |
+| Word count | No | **Yes (input + matched in output)** |
+| Reinput button | No | **Icon only** |
+| Preset ordering | Fixed | **Last-selected first + More overflow** |
