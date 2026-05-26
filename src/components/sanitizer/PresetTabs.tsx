@@ -56,7 +56,7 @@ export default function PresetTabs({
               'border-t border-x',
               isActive
                 ? 'bg-white dark:bg-[var(--surface)] text-primary dark:text-blue-400 shadow-[0_-2px_8px_-2px_rgba(0,74,173,0.12)] z-10 border-primary dark:border-blue-400 border-b-white dark:border-b-[var(--surface)] -mb-px'
-                : 'text-gray-400 dark:text-slate-500 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-600 dark:hover:text-slate-300 hover:shadow-sm border-transparent hover:border-t hover:border-x hover:border-gray-200 dark:hover:border-slate-600',
+                : 'text-gray-400 dark:text-slate-400/80 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-600 dark:hover:text-slate-200 hover:shadow-sm border-transparent hover:border-t hover:border-x hover:border-gray-200 dark:hover:border-slate-600',
             ].join(' ')}
           >
             {/* Active indicator dot */}

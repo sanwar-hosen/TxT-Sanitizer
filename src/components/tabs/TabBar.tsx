@@ -36,7 +36,7 @@ export default function TabBar({
               'transition-all duration-200 text-xs font-medium shrink-0 border-t border-x',
               isActive
                 ? 'bg-white dark:bg-[var(--surface)] text-primary dark:text-blue-400 shadow-[0_-2px_8px_-2px_rgba(0,74,173,0.12)] z-10 border-primary dark:border-blue-400 border-b-white dark:border-b-[var(--surface)] -mb-px'
-                : 'text-gray-400 dark:text-slate-500 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-600 dark:hover:text-slate-300 border-transparent hover:border-t hover:border-x hover:border-gray-200 dark:hover:border-slate-600',
+                : 'text-gray-400 dark:text-slate-400/80 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-600 dark:hover:text-slate-200 border-transparent hover:border-t hover:border-x hover:border-gray-200 dark:hover:border-slate-600',
             ].join(' ')}
           >
             <span className="truncate flex-grow text-left pointer-events-none">
@@ -54,7 +54,7 @@ export default function TabBar({
                 }}
                 className={[
                   'p-0.5 rounded transition-all duration-200 shrink-0 leading-none border border-transparent',
-                  'hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:scale-110 active:scale-90',
+                  'hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-500 dark:hover:text-red-400 hover:border-red-400 dark:hover:border-red-500 hover:scale-110 active:scale-90',
                   isActive ? 'opacity-70 hover:opacity-100 text-gray-400' : 'opacity-0 group-hover:opacity-60 text-gray-400',
                 ].join(' ')}
               >

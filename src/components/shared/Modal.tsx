@@ -91,7 +91,7 @@ export default function Modal({
             <h2 className="text-lg font-semibold text-on-surface">{title}</h2>
             <button
               onClick={onClose}
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-on-surface-variant border border-outline-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-on-surface-variant dark:text-[var(--text-muted)] border border-outline-variant dark:border-[var(--border)] hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-500 dark:hover:text-red-400 hover:border-red-400 dark:hover:border-red-500 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md"
               title="Close"
             >
               <svg

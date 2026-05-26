@@ -83,22 +83,32 @@ export default function OutputPanel({
     >
       {fr && (
         <div className="absolute top-3 right-3 z-10">
-          <Button
+          <button
             id="btn-find-replace"
             onClick={fr.toggleOpen}
+            className={`flex items-center justify-center w-7 h-7 rounded-[4px] transition-all duration-200 border shadow-sm hover:shadow-md hover:scale-105 active:scale-95 ${
+              fr.isOpen
+                ? 'bg-primary text-white border-primary hover:bg-primary-hover'
+                : 'text-on-surface-variant bg-white dark:bg-[var(--surface-2)] border-outline-variant dark:border-[var(--border)] hover:bg-surface-2 dark:hover:bg-surface-dim'
+            }`}
             title="Find & Replace (Ctrl+Shift+F)"
-            variant={fr.isOpen ? "primary" : "secondary"}
-            className="p-1.5 min-w-0"
+            type="button"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
             </svg>
-          </Button>
+          </button>
         </div>
       )}
 

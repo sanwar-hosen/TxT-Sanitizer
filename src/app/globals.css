@@ -71,6 +71,23 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* ── Theme Overrides for Dark mode ────────────────────────────────────────── */
+[data-theme="dark"] {
+  --color-base-100: #1e293b;           /* Solid Slate-800 Card foreground */
+  --color-base-200: #0f172a;           /* Solid Slate-900 Secondary panels */
+  --color-base-300: #0b0f19;           /* Solid Navy-Black body background */
+  --color-base-content: #f8fafc;       /* Clear Slate-50 text */
+  --color-neutral: #94a3b8;           /* Slate-400 muted text */
+  --border: #334155;                   /* Solid Slate-700 Border */
+}
+
+[data-theme="dark"] body {
+  background-color: #0b0f19 !important;
+  background-image: none !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
 /* ── Base body styles ──────────────────────────────────────────────────────── */
 ::selection {
   background-color: var(--selection-bg);

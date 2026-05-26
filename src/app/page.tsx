@@ -266,14 +266,14 @@ export default function Home() {
               <span className="font-bold text-slate-800 dark:text-slate-200">
                 {countWords(activeTab?.inputText ?? '').toLocaleString()}
               </span>
-              <span className="text-slate-400 dark:text-slate-500">Words</span>
+              <span className="text-slate-400 dark:text-slate-400/80">Words</span>
             </div>
             <div className="h-3 w-px bg-slate-300" />
             <div className="flex items-center space-x-1">
-              <span className="font-bold text-slate-800">
+              <span className="font-bold text-slate-800 dark:text-slate-200">
                 {countChars(activeTab?.inputText ?? '').toLocaleString()}
               </span>
-              <span className="text-slate-400 dark:text-slate-500">Characters</span>
+              <span className="text-slate-400 dark:text-slate-400/80">Characters</span>
             </div>
           </div>
 
@@ -283,14 +283,14 @@ export default function Home() {
               <span className="font-bold text-slate-800 dark:text-slate-200">
                 {countChars(activeTab?.outputText ?? '').toLocaleString()}
               </span>
-              <span className="text-slate-400 dark:text-slate-500">Characters</span>
+              <span className="text-slate-400 dark:text-slate-400/80">Characters</span>
             </div>
             <div className="h-3 w-px bg-slate-300" />
             {(() => {
               const flagged = activeTab?.matches?.length ?? 0;
               const hasFlagged = flagged > 0;
               return (
-                <div className={`flex items-center space-x-1 transition-colors duration-300 ${hasFlagged ? 'text-red-500' : 'text-slate-400 dark:text-slate-500'}`}>
+                <div className={`flex items-center space-x-1 transition-colors duration-300 ${hasFlagged ? 'text-red-500' : 'text-slate-400 dark:text-slate-400/80'}`}>
                   <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                     {hasFlagged ? 'flag' : 'check'}
                   </span>

@@ -100,20 +100,29 @@ export default function InputPanel({
       {/* Clear button — top-right */}
       {!isEmpty && (
         <div className="absolute top-3 right-3 z-10 flex gap-2">
-          <Button
-            variant="danger-outline"
-            size="sm"
+          <button
             onClick={() => {
               onChange('');
               textareaRef.current?.focus();
             }}
+            className="flex items-center justify-center w-7 h-7 rounded-[4px] text-on-surface-variant dark:text-[var(--text-muted)] border border-outline-variant dark:border-[var(--border)] hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-500 dark:hover:text-red-400 hover:border-red-400 dark:hover:border-red-500 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md"
             title="Clear input"
-            className="p-1.5 min-w-0"
+            type="button"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
             </svg>
-          </Button>
+          </button>
         </div>
       )}
 
