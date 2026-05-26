@@ -82,7 +82,7 @@ export default function Modal({
       {/* Panel */}
       <div
         ref={panelRef}
-        className={`relative ${SIZE_MAP[size]} w-full bg-white rounded-xl shadow-2xl border border-outline-variant overflow-hidden`}
+        className={`relative ${SIZE_MAP[size]} w-full bg-white dark:bg-[var(--surface)] rounded-xl shadow-2xl border border-outline-variant dark:border-[var(--border)] overflow-hidden`}
         style={{ animation: 'modalSlideUp 0.25s ease-out' }}
       >
         {/* Header */}

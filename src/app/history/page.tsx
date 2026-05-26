@@ -181,7 +181,7 @@ export default function HistoryPage() {
             return (
               <div
                 key={entry.id}
-                className="group bg-white rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                className="group bg-white dark:bg-[var(--surface)] rounded-xl border border-outline-variant dark:border-[var(--border)] shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
               >
                 {/* ── Header Row ──────────────────────────────────────── */}
                 <div
@@ -227,7 +227,7 @@ export default function HistoryPage() {
                       {/* Input */}
                       <div>
                         <div className="text-[10px] uppercase tracking-wider font-semibold text-on-surface-variant mb-1.5">Input</div>
-                        <div className="bg-white rounded-lg border border-outline-variant p-3 text-sm font-mono text-on-surface whitespace-pre-wrap break-words max-h-48 overflow-y-auto custom-scrollbar">
+                        <div className="bg-white dark:bg-[var(--surface-2)] rounded-lg border border-outline-variant dark:border-[var(--border)] p-3 text-sm font-mono text-on-surface whitespace-pre-wrap break-words max-h-48 overflow-y-auto custom-scrollbar">
                           {entry.inputText}
                         </div>
                       </div>
@@ -235,7 +235,7 @@ export default function HistoryPage() {
                       {/* Output */}
                       <div>
                         <div className="text-[10px] uppercase tracking-wider font-semibold text-on-surface-variant mb-1.5">Output</div>
-                        <div className="bg-white rounded-lg border border-outline-variant p-3 text-sm font-mono text-on-surface whitespace-pre-wrap break-words max-h-48 overflow-y-auto custom-scrollbar">
+                        <div className="bg-white dark:bg-[var(--surface-2)] rounded-lg border border-outline-variant dark:border-[var(--border)] p-3 text-sm font-mono text-on-surface whitespace-pre-wrap break-words max-h-48 overflow-y-auto custom-scrollbar">
                           {entry.outputText}
                         </div>
                       </div>

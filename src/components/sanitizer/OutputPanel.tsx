@@ -89,7 +89,7 @@ export default function OutputPanel({
             className={`p-1.5 border rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:scale-110 active:scale-95 ${
               fr.isOpen 
                 ? 'bg-primary border-primary text-white' 
-                : 'border-outline-variant bg-white text-slate-500 hover:bg-surface-container-low hover:text-primary hover:border-primary/30'
+                : 'border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-slate-500 dark:text-slate-400 hover:bg-surface-container-low dark:hover:bg-slate-700 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +129,7 @@ export default function OutputPanel({
         ref={contentRef}
         className={[
           'flex-1 w-full p-4 font-mono text-sm overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words',
-          isEmpty ? 'text-textMuted' : 'text-textMain',
+          isEmpty ? 'text-textMuted dark:text-[var(--text-muted)]' : 'text-textMain dark:text-[var(--text)]',
         ].join(' ')}
         aria-label="Sanitized output"
         aria-live="polite"
@@ -160,7 +160,7 @@ export default function OutputPanel({
 
       {hoveredMatch && (
         <button
-          className="fixed z-50 flex items-center gap-1.5 px-3 py-1.5 bg-white border border-outline-variant rounded-md shadow-md text-xs font-medium text-slate-700 hover:text-primary hover:border-primary/30 transition-all"
+          className="fixed z-50 flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[var(--surface-2)] border border-outline-variant dark:border-[var(--border)] rounded-md shadow-md text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30 transition-all"
           style={{ top: btnPos.top, left: btnPos.left }}
           onMouseEnter={handleBtnMouseEnter}
           onMouseLeave={handleBtnMouseLeave}
@@ -187,7 +187,7 @@ export default function OutputPanel({
               'p-2 border rounded-md transition-all duration-200 shadow-sm text-sm font-medium flex items-center gap-1.5',
               copied
                 ? 'border-secondary bg-secondary/10 text-secondary'
-                : 'border-outline-variant bg-white text-slate-500 hover:bg-surface-container-low hover:text-primary hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-95',
+                : 'border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-slate-500 dark:text-slate-400 hover:bg-surface-container-low dark:hover:bg-slate-700 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30 hover:shadow-md hover:scale-105 active:scale-95',
             ].join(' ')}
           >
             {copied ? (
@@ -213,7 +213,7 @@ export default function OutputPanel({
             id="btn-reinput"
             title="Send output to input"
             onClick={onReinput}
-            className="p-2 border border-outline-variant rounded-md bg-white text-slate-500 hover:bg-surface-container-low hover:text-primary hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+            className="p-2 border border-outline-variant dark:border-[var(--border)] rounded-md bg-white dark:bg-[var(--surface-2)] text-slate-500 dark:text-slate-400 hover:bg-surface-container-low dark:hover:bg-slate-700 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

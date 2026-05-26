@@ -35,8 +35,8 @@ export default function TabBar({
               'group relative flex items-center gap-2 px-3 py-2 min-w-[90px] max-w-[150px] flex-1 rounded-t-md cursor-pointer',
               'transition-all duration-200 text-xs font-medium shrink-0 border-t border-x',
               isActive
-                ? 'bg-white text-primary shadow-[0_-2px_8px_-2px_rgba(0,74,173,0.12)] z-10 border-primary border-b-white -mb-px'
-                : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600 border-transparent hover:border-t hover:border-x hover:border-gray-200',
+                ? 'bg-white dark:bg-[var(--surface)] text-primary dark:text-blue-400 shadow-[0_-2px_8px_-2px_rgba(0,74,173,0.12)] z-10 border-primary dark:border-blue-400 border-b-white dark:border-b-[var(--surface)] -mb-px'
+                : 'text-gray-400 dark:text-slate-500 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-600 dark:hover:text-slate-300 border-transparent hover:border-t hover:border-x hover:border-gray-200 dark:hover:border-slate-600',
             ].join(' ')}
           >
             <span className="truncate flex-grow text-left pointer-events-none">

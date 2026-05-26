@@ -94,7 +94,7 @@ function PresetEditorModal({
       <div className="space-y-4">
         <div>
           <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Preset Name <span className="font-normal normal-case tracking-normal text-on-surface-variant/60">(max {PRESET_NAME_MAX} chars)</span></label>
-          <input value={name} onChange={(e) => setName(e.target.value.slice(0, PRESET_NAME_MAX))} maxLength={PRESET_NAME_MAX} placeholder="e.g. My Custom Preset" className="w-full px-3 py-2 rounded-lg border border-outline-variant bg-white text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors" />
+          <input value={name} onChange={(e) => setName(e.target.value.slice(0, PRESET_NAME_MAX))} maxLength={PRESET_NAME_MAX} placeholder="e.g. My Custom Preset" className="w-full px-3 py-2 rounded-lg border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors" />
           <div className="text-right text-[10px] text-on-surface-variant mt-1">{name.length}/{PRESET_NAME_MAX}</div>
         </div>
         <div>
@@ -119,9 +119,9 @@ function PresetEditorModal({
                 <span className="shrink-0 cursor-grab active:cursor-grabbing text-on-surface-variant/40 hover:text-on-surface-variant transition-colors" title="Drag to reorder">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
                 </span>
-                <input value={rule.find} onChange={(e) => updateRule(idx, 'find', e.target.value)} placeholder="Find" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant bg-white text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
+                <input value={rule.find} onChange={(e) => updateRule(idx, 'find', e.target.value)} placeholder="Find" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-on-surface-variant shrink-0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                <input value={rule.replace} onChange={(e) => updateRule(idx, 'replace', e.target.value)} placeholder="Replace" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant bg-white text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
+                <input value={rule.replace} onChange={(e) => updateRule(idx, 'replace', e.target.value)} placeholder="Replace" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
                 {/* Remove rule — red accent */}
                 <button onClick={() => removeRule(idx)} disabled={rules.length <= 1} className={`shrink-0 p-1 rounded border border-transparent text-on-surface-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:scale-110 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:border-transparent disabled:hover:bg-transparent disabled:hover:text-on-surface-variant ${BTN_BASE}`}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -268,7 +268,7 @@ export default function SettingsPage() {
         </div>
 
         {/* ── System Presets Section — primary blue accent ─────────────── */}
-        <section className="bg-white rounded-xl border border-primary/15 shadow-sm overflow-hidden">
+        <section className="bg-white dark:bg-[var(--surface)] rounded-xl border border-primary/15 dark:border-blue-400/15 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-primary/10 bg-primary/[0.03]">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-primary" />
@@ -298,7 +298,7 @@ export default function SettingsPage() {
         </section>
 
         {/* ── User Presets Section ─────────────────────────────────────── */}
-        <section className="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+        <section className="bg-white dark:bg-[var(--surface)] rounded-xl border border-outline-variant dark:border-[var(--border)] shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-outline-variant bg-surface-container-low/40 flex items-center justify-between">
             <div>
               <h2 className="text-sm font-semibold text-on-surface">Your Presets</h2>
@@ -332,7 +332,7 @@ export default function SettingsPage() {
         </section>
 
         {/* ── Import/Export Section ────────────────────────────────────── */}
-        <section className="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+        <section className="bg-white dark:bg-[var(--surface)] rounded-xl border border-outline-variant dark:border-[var(--border)] shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-outline-variant bg-surface-container-low/40">
             <h2 className="text-sm font-semibold text-on-surface">Import / Export</h2>
             <p className="text-xs text-on-surface-variant mt-0.5">Backup or restore your custom presets.</p>
@@ -351,7 +351,7 @@ export default function SettingsPage() {
         </section>
 
         {/* ── Data Management Section — alert themed ───────────────────── */}
-        <section className="bg-white rounded-xl border border-error/15 shadow-sm overflow-hidden">
+        <section className="bg-white dark:bg-[var(--surface)] rounded-xl border border-error/15 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-error/10 bg-error/[0.02]">
             <h2 className="text-sm font-semibold text-on-surface">Data Management</h2>
             <p className="text-xs text-on-surface-variant mt-0.5">Manage your stored data.</p>

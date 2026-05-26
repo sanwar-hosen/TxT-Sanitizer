@@ -84,7 +84,7 @@ export default function InputPanel({ value, onChange, onSanitize, isSanitizing, 
 
   return (
     <section
-      className="flex-1 flex flex-col relative border-r border-outline-variant"
+      className="flex-1 flex flex-col relative border-r border-outline-variant dark:border-[var(--border)]"
       data-purpose="input-pane"
     >
       {/* Clear button — top-right */}
@@ -96,7 +96,7 @@ export default function InputPanel({ value, onChange, onSanitize, isSanitizing, 
               textareaRef.current?.focus();
             }}
             title="Clear input"
-            className="p-1.5 border border-outline-variant rounded-md bg-white text-slate-400 hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+            className="p-1.5 border border-outline-variant dark:border-[var(--border)] rounded-md bg-white dark:bg-[var(--surface-2)] text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 hover:border-red-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -140,7 +140,7 @@ export default function InputPanel({ value, onChange, onSanitize, isSanitizing, 
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onScroll={handleScroll}
-          className="absolute inset-0 w-full h-full p-4 font-mono text-sm resize-none border-none pane-textarea custom-scrollbar text-textMain placeholder-textMuted bg-transparent"
+          className="absolute inset-0 w-full h-full p-4 font-mono text-sm resize-none border-none pane-textarea custom-scrollbar text-textMain dark:text-[var(--text)] placeholder-textMuted dark:placeholder-[var(--text-muted)] bg-transparent"
           placeholder="Paste or type text here…"
           spellCheck={false}
           autoCorrect="off"
@@ -155,7 +155,7 @@ export default function InputPanel({ value, onChange, onSanitize, isSanitizing, 
           id="btn-paste"
           title="Paste from clipboard"
           onClick={handlePaste}
-          className="p-2 border border-outline-variant rounded-md bg-white text-slate-500 hover:bg-surface-container-low hover:text-primary hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+          className="p-2 border border-outline-variant dark:border-[var(--border)] rounded-md bg-white dark:bg-[var(--surface-2)] text-slate-500 dark:text-slate-400 hover:bg-surface-container-low dark:hover:bg-slate-700 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path

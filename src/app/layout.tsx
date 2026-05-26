@@ -39,7 +39,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-sans antialiased min-h-screen flex flex-col bg-background text-on-background">
+      <body className="font-sans antialiased min-h-screen flex flex-col">
         <Navbar />
         <div className="flex-1 flex flex-col">
           {children}

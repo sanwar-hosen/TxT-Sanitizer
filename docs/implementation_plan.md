@@ -175,6 +175,10 @@ CREATE TABLE IF NOT EXISTS analytics (
 | 13 | **Ads-ready layout** — reserved slots (below navbar, right sidebar), **admin-toggleable** | Low |
 | 14 | **Button opacity on typing** — sanitize button dims while typing, restores on blur/stop | Low |
 | 15 | **Reinput button** — icon only, moves output → input, clears output | Low |
+| 16 | **Centralized Styling & DaisyUI** — standalone components + daisyui integration | Medium |
+| 17 | **Multi-Theme System** — daisyui themes (light, dark, cupcake, emerald, synthwave, retro, halloween, forest, wireframe, dracula, night, coffee, abyss, sunset, silk) via hover dropdown | Medium |
+| 18 | **Automatic Real-Time Sanitization** — toggleable real-time mode, auto-sanitizes, hides sanitize button | Medium |
+| 19 | **Save Message Session** — save active tab to a Saved page | Low-Medium |
 
 ---
 
@@ -364,6 +368,48 @@ Merge for display:
 - If enabled: show modal with admin-configured content
 - On dismiss: store `"popupSeen": true` + current version in localStorage
 
+### 5.12 Centralized Styling & DaisyUI
+- Refactor the codebase to use `daisyui` classes (`bg-base-100`, `text-base-content`, `btn`, `btn-primary`, etc.).
+- Configure custom `light` and `dark` themes in daisyUI settings to match our current brand (`#004AAD`, etc.).
+- Create reusable `Button` and `Alert/Notice` components in `src/components/shared/` leveraging daisyUI classes.
+- Admin dashboard elements will also use these components to ensure brand consistency.
+
+### 5.12.1 DaisyUI Migration Risks & Mitigation Strategy
+Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layout and styling risks. We will mitigate them proactively:
+
+1. **Background/Surface Conflicts:**
+   - *Risk:* DaisyUI's base reset forces `bg-base-100` on the `<body>`, potentially wiping out our custom `--surface-dim` look.
+   - *Fix:* Ensure our custom `light` and `dark` daisyUI configurations explicitly define `base-100`, `base-200`, and `base-300` to perfectly match our existing `--surface`, `--surface-2`, and `--surface-dim` hex codes. 
+2. **Textarea Highlights Alignment Breakdown:**
+   - *Risk:* The `InputPanel` relies on exact pixel-perfect padding and invisible text to render the `<mark>` highlights behind the text. Applying DaisyUI's `.textarea` class will add default paddings/borders that break this alignment.
+   - *Fix:* **Do not apply the `.textarea` class** to the main input pane. Instead, keep the current structural CSS and only apply DaisyUI's semantic color variables (e.g., `text-base-content`, `placeholder-base-content/50`) so it themes correctly without breaking the overlay.
+3. **Button Padding & Animation Clashes:**
+   - *Risk:* Our buttons use custom `scale-110` and `active:scale-95` animations. DaisyUI `.btn` has its own click animations and rigid padding rules.
+   - *Fix:* Strip out hardcoded paddings on existing buttons when converting them to `.btn`. Use DaisyUI shape modifiers (`btn-sm`, `btn-square`, `btn-ghost`) and carefully remove conflicting scale animations to avoid double-transforms.
+4. **Custom Modal Regression:**
+   - *Risk:* Using DaisyUI's `<dialog class="modal">` requires re-wiring our React state and could lose our custom fade-in/slide-up keyframes.
+   - *Fix:* Keep our existing React `Modal.tsx` component structure. Just update its internal classes to use `bg-base-100` and `text-base-content` so it automatically inherits theme colors without breaking functionality.
+5. **Dark Mode Toggle Failure:**
+   - *Risk:* DaisyUI themes trigger via the `data-theme` attribute on `<html>`, but our current system uses `class="dark"`.
+   - *Fix:* Refactor `useDarkMode.ts` into a `useTheme.ts` hook that manages `data-theme` attribute instead of `classList.toggle('dark')`.
+
+### 5.13 Multi-Theme Dropdown
+- Implement 15 themes via `daisyui`: Custom Light/Dark (matching brand), cupcake, emerald, synthwave, retro, halloween, forest, wireframe, dracula, night, coffee, abyss, sunset, silk.
+- Hovering the theme toggle button in the Navbar reveals a curved, boxed dropdown of available themes.
+- Selection saves to `localStorage` (`data-theme` on `<html>`).
+
+### 5.14 Automatic Real-Time Sanitization Mode
+- Controlled by a `manualSanitize` boolean in `localStorage` (default `false` for auto).
+- **Auto Mode (`false`)**: Sanitization runs automatically on text change. The manual "Sanitize" button is hidden. No automatic writes to history to prevent bloat.
+- **Manual Mode (`true`)**: "Sanitize" button visible. Clicking it/Ctrl+Enter runs sanitization and writes to history.
+- **History Page Check**: If Auto Mode is active, the history page shows an alert: "In order to see history you have to enable the sanitize button." with an "Enable" button that switches the mode.
+- Settings page includes a toggle for this mode.
+
+### 5.15 Future: Save Message Session
+- "Save" icon button on the sanitizer toolbar, visible only when input is present.
+- Copies current active tab state into a `savedSessions` array in `localStorage`.
+- Similar to history page, but explicitly triggered by user.
+
 ---
 
 ## 6. Build Phases
@@ -374,10 +420,10 @@ Merge for display:
 - [x] Static skeleton prototype matching `docs/asd.html` layout
 - [x] Browser-tab style preset tabs + workspace tabs in toolbar
 - [x] Dual-pane card layout with status bar
-- [ ] Dark mode: Tailwind `class` strategy, `useDarkMode` hook (Phase 5)
-- [ ] Navbar/Footer components (Phase 5)
-- [ ] Basic routing (Phase 5)
-- [ ] `wrangler.toml` setup with D1 binding (Phase 6)
+- [x] Dark mode: Tailwind `class` strategy, `useDarkMode` hook (Phase 5)
+- [x] Navbar/Footer components (Phase 5)
+- [x] Basic routing (Phase 5)
+- [x] `wrangler.toml` setup with D1 binding (Phase 6)
 
 ### Phase 2 — Core Sanitizer + Workspace ✅ DONE
 - [x] Sanitizer engine (`/lib/sanitizer.ts`) — returns `{ output, matches[] }`
@@ -426,6 +472,22 @@ Merge for display:
 - [x] Client: `useSystemPresets` hook — fetch + cache system presets in localStorage, merge with user presets
 - [x] "Reset to default" per system preset (settings page wired to fetched presets)
 
+### Phase 6.5 — Centralized Styling & DaisyUI Integration
+- [ ] Install `daisyui` plugin.
+- [ ] Create custom `light` and `dark` themes in `tailwind` to match the brand via daisyUI config.
+- [ ] Refactor UI to use daisyUI utility classes instead of fixed Tailwind colors.
+- [ ] Create reusable `Button` and `Alert` components for shared usage (including admin).
+
+### Phase 6.6 — Multi-Theme Dropdown
+- [ ] Enable off-the-shelf themes in daisyUI config.
+- [ ] Create a hover-triggered dropdown in the Navbar for theme selection.
+- [ ] Save selected theme to `localStorage` and apply `data-theme` to document root.
+
+### Phase 6.7 — Automatic Real-Time Sanitization
+- [ ] Implement `manualSanitize` state toggle in settings and context.
+- [ ] Auto-run `sanitize()` on input changes when in Auto mode.
+- [ ] Block history page with an "Enable Manual Mode" prompt when in Auto mode.
+
 ### Phase 7 — Admin Dashboard
 - [ ] Admin login page + `POST /api/admin/login`
 - [ ] Session cookie middleware for all admin API routes
@@ -453,6 +515,11 @@ Merge for display:
 - [ ] Performance: code splitting, font optimization
 - [ ] Cross-browser testing
 - [ ] Final deploy to Cloudflare Pages
+
+### Phase 11 — Save Message Session (Future)
+- [ ] "Save Session" button in workspace action bar.
+- [ ] `savedSessions` localStorage model.
+- [ ] "Saved" page similar to History, with copy/restore/delete functionality.
 
 ---
 

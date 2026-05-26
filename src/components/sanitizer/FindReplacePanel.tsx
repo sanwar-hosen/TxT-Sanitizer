@@ -57,7 +57,7 @@ export default function FindReplacePanel({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-0 right-0 left-0 bg-white dark:bg-surface-container shadow-md border-b border-outline-variant z-20 p-2 text-sm flex flex-col gap-2 transition-transform transform origin-top duration-200">
+    <div className="absolute top-0 right-0 left-0 bg-white dark:bg-[var(--surface-2)] shadow-md border-b border-outline-variant dark:border-[var(--border)] z-20 p-2 text-sm flex flex-col gap-2 transition-transform transform origin-top duration-200">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <input

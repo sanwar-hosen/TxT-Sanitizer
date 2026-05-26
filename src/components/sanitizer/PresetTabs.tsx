@@ -55,8 +55,8 @@ export default function PresetTabs({
               'transition-all duration-200 text-[10px] font-semibold uppercase tracking-wider shrink-0',
               'border-t border-x',
               isActive
-                ? 'bg-white text-primary shadow-[0_-2px_8px_-2px_rgba(0,74,173,0.12)] z-10 border-primary border-b-white -mb-px'
-                : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600 hover:shadow-sm border-transparent hover:border-t hover:border-x hover:border-gray-200',
+                ? 'bg-white dark:bg-[var(--surface)] text-primary dark:text-blue-400 shadow-[0_-2px_8px_-2px_rgba(0,74,173,0.12)] z-10 border-primary dark:border-blue-400 border-b-white dark:border-b-[var(--surface)] -mb-px'
+                : 'text-gray-400 dark:text-slate-500 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-600 dark:hover:text-slate-300 hover:shadow-sm border-transparent hover:border-t hover:border-x hover:border-gray-200 dark:hover:border-slate-600',
             ].join(' ')}
           >
             {/* Active indicator dot */}
@@ -96,7 +96,7 @@ export default function PresetTabs({
           {/* Dropdown */}
           {dropdownOpen && (
             <div
-              className="absolute left-0 top-full mt-1 z-50 min-w-[180px] bg-white border border-outline-variant rounded-lg shadow-lg py-1 overflow-hidden"
+              className="absolute left-0 top-full mt-1 z-50 min-w-[180px] bg-white dark:bg-[var(--surface-2)] border border-outline-variant dark:border-[var(--border)] rounded-lg shadow-lg py-1 overflow-hidden"
               style={{ animation: 'modalSlideUp 0.15s ease-out' }}
             >
               {overflowPresets.map((preset, i) => (
@@ -106,7 +106,7 @@ export default function PresetTabs({
                     onSelect(preset.id);
                     setDropdownOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs font-medium text-textMain hover:bg-primary/5 hover:text-primary hover:translate-x-1 transition-all duration-150 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 text-xs font-medium text-textMain dark:text-[var(--text)] hover:bg-primary/5 hover:text-primary dark:hover:text-blue-400 hover:translate-x-1 transition-all duration-150 flex items-center gap-2"
                   style={{ animation: `modalSlideUp 0.15s ease-out ${i * 0.04}s both` }}
                 >
                   {preset.id === activePresetId && (

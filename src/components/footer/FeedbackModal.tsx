@@ -131,7 +131,7 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full px-3 py-2 rounded-lg border border-outline-variant bg-white text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
             />
           </div>
 
@@ -144,7 +144,7 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Brief description"
-              className="w-full px-3 py-2 rounded-lg border border-outline-variant bg-white text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
             />
           </div>
 
@@ -158,7 +158,7 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Tell us what you think…"
               rows={4}
-              className="w-full px-3 py-2 rounded-lg border border-outline-variant bg-white text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none custom-scrollbar"
+              className="w-full px-3 py-2 rounded-lg border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none custom-scrollbar"
             />
           </div>
         </div>

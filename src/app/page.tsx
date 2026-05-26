@@ -164,7 +164,7 @@ export default function Home() {
   if (!hydrated) {
     // Skeleton while localStorage hydrates (avoids SSR/client mismatch)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#eef2f6]">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--surface-dim)]">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -174,10 +174,10 @@ export default function Home() {
     <div className="flex-1 flex flex-col font-sans p-4 md:p-8">
 
       {/* ── Main card ──────────────────────────────────────────────────────────── */}
-      <div className="max-w-[1400px] w-full mx-auto bg-white rounded-lg shadow-sm border border-outline-variant flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
+      <div className="max-w-[1400px] w-full mx-auto bg-white dark:bg-[var(--surface)] rounded-lg shadow-sm border border-outline-variant dark:border-[var(--border)] flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
 
         {/* ── TopToolbar ─────────────────────────────────────────────────────── */}
-        <header className="flex items-end justify-between px-4 border-b border-outline-variant bg-white pt-3 shrink-0">
+        <header className="flex items-end justify-between px-4 border-b border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface)] pt-3 shrink-0">
 
           {/* LEFT: Preset tabs */}
           <PresetTabs
@@ -203,7 +203,7 @@ export default function Home() {
         {/* ── END TopToolbar ─────────────────────────────────────────────────── */}
 
         {/* ── Workspace Area ──────────────────────────────────────────────────── */}
-        <main className="flex-1 bg-white overflow-hidden flex min-h-0">
+        <main className="flex-1 bg-white dark:bg-[var(--surface)] overflow-hidden flex min-h-0">
           <div className="flex-1 flex w-full min-h-0">
 
             <InputPanel
@@ -232,43 +232,43 @@ export default function Home() {
         {/* ── END Workspace Area ───────────────────────────────────────────────── */}
 
         {/* ── Status Bar ──────────────────────────────────────────────────────── */}
-        <footer className="px-4 flex justify-between items-center text-[11px] text-slate-500 bg-slate-50 border-t border-outline-variant h-10 shrink-0">
+        <footer className="px-4 flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[var(--surface-2)] border-t border-outline-variant dark:border-[var(--border)] h-10 shrink-0">
           
           {/* Left: input stats */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1">
-              <span className="font-bold text-slate-800">
+              <span className="font-bold text-slate-800 dark:text-slate-200">
                 {countWords(activeTab?.inputText ?? '').toLocaleString()}
               </span>
-              <span className="text-slate-400">Words</span>
+              <span className="text-slate-400 dark:text-slate-500">Words</span>
             </div>
             <div className="h-3 w-px bg-slate-300" />
             <div className="flex items-center space-x-1">
               <span className="font-bold text-slate-800">
                 {countChars(activeTab?.inputText ?? '').toLocaleString()}
               </span>
-              <span className="text-slate-400">Characters</span>
+              <span className="text-slate-400 dark:text-slate-500">Characters</span>
             </div>
           </div>
 
           {/* Right: output stats */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1">
-              <span className="font-bold text-slate-800">
+              <span className="font-bold text-slate-800 dark:text-slate-200">
                 {countChars(activeTab?.outputText ?? '').toLocaleString()}
               </span>
-              <span className="text-slate-400">Characters</span>
+              <span className="text-slate-400 dark:text-slate-500">Characters</span>
             </div>
             <div className="h-3 w-px bg-slate-300" />
             {(() => {
               const flagged = activeTab?.matches?.length ?? 0;
               const hasFlagged = flagged > 0;
               return (
-                <div className={`flex items-center space-x-1 transition-colors duration-300 ${hasFlagged ? 'text-red-500' : 'text-slate-400'}`}>
+                <div className={`flex items-center space-x-1 transition-colors duration-300 ${hasFlagged ? 'text-red-500' : 'text-slate-400 dark:text-slate-500'}`}>
                   <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                     {hasFlagged ? 'flag' : 'check'}
                   </span>
-                  <span className={`font-bold ${hasFlagged ? 'text-red-600' : 'text-slate-800'}`}>{flagged}</span>
+                  <span className={`font-bold ${hasFlagged ? 'text-red-600' : 'text-slate-800 dark:text-slate-200'}`}>{flagged}</span>
                   <span>Flagged</span>
                 </div>
               );
