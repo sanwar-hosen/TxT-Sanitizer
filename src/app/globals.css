@@ -73,17 +73,19 @@
 
 /* ── Theme Overrides for Dark mode ────────────────────────────────────────── */
 [data-theme="dark"] {
-  --color-base-100: #1e293b;           /* Solid Slate-800 Card foreground */
-  --color-base-200: #0f172a;           /* Solid Slate-900 Secondary panels */
-  --color-base-300: #0b0f19;           /* Solid Navy-Black body background */
+  --color-primary: #38bdf8;            /* Sky blue accents */
+  --color-primary-hover: #0ea5e9;
+  --color-base-100: #090d16;           /* Extremely dark/black Card foreground */
+  --color-base-200: #05070f;           /* Pitch-black Secondary panels */
+  --color-base-300: #030408;           /* Deep black body background */
   --color-base-content: #f8fafc;       /* Clear Slate-50 text */
   --color-neutral: #94a3b8;           /* Slate-400 muted text */
-  --border: #334155;                   /* Solid Slate-700 Border */
+  --border: #1e3a8a;                   /* Glowing Blue-Indigo Border */
 }
 
 [data-theme="dark"] body {
-  background-color: #0b0f19 !important;
-  background-image: none !important;
+  background-color: #030408 !important;
+  background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #030408 100%) !important;
   position: relative;
   overflow-x: hidden;
 }
