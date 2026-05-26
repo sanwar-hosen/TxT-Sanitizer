@@ -9,13 +9,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Brand primary (mapped from your HTML's #004ac6)
-        'primary':                    '#004AAD',
-        'primary-hover':              '#003d91',
+        // Brand primary
+        'primary':                    'var(--brand)',
+        'primary-hover':              'var(--brand-hover)',
         'primary-fixed':              '#dbe1ff',
         'primary-fixed-dim':          '#b4c5ff',
         'primary-container':          '#2563eb',
-        'on-primary':                 '#ffffff',
+        'on-primary':                 'var(--surface)',
         'on-primary-fixed':           '#00174b',
         'on-primary-fixed-variant':   '#003ea8',
         'on-primary-container':       '#eeefff',
@@ -42,38 +42,39 @@ module.exports = {
         'on-tertiary-fixed-variant':  '#7d2d00',
 
         // Surface / Background
-        'background':                 '#f8f9ff',
-        'surface':                    '#f8f9ff',
-        'surface-dim':                '#cbdbf5',
-        'surface-bright':             '#f8f9ff',
-        'surface-variant':            '#d3e4fe',
-        'surface-tint':               '#0053db',
-        'surface-container-lowest':   '#ffffff',
-        'surface-container-low':      '#eff4ff',
-        'surface-container':          '#e5eeff',
-        'surface-container-high':     '#dce9ff',
-        'surface-container-highest':  '#d3e4fe',
+        'background':                 'var(--surface-dim)',
+        'surface':                    'var(--surface)',
+        'surface-dim':                'var(--surface-dim)',
+        'surface-bright':             'var(--surface)',
+        'surface-variant':            'var(--surface-2)',
+        'surface-tint':               'var(--brand)',
+        'surface-container-lowest':   'var(--surface)',
+        'surface-container-low':      'var(--surface-dim)',
+        'surface-container':          'var(--surface-2)',
+        'surface-container-high':     'var(--surface-2)',
+        'surface-container-highest':  'var(--surface-dim)',
         'inverse-surface':            '#213145',
         'inverse-on-surface':         '#eaf1ff',
 
         // On-surface
-        'on-background':              '#0b1c30',
-        'on-surface':                 '#0b1c30',
-        'on-surface-variant':         '#434655',
+        'on-background':              'var(--text)',
+        'on-surface':                 'var(--text)',
+        'on-surface-variant':         'var(--text-muted)',
 
         // Outline
-        'outline':                    '#737686',
-        'outline-variant':            '#c3c6d7',
+        'outline':                    'var(--border)',
+        'outline-variant':            'var(--border)',
 
         // Error
-        'error':                      '#ba1a1a',
-        'error-container':            '#ffdad6',
-        'on-error':                   '#ffffff',
-        'on-error-container':         '#93000a',
+        'error':                      'var(--error)',
+        'error-hover':                'var(--error-hover)',
+        'error-container':            'var(--error-container)',
+        'on-error':                   'var(--on-error)',
+        'on-error-container':         'var(--on-error-container)',
 
         // Legacy compat keys
-        'textMain':    '#1e293b',
-        'textMuted':   '#64748b',
+        'textMain':    'var(--text)',
+        'textMuted':   'var(--text-muted)',
       },
       fontFamily: {
         sans:  ['Rubik', 'Inter', 'sans-serif'],

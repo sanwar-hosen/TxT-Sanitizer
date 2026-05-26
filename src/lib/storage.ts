@@ -12,6 +12,7 @@ const KEYS = {
   darkMode:      'txts_v2_darkMode',
   userPresets:   'txts_v2_userPresets',
   presetOverrides: 'txts_v2_presetOverrides',
+  manualSanitize: 'txts_v2_manualSanitize',
 } as const;
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -169,6 +170,18 @@ export function loadDarkMode(): boolean {
 
 export function saveDarkMode(enabled: boolean): void {
   set(KEYS.darkMode, enabled);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Manual Sanitize Mode
+// ──────────────────────────────────────────────────────────────────────────────
+
+export function loadManualSanitize(): boolean {
+  return get<boolean>(KEYS.manualSanitize, false);
+}
+
+export function saveManualSanitize(enabled: boolean): void {
+  set(KEYS.manualSanitize, enabled);
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

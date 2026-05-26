@@ -11,12 +11,8 @@ import {
 } from '@/lib/storage';
 import Modal from '@/components/shared/Modal';
 import { useSystemPresets } from '@/hooks/useSystemPresets';
+import { Button } from '@/components/shared/Button';
 
-/* ── Shared button tokens ────────────────────────────────────────────────── */
-const BTN_BASE = 'transition-all duration-200';
-const BTN_GHOST = `px-2.5 py-1 rounded-md text-xs font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:shadow-md hover:scale-105 active:scale-95 border border-outline-variant ${BTN_BASE}`;
-const BTN_PRIMARY = `px-2.5 py-1 rounded-md text-xs font-medium text-primary hover:bg-primary/8 hover:shadow-md hover:scale-105 active:scale-95 border border-primary/25 ${BTN_BASE}`;
-const BTN_DANGER_OUTLINE = `px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 border border-outline-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:shadow-md hover:scale-105 active:scale-95 ${BTN_BASE}`;
 const PRESET_NAME_MAX = 30;
 
 // ── Preset Editor Sub-component ─────────────────────────────────────────────
@@ -86,8 +82,8 @@ function PresetEditorModal({
     <Modal open={open} onClose={onClose} title={initial ? 'Edit Preset' : 'New Preset'} size="lg"
       footer={
         <>
-          <button onClick={onClose} className={`px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high hover:shadow-sm hover:scale-105 active:scale-95 border border-outline-variant ${BTN_BASE}`}>Cancel</button>
-          <button onClick={handleSave} disabled={!canSave} className={`px-4 py-2 rounded-lg text-sm font-medium text-on-primary bg-primary hover:bg-primary-hover hover:shadow-md hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none shadow-sm ${BTN_BASE}`}>Save Preset</button>
+          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button variant="primary" onClick={handleSave} disabled={!canSave}>Save Preset</Button>
         </>
       }
     >
@@ -100,10 +96,10 @@ function PresetEditorModal({
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Rules</label>
-            <button onClick={addRule} className={`text-xs font-medium text-primary border border-transparent hover:border-primary/30 hover:bg-primary/10 hover:shadow-md px-2 py-1 rounded-md hover:scale-105 active:scale-95 flex items-center gap-1 ${BTN_BASE}`}>
+            <Button variant="ghost" size="sm" onClick={addRule} className="text-primary hover:text-primary-hover border border-transparent hover:border-primary/30">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               Add Rule
-            </button>
+            </Button>
           </div>
           <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-1">
             {rules.map((rule, idx) => (
@@ -123,9 +119,9 @@ function PresetEditorModal({
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-on-surface-variant shrink-0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 <input value={rule.replace} onChange={(e) => updateRule(idx, 'replace', e.target.value)} placeholder="Replace" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
                 {/* Remove rule — red accent */}
-                <button onClick={() => removeRule(idx)} disabled={rules.length <= 1} className={`shrink-0 p-1 rounded border border-transparent text-on-surface-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:scale-110 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:border-transparent disabled:hover:bg-transparent disabled:hover:text-on-surface-variant ${BTN_BASE}`}>
+                <Button variant="danger-outline" size="sm" onClick={() => removeRule(idx)} disabled={rules.length <= 1} className="shrink-0 p-1 rounded min-w-0 h-7 w-7">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                </button>
+                </Button>
               </div>
             ))}
           </div>
@@ -145,6 +141,7 @@ export default function SettingsPage() {
 
   const [userPresets, setUserPresets] = useState<Preset[]>([]);
   const [overrides, setOverrides] = useState<Record<string, Preset>>({});
+  const [manualSanitize, setManualSanitize] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingPreset, setEditingPreset] = useState<Preset | null>(null);
   const [showClearHistoryModal, setShowClearHistoryModal] = useState(false);
@@ -155,6 +152,8 @@ export default function SettingsPage() {
   useEffect(() => {
     setUserPresets(loadUserPresets());
     setOverrides(loadPresetOverrides());
+    const { loadManualSanitize } = require('@/lib/storage');
+    setManualSanitize(loadManualSanitize());
   }, []);
 
   const showToast = useCallback((msg: string) => {
@@ -261,9 +260,9 @@ export default function SettingsPage() {
 
         {/* ── Page Header ─────────────────────────────────────────────── */}
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/')} className={`flex items-center justify-center w-8 h-8 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:shadow-md hover:scale-110 active:scale-95 ${BTN_BASE}`} title="Back to Sanitizer">
+          <Button variant="ghost" size="sm" onClick={() => router.push('/')} className="w-8 h-8 rounded-lg p-0 text-on-surface-variant hover:text-on-surface hover:shadow-md hover:scale-110" title="Back to Sanitizer">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
-          </button>
+          </Button>
           <h1 className="text-xl font-bold text-on-surface">Settings</h1>
         </div>
 
@@ -286,9 +285,9 @@ export default function SettingsPage() {
                     <p className="text-xs text-on-surface-variant mt-0.5">{preset.rules.length} rule{preset.rules.length !== 1 ? 's' : ''}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => { setEditingPreset(preset); setEditorOpen(true); }} className={BTN_PRIMARY}>Edit</button>
+                    <Button variant="outline" size="sm" onClick={() => { setEditingPreset(preset); setEditorOpen(true); }}>Edit</Button>
                     {isOverridden && (
-                      <button onClick={() => handleResetToDefault(preset.id)} className={BTN_PRIMARY}>Reset</button>
+                      <Button variant="outline" size="sm" onClick={() => handleResetToDefault(preset.id)}>Reset</Button>
                     )}
                   </div>
                 </div>
@@ -304,10 +303,10 @@ export default function SettingsPage() {
               <h2 className="text-sm font-semibold text-on-surface">Your Presets</h2>
               <p className="text-xs text-on-surface-variant mt-0.5">Custom presets you&apos;ve created.</p>
             </div>
-            <button onClick={() => { setEditingPreset(null); setEditorOpen(true); }} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary border border-transparent hover:bg-primary/10 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-95 ${BTN_BASE}`}>
+            <Button variant="outline" size="sm" onClick={() => { setEditingPreset(null); setEditorOpen(true); }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               New Preset
-            </button>
+            </Button>
           </div>
           {userPresets.length === 0 ? (
             <div className="px-5 py-8 text-center">
@@ -322,13 +321,61 @@ export default function SettingsPage() {
                     <p className="text-xs text-on-surface-variant mt-0.5">{preset.rules.length} rule{preset.rules.length !== 1 ? 's' : ''}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => { setEditingPreset(preset); setEditorOpen(true); }} className={BTN_GHOST}>Edit</button>
-                    <button onClick={() => handleDeleteUserPreset(preset.id)} className={BTN_DANGER_OUTLINE}>Delete</button>
+                    <Button variant="secondary" size="sm" onClick={() => { setEditingPreset(preset); setEditorOpen(true); }}>Edit</Button>
+                    <Button variant="danger-outline" size="sm" onClick={() => handleDeleteUserPreset(preset.id)}>Delete</Button>
                   </div>
                 </div>
               ))}
             </div>
           )}
+        </section>
+
+        {/* ── Preferences Section ─────────────────────────────────────── */}
+        <section className="bg-white dark:bg-[var(--surface)] rounded-xl border border-outline-variant dark:border-[var(--border)] shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-outline-variant bg-surface-container-low/40">
+            <h2 className="text-sm font-semibold text-on-surface">Preferences</h2>
+            <p className="text-xs text-on-surface-variant mt-0.5">Customize your text editing preferences.</p>
+          </div>
+          <div className="px-5 py-4 flex items-center justify-between">
+            <div>
+              <span className="text-sm font-medium text-on-surface">Real-Time (Auto) Sanitization</span>
+              <p className="text-xs text-on-surface-variant mt-0.5">Automatically sanitize text as you type, without manual clicking.</p>
+            </div>
+            <div className="flex bg-surface-container rounded-full p-1 border border-outline-variant shrink-0 select-none">
+              <button
+                type="button"
+                onClick={() => {
+                  setManualSanitize(false);
+                  const { saveManualSanitize } = require('@/lib/storage');
+                  saveManualSanitize(false);
+                  showToast('Real-Time (Auto) Sanitization enabled');
+                }}
+                className={`text-xs px-4 py-1.5 rounded-full font-medium transition-all duration-200 ${
+                  !manualSanitize
+                    ? 'bg-primary text-on-primary shadow-[0_2px_8px_rgba(0,74,173,0.35)] scale-[1.02]'
+                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+                }`}
+              >
+                Auto
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setManualSanitize(true);
+                  const { saveManualSanitize } = require('@/lib/storage');
+                  saveManualSanitize(true);
+                  showToast('Manual Sanitization enabled');
+                }}
+                className={`text-xs px-4 py-1.5 rounded-full font-medium transition-all duration-200 ${
+                  manualSanitize
+                    ? 'bg-primary text-on-primary shadow-[0_2px_8px_rgba(0,74,173,0.35)] scale-[1.02]'
+                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+                }`}
+              >
+                Manual
+              </button>
+            </div>
+          </div>
         </section>
 
         {/* ── Import/Export Section ────────────────────────────────────── */}
@@ -338,14 +385,14 @@ export default function SettingsPage() {
             <p className="text-xs text-on-surface-variant mt-0.5">Backup or restore your custom presets.</p>
           </div>
           <div className="px-5 py-4 flex items-center gap-3">
-            <button onClick={handleExport} disabled={userPresets.length === 0} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-on-surface-variant hover:bg-surface-container-high hover:shadow-md hover:scale-105 active:scale-95 border border-outline-variant disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none ${BTN_BASE}`}>
+            <Button variant="secondary" size="sm" onClick={handleExport} disabled={userPresets.length === 0}>
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
               Export Presets
-            </button>
-            <button onClick={() => fileInputRef.current?.click()} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-on-surface-variant hover:bg-surface-container-high hover:shadow-md hover:scale-105 active:scale-95 border border-outline-variant ${BTN_BASE}`}>
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
               Import Presets
-            </button>
+            </Button>
             <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
           </div>
         </section>
@@ -362,7 +409,7 @@ export default function SettingsPage() {
                 <span className="text-sm font-medium text-on-surface">Clear History</span>
                 <p className="text-xs text-on-surface-variant mt-0.5">Remove all sanitization history entries.</p>
               </div>
-              <button onClick={() => setShowClearHistoryModal(true)} className={BTN_DANGER_OUTLINE}>Clear</button>
+              <Button variant="danger-outline" size="sm" onClick={() => setShowClearHistoryModal(true)}>Clear</Button>
             </div>
             <div className="border-t border-outline-variant/30" />
             <div className="flex items-center justify-between">
@@ -370,7 +417,7 @@ export default function SettingsPage() {
                 <span className="text-sm font-medium text-on-surface">Clear All Data</span>
                 <p className="text-xs text-on-surface-variant mt-0.5">Remove all data including presets, history, and preferences.</p>
               </div>
-              <button onClick={() => setShowClearAllModal(true)} className={BTN_DANGER_OUTLINE}>Clear All</button>
+              <Button variant="danger-outline" size="sm" onClick={() => setShowClearAllModal(true)}>Clear All</Button>
             </div>
           </div>
         </section>
@@ -388,8 +435,8 @@ export default function SettingsPage() {
       {/* Clear History modal — alert themed */}
       <Modal open={showClearHistoryModal} onClose={() => setShowClearHistoryModal(false)} title="Clear History" size="sm"
         footer={<>
-          <button onClick={() => setShowClearHistoryModal(false)} className={`px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high hover:shadow-sm hover:scale-105 active:scale-95 border border-outline-variant ${BTN_BASE}`}>Cancel</button>
-          <button onClick={handleClearHistory} className={`px-4 py-2 rounded-lg text-sm font-medium text-slate-500 border border-outline-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:shadow-lg hover:scale-105 active:scale-95 ${BTN_BASE}`}>Clear History</button>
+          <Button variant="secondary" onClick={() => setShowClearHistoryModal(false)}>Cancel</Button>
+          <Button variant="danger-filled" onClick={handleClearHistory}>Clear History</Button>
         </>}
       >
         <div className="flex items-start gap-3">
@@ -403,8 +450,8 @@ export default function SettingsPage() {
       {/* Clear All Data modal — alert themed */}
       <Modal open={showClearAllModal} onClose={() => setShowClearAllModal(false)} title="Clear All Data" size="sm"
         footer={<>
-          <button onClick={() => setShowClearAllModal(false)} className={`px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high hover:shadow-sm hover:scale-105 active:scale-95 border border-outline-variant ${BTN_BASE}`}>Cancel</button>
-          <button onClick={handleClearAll} className={`px-4 py-2 rounded-lg text-sm font-medium text-slate-500 border border-outline-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:shadow-lg hover:scale-105 active:scale-95 ${BTN_BASE}`}>Clear Everything</button>
+          <Button variant="secondary" onClick={() => setShowClearAllModal(false)}>Cancel</Button>
+          <Button variant="danger-filled" onClick={handleClearAll}>Clear Everything</Button>
         </>}
       >
         <div className="flex items-start gap-3">

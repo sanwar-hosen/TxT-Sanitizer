@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from 'react';
 import Modal from '@/components/shared/Modal';
+import { Button } from '@/components/shared/Button';
+import { Alert } from '@/components/shared/Alert';
 
 interface FeedbackModalProps {
   open: boolean;
@@ -82,23 +84,23 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
       footer={
         status === 'success' ? undefined : (
           <>
-            <button
+            <Button
               onClick={handleClose}
               disabled={status === 'sending'}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high border border-outline-variant transition-colors disabled:opacity-50"
+              variant="secondary"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-on-primary bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-2"
+              variant="primary"
             >
               {status === 'sending' && (
                 <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               )}
               {status === 'sending' ? 'Sending…' : 'Send Feedback'}
-            </button>
+            </Button>
           </>
         )
       }
@@ -116,9 +118,7 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
       ) : (
         <div className="space-y-4">
           {status === 'error' && errorMsg && (
-            <div className="px-3 py-2 rounded-lg bg-error-container text-on-error-container text-xs font-medium">
-              {errorMsg}
-            </div>
+            <Alert variant="error" message={errorMsg} className="py-2.5 px-3" />
           )}
 
           {/* Email — optional */}

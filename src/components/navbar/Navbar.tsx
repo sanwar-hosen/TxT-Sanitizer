@@ -2,12 +2,30 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkMode, ThemeId } from "@/hooks/useDarkMode";
+
+const THEMES: { id: ThemeId; name: string; preview: string[] }[] = [
+  { id: 'light', name: 'Light', preview: ['#004AAD', '#ffffff', '#0b1c30'] },
+  { id: 'dark', name: 'Dark', preview: ['#60a5fa', '#0f172a', '#e2e8f0'] },
+  { id: 'cupcake', name: 'Cupcake', preview: ['#65c3c8', '#faf7f5', '#291334'] },
+  { id: 'emerald', name: 'Emerald', preview: ['#66cc8a', '#ffffff', '#333c4d'] },
+  { id: 'synthwave', name: 'Synthwave', preview: ['#e779c1', '#1a103c', '#f1f1f1'] },
+  { id: 'retro', name: 'Retro', preview: ['#ef9fbc', '#ece3ca', '#282425'] },
+  { id: 'halloween', name: 'Halloween', preview: ['#f28c18', '#1a1a1a', '#f1f1f1'] },
+  { id: 'forest', name: 'Forest', preview: ['#1eb854', '#171212', '#f1f1f1'] },
+  { id: 'wireframe', name: 'Wireframe', preview: ['#b8b8b8', '#ffffff', '#000000'] },
+  { id: 'dracula', name: 'Dracula', preview: ['#ff79c6', '#282a36', '#f8f8f2'] },
+  { id: 'night', name: 'Night', preview: ['#38bdf8', '#0f172a', '#f1f1f1'] },
+  { id: 'coffee', name: 'Coffee', preview: ['#db924b', '#20161f', '#f1f1f1'] },
+  { id: 'abyss', name: 'Abyss', preview: ['#1d4ed8', '#0f172a', '#e2e8f0'] },
+  { id: 'sunset', name: 'Sunset', preview: ['#ff865b', '#120e16', '#f1f1f1'] },
+  { id: 'silk', name: 'Silk', preview: ['#9aa5b1', '#f3f4f6', '#1f2937'] },
+];
 
 const NAV_BTN_BASE = "flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 hover:shadow-md hover:scale-110 active:scale-95";
 
 export default function Navbar() {
-  const { isDark, toggleDarkMode } = useDarkMode();
+  const { theme, selectTheme } = useDarkMode();
   const pathname = usePathname();
 
   function navCls(href: string) {
@@ -37,26 +55,57 @@ export default function Navbar() {
             v2
           </span>
         </Link>
-
+ 
         {/* Nav links */}
         <nav className="flex items-center gap-1">
-          {/* Dark mode toggle */}
-          <button
-            title="Toggle dark mode"
-            onClick={toggleDarkMode}
-            className={`${NAV_BTN_BASE} text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]`}
-          >
-            {isDark ? (
+          {/* Theme selection dropdown */}
+          <div className="dropdown dropdown-hover dropdown-end z-50">
+            <button
+              tabIndex={0}
+              className={`${NAV_BTN_BASE} text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]`}
+              title="Select Theme"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" />
               </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-              </svg>
-            )}
-          </button>
+            </button>
+            <div
+              tabIndex={0}
+              className="dropdown-content menu p-3 shadow-lg bg-base-100 border border-base-300 rounded-xl w-60 max-h-96 overflow-y-auto custom-scrollbar"
+            >
+              <div className="text-xs font-semibold text-base-content/60 px-2 pb-2 border-b border-base-300 mb-2">
+                Themes ({THEMES.length})
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                {THEMES.map((t) => {
+                  const isActive = theme === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => selectTheme(t.id)}
+                      className={`flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-left text-xs font-medium transition-colors hover:bg-base-200 ${
+                        isActive
+                          ? 'bg-primary/10 text-primary font-bold'
+                          : 'text-base-content'
+                      }`}
+                    >
+                      <span className="capitalize">{t.name}</span>
+                      <div className="flex gap-1">
+                        {t.preview.map((color, idx) => (
+                          <span
+                            key={idx}
+                            className="w-3 h-3 rounded-full border border-base-content/10 shadow-xs"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
 
           {/* History */}
           <Link href="/history" title="History" className={navCls('/history')}>

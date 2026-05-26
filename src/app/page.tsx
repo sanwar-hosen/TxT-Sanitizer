@@ -40,6 +40,13 @@ export default function Home() {
   // ── Local state ──────────────────────────────────────────────────────────────
   const [copied, setCopied] = useState(false);
   const [isSanitizing, setIsSanitizing] = useState(false);
+  const [manualSanitize, setManualSanitize] = useState(false);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const { loadManualSanitize } = require('@/lib/storage');
+    setManualSanitize(loadManualSanitize());
+  }, [hydrated]);
 
   // ── Pick up "Edit in Workspace" from History page ───────────────────────────
   useEffect(() => {
@@ -50,6 +57,21 @@ export default function Home() {
       updateActiveTab({ inputText: text, outputText: '', matches: [] });
     }
   }, [hydrated, updateActiveTab]);
+
+  // ── Auto Sanitize Effect ───────────────────────────────────────────────────
+  useEffect(() => {
+    if (manualSanitize) return;
+    if (!activeTab || !activeTab.inputText.trim() || !activePreset) return;
+
+    const { output, matches } = sanitize(activeTab.inputText, activePreset.rules);
+    
+    if (
+      activeTab.outputText !== output ||
+      JSON.stringify(activeTab.matches) !== JSON.stringify(matches)
+    ) {
+      updateActiveTab({ outputText: output, matches });
+    }
+  }, [manualSanitize, activeTab?.inputText, activePreset, updateActiveTab, activeTab?.outputText, activeTab?.matches]);
 
   // F&R logic is lifted here because it operates on Input text but UI is in Output panel
   const fr = useFindReplace(activeTab?.inputText ?? '');
@@ -79,11 +101,14 @@ export default function Home() {
     (text: string) => {
       if (!text.trim()) {
         updateActiveTab({ inputText: text, outputText: '', matches: [] });
+      } else if (!manualSanitize && activePreset) {
+        const { output, matches } = sanitize(text, activePreset.rules);
+        updateActiveTab({ inputText: text, outputText: output, matches });
       } else {
         updateActiveTab({ inputText: text });
       }
     },
-    [updateActiveTab]
+    [updateActiveTab, manualSanitize, activePreset]
   );
 
   /** Run sanitizer, update output + match metadata, save to history */
@@ -213,6 +238,7 @@ export default function Home() {
               isSanitizing={isSanitizing}
               frMatches={fr.matches}
               frActiveIndex={fr.activeIndex}
+              manualSanitize={manualSanitize}
             />
 
             <OutputPanel

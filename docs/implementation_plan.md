@@ -472,21 +472,21 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] Client: `useSystemPresets` hook — fetch + cache system presets in localStorage, merge with user presets
 - [x] "Reset to default" per system preset (settings page wired to fetched presets)
 
-### Phase 6.5 — Centralized Styling & DaisyUI Integration
-- [ ] Install `daisyui` plugin.
-- [ ] Create custom `light` and `dark` themes in `tailwind` to match the brand via daisyUI config.
-- [ ] Refactor UI to use daisyUI utility classes instead of fixed Tailwind colors.
-- [ ] Create reusable `Button` and `Alert` components for shared usage (including admin).
+### Phase 6.5 — Centralized Styling & DaisyUI Integration ✅ DONE
+- [x] Install `daisyui` plugin.
+- [x] Create custom `light` and `dark` themes in `tailwind` to match the brand via daisyUI config.
+- [x] Refactor UI to use daisyUI utility classes instead of fixed Tailwind colors.
+- [x] Create reusable `Button` and `Alert` components for shared usage (including admin).
 
-### Phase 6.6 — Multi-Theme Dropdown
-- [ ] Enable off-the-shelf themes in daisyUI config.
-- [ ] Create a hover-triggered dropdown in the Navbar for theme selection.
-- [ ] Save selected theme to `localStorage` and apply `data-theme` to document root.
+### Phase 6.6 — Multi-Theme Dropdown ✅ DONE
+- [x] Enable off-the-shelf themes in daisyUI config.
+- [x] Create a hover-triggered dropdown in the Navbar for theme selection.
+- [x] Save selected theme to `localStorage` and apply `data-theme` to document root.
 
-### Phase 6.7 — Automatic Real-Time Sanitization
-- [ ] Implement `manualSanitize` state toggle in settings and context.
-- [ ] Auto-run `sanitize()` on input changes when in Auto mode.
-- [ ] Block history page with an "Enable Manual Mode" prompt when in Auto mode.
+### Phase 6.7 — Automatic Real-Time Sanitization ✅ DONE
+- [x] Implement `manualSanitize` state toggle in settings and context.
+- [x] Auto-run `sanitize()` on input changes when in Auto mode.
+- [x] Block history page with an "Enable Manual Mode" prompt when in Auto mode.
 
 ### Phase 7 — Admin Dashboard
 - [ ] Admin login page + `POST /api/admin/login`

@@ -2,6 +2,7 @@
 
 import { useRef, useCallback, useEffect, useMemo } from 'react';
 import type { SearchMatch } from '@/hooks/useFindReplace';
+import { Button } from '@/components/shared/Button';
 
 interface Props {
   value: string;
@@ -10,9 +11,18 @@ interface Props {
   isSanitizing?: boolean;
   frMatches?: SearchMatch[];
   frActiveIndex?: number;
+  manualSanitize?: boolean;
 }
 
-export default function InputPanel({ value, onChange, onSanitize, isSanitizing, frMatches = [], frActiveIndex = -1 }: Props) {
+export default function InputPanel({
+  value,
+  onChange,
+  onSanitize,
+  isSanitizing,
+  frMatches = [],
+  frActiveIndex = -1,
+  manualSanitize = true,
+}: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isEmpty = value.trim().length === 0;
 
@@ -21,10 +31,10 @@ export default function InputPanel({ value, onChange, onSanitize, isSanitizing, 
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
-        if (!isEmpty) onSanitize();
+        if (!isEmpty && manualSanitize) onSanitize();
       }
     },
-    [isEmpty, onSanitize]
+    [isEmpty, onSanitize, manualSanitize]
   );
 
   // Paste from clipboard
@@ -90,18 +100,20 @@ export default function InputPanel({ value, onChange, onSanitize, isSanitizing, 
       {/* Clear button — top-right */}
       {!isEmpty && (
         <div className="absolute top-3 right-3 z-10 flex gap-2">
-          <button
+          <Button
+            variant="danger-outline"
+            size="sm"
             onClick={() => {
               onChange('');
               textareaRef.current?.focus();
             }}
             title="Clear input"
-            className="p-1.5 border border-outline-variant dark:border-[var(--border)] rounded-md bg-white dark:bg-[var(--surface-2)] text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 hover:border-red-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+            className="p-1.5 min-w-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </button>
+          </Button>
         </div>
       )}
 
@@ -151,11 +163,12 @@ export default function InputPanel({ value, onChange, onSanitize, isSanitizing, 
       {/* Bottom-right actions */}
       <div className="absolute bottom-4 right-4 flex items-center gap-2">
         {/* Paste button */}
-        <button
+        <Button
           id="btn-paste"
           title="Paste from clipboard"
           onClick={handlePaste}
-          className="p-2 border border-outline-variant dark:border-[var(--border)] rounded-md bg-white dark:bg-[var(--surface-2)] text-slate-500 dark:text-slate-400 hover:bg-surface-container-low dark:hover:bg-slate-700 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+          variant="secondary"
+          className="p-2 min-w-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -166,27 +179,19 @@ export default function InputPanel({ value, onChange, onSanitize, isSanitizing, 
             />
             <rect height="4" rx="1" ry="1" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" width="8" x="8" y="2" />
           </svg>
-        </button>
+        </Button>
 
-        {/* Sanitize button — hidden when empty, dims while typing */}
-        {!isEmpty && (
-          <button
+        {/* Sanitize button — hidden when empty or in auto mode */}
+        {!isEmpty && manualSanitize && (
+          <Button
             id="btn-sanitize"
             onClick={onSanitize}
             disabled={isSanitizing}
             title="Sanitize (Ctrl+Enter)"
-            style={{ 
-              backgroundColor: '#004AAD',
-              color: 'white'
-            }}
-            className={[
-              'px-5 py-2 rounded-md text-sm font-semibold transition-all duration-200 shadow-sm',
-              'hover:brightness-90 hover:shadow-md hover:scale-105 active:scale-95',
-              isSanitizing ? 'opacity-60 cursor-not-allowed' : 'opacity-100',
-            ].join(' ')}
+            variant="primary"
           >
             Sanitize
-          </button>
+          </Button>
         )}
       </div>
     </section>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { Button } from '@/components/shared/Button';
 
 interface Props {
   isOpen: boolean;
@@ -78,48 +79,52 @@ export default function FindReplacePanel({
             {matchesCount > 0 ? `${activeIndex + 1} of ${matchesCount}` : 'No results'}
           </span>
         </div>
-        <button
+        <Button
           title="Match Case"
           onClick={() => setCaseSensitive(!caseSensitive)}
-          className={`p-1.5 rounded-md border transition-colors ${
-            caseSensitive
-              ? 'bg-primary/10 border-primary text-primary'
-              : 'border-transparent text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
+          variant={caseSensitive ? "primary" : "secondary"}
+          size="sm"
+          className="p-1.5 min-w-0"
         >
           <span className="font-mono text-xs font-bold leading-none">Aa</span>
-        </button>
+        </Button>
         <div className="flex items-center gap-0.5">
-          <button
+          <Button
             title="Previous Match (Shift+Enter)"
             onClick={onPrev}
             disabled={matchesCount === 0}
-            className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+            variant="ghost"
+            size="sm"
+            className="p-1.5 min-w-0 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
             </svg>
-          </button>
-          <button
+          </Button>
+          <Button
             title="Next Match (Enter)"
             onClick={onNext}
             disabled={matchesCount === 0}
-            className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+            variant="ghost"
+            size="sm"
+            className="p-1.5 min-w-0 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
             </svg>
-          </button>
+          </Button>
         </div>
-        <button
+        <Button
           onClick={onClose}
           title="Close (Esc)"
-          className="p-1.5 rounded-md text-slate-500 border border-outline-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md ml-1"
+          variant="danger-outline"
+          size="sm"
+          className="p-1.5 min-w-0 ml-1"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
-        </button>
+        </Button>
       </div>
       
       <div className="flex items-center gap-2">
@@ -130,20 +135,22 @@ export default function FindReplacePanel({
           onChange={(e) => setReplaceText(e.target.value)}
           className="flex-1 px-2 py-1.5 border border-outline-variant rounded-md bg-transparent focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
-        <button
+        <Button
           onClick={onReplaceOne}
           disabled={matchesCount === 0}
-          className="px-3 py-1.5 rounded-md border border-outline-variant text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors font-medium"
+          variant="secondary"
+          size="sm"
         >
           Replace
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onReplaceAll}
           disabled={matchesCount === 0}
-          className="px-3 py-1.5 rounded-md border border-outline-variant text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors font-medium"
+          variant="secondary"
+          size="sm"
         >
           Replace All
-        </button>
+        </Button>
       </div>
     </div>
   );

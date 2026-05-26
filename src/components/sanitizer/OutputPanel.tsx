@@ -5,6 +5,7 @@ import type { Match } from '@/types/preset';
 import { buildHighlightSegments } from '@/lib/highlight';
 import type { useFindReplace } from '@/hooks/useFindReplace';
 import FindReplacePanel from './FindReplacePanel';
+import { Button } from '@/components/shared/Button';
 
 interface Props {
   value: string;
@@ -82,15 +83,12 @@ export default function OutputPanel({
     >
       {fr && (
         <div className="absolute top-3 right-3 z-10">
-          <button
+          <Button
             id="btn-find-replace"
             onClick={fr.toggleOpen}
             title="Find & Replace (Ctrl+Shift+F)"
-            className={`p-1.5 border rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:scale-110 active:scale-95 ${
-              fr.isOpen 
-                ? 'bg-primary border-primary text-white' 
-                : 'border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-slate-500 dark:text-slate-400 hover:bg-surface-container-low dark:hover:bg-slate-700 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30'
-            }`}
+            variant={fr.isOpen ? "primary" : "secondary"}
+            className="p-1.5 min-w-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -100,7 +98,7 @@ export default function OutputPanel({
                 strokeWidth="2"
               />
             </svg>
-          </button>
+          </Button>
         </div>
       )}
 
@@ -159,8 +157,10 @@ export default function OutputPanel({
       </div>
 
       {hoveredMatch && (
-        <button
-          className="fixed z-50 flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[var(--surface-2)] border border-outline-variant dark:border-[var(--border)] rounded-md shadow-md text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30 transition-all"
+        <Button
+          variant="secondary"
+          size="sm"
+          className="fixed z-50 flex items-center gap-1.5 shadow-md"
           style={{ top: btnPos.top, left: btnPos.left }}
           onMouseEnter={handleBtnMouseEnter}
           onMouseLeave={handleBtnMouseLeave}
@@ -173,22 +173,18 @@ export default function OutputPanel({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
           </svg>
           Restore "{hoveredMatch.original}"
-        </button>
+        </Button>
       )}
 
       {/* Bottom-right actions */}
       {!isEmpty && (
         <div className="absolute bottom-4 right-4 flex items-center gap-2">
-          <button
+          <Button
             id="btn-copy-output"
             title="Copy output"
             onClick={onCopy}
-            className={[
-              'p-2 border rounded-md transition-all duration-200 shadow-sm text-sm font-medium flex items-center gap-1.5',
-              copied
-                ? 'border-secondary bg-secondary/10 text-secondary'
-                : 'border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-slate-500 dark:text-slate-400 hover:bg-surface-container-low dark:hover:bg-slate-700 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30 hover:shadow-md hover:scale-105 active:scale-95',
-            ].join(' ')}
+            variant="secondary"
+            className={copied ? 'border-secondary bg-secondary/10 text-secondary hover:bg-secondary/10' : 'p-2 min-w-0'}
           >
             {copied ? (
               <>
@@ -207,13 +203,14 @@ export default function OutputPanel({
                 />
               </svg>
             )}
-          </button>
+          </Button>
 
-          <button
+          <Button
             id="btn-reinput"
             title="Send output to input"
             onClick={onReinput}
-            className="p-2 border border-outline-variant dark:border-[var(--border)] rounded-md bg-white dark:bg-[var(--surface-2)] text-slate-500 dark:text-slate-400 hover:bg-surface-container-low dark:hover:bg-slate-700 hover:text-primary dark:hover:text-blue-400 hover:border-primary/30 dark:hover:border-blue-400/30 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+            variant="secondary"
+            className="p-2 min-w-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -223,7 +220,7 @@ export default function OutputPanel({
                 strokeWidth="2"
               />
             </svg>
-          </button>
+          </Button>
         </div>
       )}
     </section>

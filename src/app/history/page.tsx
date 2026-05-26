@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useHistory } from '@/hooks/useHistory';
 import Modal from '@/components/shared/Modal';
+import { Button } from '@/components/shared/Button';
 
 type SortMode = 'newest' | 'oldest';
 
@@ -33,10 +34,7 @@ function truncate(text: string, maxLen: number): string {
   return text.slice(0, maxLen).trimEnd() + '…';
 }
 
-/* ── Shared button style tokens ────────────────────────────────────────────── */
-const BTN_BASE = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200';
-const BTN_GHOST = `${BTN_BASE} text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:shadow-md hover:scale-105 active:scale-95 border border-outline-variant`;
-const BTN_DANGER = `${BTN_BASE} text-slate-400 border border-outline-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:shadow-md hover:scale-105 active:scale-95`;
+
 
 export default function HistoryPage() {
   const { history, deleteEntry, clearAll } = useHistory();
@@ -46,6 +44,15 @@ export default function HistoryPage() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [manualSanitize, setManualSanitize] = useState(true);
+
+  // Load manual mode preference
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      const { loadManualSanitize } = require('@/lib/storage');
+      setManualSanitize(loadManualSanitize());
+    }
+  });
 
   // Sorted history
   const sorted = useMemo(() => {
@@ -90,6 +97,12 @@ export default function HistoryPage() {
     setExpandedIds(new Set());
   }, [clearAll]);
 
+  const handleEnableManualMode = useCallback(() => {
+    const { saveManualSanitize } = require('@/lib/storage');
+    saveManualSanitize(true);
+    setManualSanitize(true);
+  }, []);
+
   return (
     <div className="flex-1 flex flex-col p-4 md:p-8">
       <div className="max-w-[1000px] w-full mx-auto">
@@ -97,57 +110,87 @@ export default function HistoryPage() {
         {/* ── Page Header ───────────────────────────────────────────────── */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => router.push('/')}
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:shadow-md hover:scale-110 active:scale-95 transition-all duration-200"
+              className="w-8 h-8 rounded-lg p-0 text-on-surface-variant hover:text-on-surface hover:shadow-md hover:scale-110"
               title="Back to Sanitizer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m12 19-7-7 7-7M19 12H5" />
               </svg>
-            </button>
+            </Button>
             <h1 className="text-xl font-bold text-on-surface">History</h1>
-            <span className="text-xs font-medium text-on-surface-variant bg-surface-container-high rounded-full px-2.5 py-0.5">
-              {history.length}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Sort toggle */}
-            <div className="flex items-center bg-surface-container rounded-lg p-0.5 border border-outline-variant">
-              <button
-                onClick={() => setSortMode('newest')}
-                className={`text-xs px-3 py-1.5 rounded-md font-medium transition-all duration-200 ${
-                  sortMode === 'newest'
-                    ? 'bg-primary text-on-primary shadow-[0_2px_8px_rgba(0,74,173,0.35)] scale-[1.02]'
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
-                }`}
-              >
-                Newest
-              </button>
-              <button
-                onClick={() => setSortMode('oldest')}
-                className={`text-xs px-3 py-1.5 rounded-md font-medium transition-all duration-200 ${
-                  sortMode === 'oldest'
-                    ? 'bg-primary text-on-primary shadow-[0_2px_8px_rgba(0,74,173,0.35)] scale-[1.02]'
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
-                }`}
-              >
-                Oldest
-              </button>
-            </div>
-
-            {/* Clear all button — alert themed */}
-            {history.length > 0 && (
-              <button
-                onClick={() => setShowClearModal(true)}
-                className={BTN_DANGER}
-              >
-                Clear All
-              </button>
+            {manualSanitize && (
+              <span className="text-xs font-medium text-on-surface-variant bg-surface-container-high rounded-full px-2.5 py-0.5">
+                {history.length}
+              </span>
             )}
           </div>
+
+          {manualSanitize && (
+            <div className="flex items-center gap-2">
+              {/* Sort toggle */}
+              <div className="flex items-center bg-surface-container rounded-lg p-0.5 border border-outline-variant">
+                <button
+                  onClick={() => setSortMode('newest')}
+                  className={`text-xs px-3 py-1.5 rounded-md font-medium transition-all duration-200 ${
+                    sortMode === 'newest'
+                      ? 'bg-primary text-on-primary shadow-[0_2px_8px_rgba(0,74,173,0.35)] scale-[1.02]'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+                  }`}
+                >
+                  Newest
+                </button>
+                <button
+                  onClick={() => setSortMode('oldest')}
+                  className={`text-xs px-3 py-1.5 rounded-md font-medium transition-all duration-200 ${
+                    sortMode === 'oldest'
+                      ? 'bg-primary text-on-primary shadow-[0_2px_8px_rgba(0,74,173,0.35)] scale-[1.02]'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+                  }`}
+                >
+                  Oldest
+                </button>
+              </div>
+
+              {/* Clear all button — alert themed */}
+              {history.length > 0 && (
+                <Button
+                  variant="danger-outline"
+                  size="sm"
+                  onClick={() => setShowClearModal(true)}
+                >
+                  Clear All
+                </Button>
+              )}
+            </div>
+          )}
         </div>
+
+        {!manualSanitize ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-[var(--surface)] rounded-xl border border-outline-variant dark:border-[var(--border)] p-8 max-w-md mx-auto shadow-sm mt-8">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600 dark:text-amber-500">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-on-surface mb-2">History Blocked</h2>
+            <p className="text-sm text-on-surface-variant mb-6">
+              In order to see history you have to enable the sanitize button. Real-time sanitization does not record history logs.
+            </p>
+            <Button
+              variant="primary"
+              onClick={handleEnableManualMode}
+            >
+              Enable Manual Mode
+            </Button>
+          </div>
+        ) : (
+          <>
 
         {/* ── Empty State ───────────────────────────────────────────────── */}
         {history.length === 0 && (
@@ -163,12 +206,13 @@ export default function HistoryPage() {
             <p className="text-sm text-on-surface-variant max-w-xs">
               Your sanitization history will appear here after you run the sanitizer.
             </p>
-            <button
+            <Button
+              variant="primary"
               onClick={() => router.push('/')}
-              className="mt-6 px-4 py-2 rounded-lg text-sm font-medium text-primary border border-transparent hover:bg-primary/10 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
+              className="mt-6"
             >
               Go to Sanitizer
-            </button>
+            </Button>
           </div>
         )}
 
@@ -244,12 +288,14 @@ export default function HistoryPage() {
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 mt-3 pt-3 border-t border-outline-variant/30">
                       {/* Copy output */}
-                      <button
+                      {/* Copy output */}
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCopy(entry.outputText, entry.id);
                         }}
-                        className={BTN_GHOST}
                       >
                         {isCopied ? (
                           <>
@@ -267,39 +313,41 @@ export default function HistoryPage() {
                             Copy Output
                           </>
                         )}
-                      </button>
+                      </Button>
 
                       {/* Edit to workspace */}
-                      <button
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEditToWorkspace(entry.inputText);
                         }}
-                        className={`${BTN_BASE} text-on-surface-variant border border-outline-variant hover:bg-primary/10 hover:text-primary hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-95`}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                           <path d="m15 5 4 4" />
                         </svg>
                         Edit in Workspace
-                      </button>
+                      </Button>
 
                       {/* Spacer */}
                       <div className="flex-1" />
 
                       {/* Delete — alert themed */}
-                      <button
+                      <Button
+                        variant="danger-outline"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteEntry(entry.id);
                         }}
-                        className={BTN_DANGER}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                         </svg>
                         Delete
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -307,6 +355,8 @@ export default function HistoryPage() {
             );
           })}
         </div>
+      </>
+    )}
 
       </div>
 
@@ -318,18 +368,12 @@ export default function HistoryPage() {
         size="sm"
         footer={
           <>
-            <button
-              onClick={() => setShowClearModal(false)}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high hover:shadow-sm hover:scale-105 active:scale-95 border border-outline-variant transition-all duration-200"
-            >
+            <Button variant="secondary" onClick={() => setShowClearModal(false)}>
               Cancel
-            </button>
-            <button
-              onClick={handleClearAll}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-slate-500 border border-outline-variant hover:bg-red-50 hover:text-red-500 hover:border-red-400 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
-            >
+            </Button>
+            <Button variant="danger-filled" onClick={handleClearAll}>
               Clear All
-            </button>
+            </Button>
           </>
         }
       >
