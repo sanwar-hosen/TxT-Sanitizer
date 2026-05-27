@@ -2,6 +2,7 @@
 
 import { useRef, useCallback, useEffect, useMemo } from 'react';
 import type { SearchMatch } from '@/hooks/useFindReplace';
+import type { Match } from '@/types/preset';
 import { Button } from '@/components/shared/Button';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
   frMatches?: SearchMatch[];
   frActiveIndex?: number;
   manualSanitize?: boolean;
+  presetMatches?: Match[];
 }
 
 export default function InputPanel({
@@ -22,6 +24,7 @@ export default function InputPanel({
   frMatches = [],
   frActiveIndex = -1,
   manualSanitize = true,
+  presetMatches = [],
 }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isEmpty = value.trim().length === 0;
@@ -58,39 +61,63 @@ export default function InputPanel({
     }
   };
 
-  // Build segments locally for search highlights
-  const searchSegments = useMemo(() => {
-    if (frMatches.length === 0) return [{ text: value, isMatch: false, isActive: false }];
-    
-    const segments: { text: string; isMatch: boolean; isActive: boolean }[] = [];
-    let cursor = 0;
-    
-    frMatches.forEach((match, i) => {
-      if (match.startIndex > cursor) {
-        segments.push({
-          text: value.slice(cursor, match.startIndex),
-          isMatch: false,
-          isActive: false,
-        });
-      }
-      segments.push({
-        text: value.slice(match.startIndex, match.endIndex),
-        isMatch: true,
-        isActive: i === frActiveIndex,
-      });
-      cursor = match.endIndex;
+  // Build segments locally for backdrop highlights
+  const unifiedSegments = useMemo(() => {
+    if (frMatches.length === 0 && presetMatches.length === 0) {
+      return [{ text: value, isFRMatch: false, isActiveFR: false, isPresetMatch: false }];
+    }
+
+    const frIntervals = frMatches.map((m, idx) => ({
+      start: m.startIndex,
+      end: m.endIndex,
+      isActive: idx === frActiveIndex,
+    }));
+
+    const presetIntervals = presetMatches
+      .filter((m) => m.inputStartIndex !== undefined && m.inputEndIndex !== undefined)
+      .map((m) => ({
+        start: m.inputStartIndex!,
+        end: m.inputEndIndex!,
+      }));
+
+    const boundaries = new Set<number>([0, value.length]);
+    frIntervals.forEach((i) => {
+      boundaries.add(i.start);
+      boundaries.add(i.end);
     });
-    
-    if (cursor < value.length) {
+    presetIntervals.forEach((i) => {
+      boundaries.add(i.start);
+      boundaries.add(i.end);
+    });
+
+    const sortedBoundaries = Array.from(boundaries).sort((a, b) => a - b);
+
+    const segments: {
+      text: string;
+      isFRMatch: boolean;
+      isActiveFR: boolean;
+      isPresetMatch: boolean;
+    }[] = [];
+
+    for (let idx = 0; idx < sortedBoundaries.length - 1; idx++) {
+      const start = sortedBoundaries[idx];
+      const end = sortedBoundaries[idx + 1];
+      const segmentText = value.slice(start, end);
+      if (!segmentText) continue;
+
+      const frMatch = frIntervals.find((i) => start >= i.start && end <= i.end);
+      const presetMatch = presetIntervals.find((i) => start >= i.start && end <= i.end);
+
       segments.push({
-        text: value.slice(cursor),
-        isMatch: false,
-        isActive: false,
+        text: segmentText,
+        isFRMatch: !!frMatch,
+        isActiveFR: frMatch?.isActive ?? false,
+        isPresetMatch: !!presetMatch,
       });
     }
-    
+
     return segments;
-  }, [value, frMatches, frActiveIndex]);
+  }, [value, frMatches, frActiveIndex, presetMatches]);
 
   return (
     <section
@@ -134,15 +161,27 @@ export default function InputPanel({
           className="absolute inset-0 p-4 font-mono text-sm whitespace-pre-wrap break-words text-transparent pointer-events-none overflow-auto custom-scrollbar pane-textarea"
           aria-hidden="true"
         >
-          {searchSegments.map((seg, i) => {
-            if (seg.isMatch) {
+          {unifiedSegments.map((seg, i) => {
+            if (seg.isFRMatch) {
               return (
                 <span
                   key={i}
                   className={[
-                    seg.isActive ? 'bg-blue-400/50 dark:bg-blue-500/50 text-transparent font-medium' : 'bg-blue-200/50 dark:bg-blue-800/40 text-transparent',
+                    seg.isActiveFR
+                      ? 'bg-blue-400/50 dark:bg-blue-500/50 text-transparent font-medium'
+                      : 'bg-blue-200/50 dark:bg-blue-800/40 text-transparent',
                     'rounded-[2px] transition-colors py-[1px] -my-[1px]'
                   ].join(' ')}
+                >
+                  {seg.text}
+                </span>
+              );
+            }
+            if (seg.isPresetMatch) {
+              return (
+                <span
+                  key={i}
+                  className="bg-amber-200 dark:bg-amber-800/40 text-transparent rounded-[2px] transition-colors py-[1px] -my-[1px]"
                 >
                   {seg.text}
                 </span>

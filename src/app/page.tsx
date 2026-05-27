@@ -254,6 +254,7 @@ export default function Home() {
               frMatches={fr.matches}
               frActiveIndex={fr.activeIndex}
               manualSanitize={manualSanitize}
+              presetMatches={activeTab?.matches ?? []}
             />
 
             <OutputPanel
