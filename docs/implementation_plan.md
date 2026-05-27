@@ -1,6 +1,6 @@
 # TxT Sanitizer V2 — Finalized Implementation Plan
 
-## Status: 🚀 Phase 6 Complete — Moving to Phase 7
+## Status: 🚀 Phase 7 Complete — Moving to Phase 8
 
 ---
 
@@ -27,7 +27,7 @@
 | State | React local state + custom hooks | No global state library |
 | Tab Persistence | **localStorage** | Tabs persist across reloads |
 | User Data | **localStorage** | Presets, history, dark mode pref |
-| System Data | **Cloudflare D1** | System presets, popup config, About content, analytics |
+| System Data | **Cloudflare D1** | System presets, notification alert config, About content, analytics |
 | Email | **Nodemailer + Gmail SMTP** | Free, no external service |
 | Deployment | **Cloudflare Pages** | Existing, no change |
 | Font | **Rubik** (Google Fonts via `next/font`) | Brand consistency |
@@ -64,11 +64,13 @@ CREATE TABLE IF NOT EXISTS presets (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
-CREATE TABLE IF NOT EXISTS popup_config (
+CREATE TABLE IF NOT EXISTS notification_alert (
   id INTEGER PRIMARY KEY DEFAULT 1,
-  content TEXT NOT NULL DEFAULT '',
-  enabled INTEGER DEFAULT 0,
-  version INTEGER DEFAULT 1,
+  enabled INTEGER DEFAULT 0,        -- 0 = off, 1 = on
+  heading TEXT NOT NULL DEFAULT '',  -- brief one-line title shown in the alert bar
+  has_learn_more INTEGER DEFAULT 0,  -- 0 = heading only, 1 = show Learn More button
+  body TEXT DEFAULT '',              -- required when has_learn_more = 1; article-style detail text
+  version INTEGER DEFAULT 1,         -- bump to re-show to all users
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -81,7 +83,7 @@ CREATE TABLE IF NOT EXISTS about_content (
 CREATE TABLE IF NOT EXISTS analytics (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   event_type TEXT NOT NULL,   -- 'page_view' | 'sanitize' | 'feedback'
-  metadata TEXT,
+  metadata TEXT,              -- JSON metadata: { presetId, charCount, etc. }
   created_at TEXT DEFAULT (datetime('now'))
 );
 ```
@@ -171,7 +173,7 @@ CREATE TABLE IF NOT EXISTS analytics (
 | 9 | **Feedback form** in Footer — modal with email/subject/message → Nodemailer | Medium |
 | 10 | **System presets** — fetched once, cached in localStorage, user-editable locally, "Reset to default" per preset | Medium |
 | 11 | **Admin dashboard** (`/admin`) — CRUD presets, popup, About CMS, ads toggle, analytics | High |
-| 12 | **Popup system** — first-visit, admin-controlled content + enabled flag | Low |
+| 12 | **Notification Alert system** — slide-in banner from top of site, center-top hover zone, heading + optional "Learn More" modal; admin-controlled | Medium |
 | 13 | **Ads-ready layout** — reserved slots (below navbar, right sidebar), **admin-toggleable** | Low |
 | 14 | **Button opacity on typing** — sanitize button dims while typing, restores on blur/stop | Low |
 | 15 | **Reinput button** — icon only, moves output → input, clears output | Low |
@@ -192,10 +194,11 @@ CREATE TABLE IF NOT EXISTS analytics (
   /about/page.tsx             ← Server Component (SSR for SEO)
   /admin/page.tsx             ← Admin dashboard
   /api/presets/route.ts       ← GET (public) / POST,PUT,DELETE (admin)
-  /api/popup/route.ts         ← GET popup config
-  /api/about/route.ts         ← GET/PUT about content
+  /api/notification-alert/route.ts  ← GET notification alert config (public) / PUT (admin)
+  /api/about/route.ts               ← GET/PUT about content
   /api/feedback/route.ts      ← POST → Nodemailer
   /api/admin/login/route.ts   ← POST admin login
+  /api/admin/analytics/route.ts ← GET analytics summary (admin-only)
   /api/analytics/route.ts     ← POST event log
 
 /components
@@ -222,10 +225,12 @@ CREATE TABLE IF NOT EXISTS analytics (
     StorageManager.tsx
   /admin
     AdminPresetManager.tsx
-    AdminPopupConfig.tsx
+    AdminNotificationAlert.tsx
     AdminAboutEditor.tsx
     AdminAnalytics.tsx
     AdminAdsControl.tsx
+  /notification
+    NotificationAlert.tsx      ← slide-in banner + hover-reveal + Learn More modal
   /shared
     Modal.tsx
     Tooltip.tsx
@@ -349,10 +354,14 @@ Merge for display:
 - **Auth:** `POST /api/admin/login` — compare password against `process.env.ADMIN_PASSWORD`, set `HttpOnly` session cookie (24h)
 - Sections:
   1. **Preset Manager** — CRUD system presets, import/export JSON
-  2. **Popup Config** — enabled toggle, content, version bump (to re-trigger for all users)
+  2. **Notification Alert Config** — enabled toggle, heading, learn more settings, version bump
   3. **About Page Editor** — markdown/rich-text editor for About page content, stored in D1
   4. **Ads Slots Control** — toggle show/hide for below-navbar slot and right-sidebar slot
-  5. **Analytics** — page views, sanitize count, feedback count (last 7/30 days)
+  5. **Analytics** — Interactive analytics tab:
+     - Monthly Line Charts: Responsive, theme-aware SVG charts showing trends for Page Views, Sanitizations, and Feedbacks over the last 12 months.
+     - Summary Statistics: Total counts and percentage changes for key metrics.
+     - Usage Analytics: Top presets used (extracted from sanitize event metadata), average sanitized text length.
+     - Date Filters: Toggle between last 30 days, last 6 months, and last 12 months.
   6. **Email Config** — display current GMAIL_USER status (read-only, set via env)
 
 ### 5.10 Ads Layout
@@ -362,11 +371,45 @@ Merge for display:
 - Admin dashboard toggle controls visibility of each slot
 - When visible: empty container ready for ad code; layout already accounts for width/height
 
-### 5.11 Popup System
-- On page load: check localStorage for `"popupSeen"` + stored version
-- If not seen (or version changed): fetch `GET /api/popup`, check `enabled`
-- If enabled: show modal with admin-configured content
-- On dismiss: store `"popupSeen": true` + current version in localStorage
+### 5.11 Notification Alert System
+
+#### Behaviour
+- On page load: fetch `GET /api/notification-alert`, check `enabled`.
+- If `enabled`: slide the alert bar in from the **top of the page** with a smooth CSS translate animation (`slideDown` keyframe, ~300 ms ease-out).
+- The alert bar rests at the very top of the viewport (above the navbar) but is **only visible / interactive when the user hovers the top-center zone** of the page — outside that hover zone it collapses back to ~4 px "peek" strip so it never covers content.
+- The bar auto-dismisses (collapses) when the user moves the cursor away, but re-expands on hover for the session duration (no "seen" localStorage flag — it is always available while the page is open).
+- Version-awareness: store `alertVersion` in localStorage; if admin bumps the version the collapsed state resets on next visit.
+
+#### Visual Design
+- Adapts to the active **DaisyUI theme** — background uses `bg-base-200`, text uses `text-base-content`, button uses `btn btn-primary`. Matches all 15 supported themes automatically.
+- Layout:
+  - Left: `ⓘ` info icon + **heading text** (single line, bold).
+  - Right (conditional): `Learn More` pill button + `✕` close/dismiss button.
+  - When `has_learn_more = false`: only heading + `✕` button.
+- Rounded pill shape (`rounded-full` on mobile/tablet, `rounded-2xl` on desktop), subtle shadow.
+
+#### Learn More Modal
+- Clicking "Learn More" opens a simple centered `<dialog>` modal (reuses the shared `<Modal>` component).
+- Modal contains:
+  - **Heading** — same heading text from the alert bar.
+  - **Body** — full article-style text from the `body` DB field (supports line breaks; no rich HTML).
+  - A close button (top-right `✕`).
+- Modal inherits active theme colors via `bg-base-100` / `text-base-content`.
+- Backdrop click also closes the modal.
+
+#### New Component & API
+- `src/components/notification/NotificationAlert.tsx` — the slide-in bar + modal logic.
+- `GET /api/notification-alert` — returns `{ enabled, heading, has_learn_more, body, version }`.
+
+#### Admin Controls (§5.9 Admin Dashboard)
+The **Notification Alert** section in the admin panel exposes:
+1. **Enabled toggle** — on/off switch.
+2. **Heading field** — required text input (max ~120 chars).
+3. **Learn More toggle** — enables/disables the "Learn More" button.
+4. When Learn More is ON → **Body text area** becomes required (admin cannot save without filling it).
+5. When Learn More is OFF → body textarea is hidden/disabled.
+6. **Version bump** — "Re-show to all users" button that increments `version`.
+7. Live preview strip below the form showing how the alert will look in the current admin theme.
 
 ### 5.12 Centralized Styling & DaisyUI
 - Refactor the codebase to use `daisyui` classes (`bg-base-100`, `text-base-content`, `btn`, `btn-primary`, etc.).
@@ -465,7 +508,7 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 ### Phase 6 — Backend & System Presets ✅ DONE
 - [x] D1 schema migration (`wrangler d1 execute`) — `docs/schema.sql` created with seeds
 - [x] `GET /api/presets` — return system presets with version
-- [x] `GET /api/popup` — return popup config
+- [x] `GET /api/notification-alert` — return alert config
 - [x] `GET /api/about` — return about content
 - [x] `POST /api/feedback` — validate + Nodemailer send (rate-limited 5/hr/IP)
 - [x] `POST /api/analytics` — log events to D1
@@ -488,17 +531,35 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] Auto-run `sanitize()` on input changes when in Auto mode.
 - [x] Block history page with an "Enable Manual Mode" prompt when in Auto mode.
 
-### Phase 7 — Admin Dashboard
-- [ ] Admin login page + `POST /api/admin/login`
-- [ ] Session cookie middleware for all admin API routes
-- [ ] Preset Manager UI (full CRUD → D1)
-- [ ] Popup Config UI (content, enabled, version bump)
-- [ ] **About Page Editor** (markdown editor → D1 via `/api/about`)
-- [ ] Ads Slots Control (toggle show/hide per slot)
-- [ ] Analytics view (events from D1)
+### Phase 7 — Admin Dashboard ✅ DONE
+- [x] Admin login page + `POST /api/admin/login`
+- [x] `POST /api/admin/logout` — clear session cookie
+- [x] `src/lib/adminAuth.ts` — session cookie middleware helper for all admin API routes
+- [x] Preset Manager UI (full CRUD → D1)
+- [x] **Notification Alert Config UI**:
+  - [x] Enabled toggle
+  - [x] Heading text input (required, max 120 chars)
+  - [x] "Learn More" toggle — when ON, body textarea appears and is required before saving
+  - [x] Body textarea (hidden/disabled when Learn More is OFF)
+  - [x] Version bump button ("Re-show to all users")
+  - [x] Live theme-aware preview strip
+- [x] **About Page Editor** (HTML editor with edit/preview tabs → D1 via `/api/admin/about`)
+- [x] Ads Slots Control (toggle show/hide per slot)
+- [x] **Analytics View & Charts**:
+  - [x] `GET /api/admin/analytics` route querying aggregated statistics from D1
+  - [x] Interactive, theme-aware responsive SVG line charts for monthly event trends (Page Views, Sanitizations, Feedbacks)
+  - [x] Summary stats cards (Total counts)
+  - [x] Preset usage popularity list (Top presets table with bar chart)
+  - [x] Usage metrics (avg char count, sanitize/page view ratio, etc.)
+  - [x] Date range filter (Last 30 Days, Last 6 Months, Last 12 Months)
+  - [x] Clean tabbed layout for Analytics within the admin dashboard
 
-### Phase 8 — Popup System + Ads
-- [ ] Popup component (version-aware localStorage check + API fetch)
+### Phase 8 — Notification Alert + Ads
+- [ ] `NotificationAlert.tsx` component — slide-in from top, hover-reveal mechanic, theme-aware
+- [ ] `GET /api/notification-alert` route — reads from `notification_alert` D1 table
+- [ ] `PUT /api/notification-alert` route — admin-only, updates alert config
+- [ ] Version-aware localStorage (`alertVersion`) to reset dismiss state on version bump
+- [ ] Learn More modal wired to shared `<Modal>` component
 - [ ] Ads slot divs integrated into layout (hidden by default, admin-toggled)
 
 ### Phase 9 — About Page + SEO
@@ -552,8 +613,9 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 | Dark mode | None | **Yes, toggle in navbar** |
 | Feedback | None | **Footer link → modal → Nodemailer** |
 | Admin | None | **Full dashboard at `/admin`** |
+| Analytics | None | **Dashboard tab with monthly SVG line charts, summary cards, and preset usage statistics** |
 | About CMS | Static | **Admin-editable via D1** |
-| Popup | None | **Admin-controlled first-visit popup** |
+| Notification Alert | None | **Slide-in top banner, hover-reveal, heading + optional Learn More modal, theme-aware, admin-controlled** |
 | Ads layout | None | **Reserved slots, admin-toggled** |
 | Sanitize button | Always visible | **Hidden when input is empty** |
 | Word count | No | **Yes (input + matched in output)** |
