@@ -244,6 +244,17 @@ export default function Home() {
 
         {/* ── Workspace Area ──────────────────────────────────────────────────── */}
         <main className="flex-1 bg-white dark:bg-[var(--surface)] overflow-hidden flex min-h-0">
+          {/* ── Sidebar Ad Slot ─────────────────────────────────────────────────
+               Hidden by default (hidden class). Admin dashboard controls visibility.
+               Always in the DOM so ad code can be injected without a reload. */}
+          <div
+            id="ad-sidebar"
+            className="hidden w-[160px] shrink-0 flex-col items-center justify-start pt-4 gap-4 border-r border-base-300 bg-base-200/50"
+            aria-hidden="true"
+          >
+            {/* Sidebar ad code goes here */}
+          </div>
+
           <div className="flex-1 flex w-full min-h-0">
 
             <InputPanel

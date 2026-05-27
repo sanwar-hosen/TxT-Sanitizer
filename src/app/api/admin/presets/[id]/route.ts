@@ -13,14 +13,14 @@ export const runtime = 'edge';
 // ── PUT — update preset ────────────────────────────────────────────────────────
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   if (!isAdminAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { name, rules, isDefault } = body as {
       name?: string;
@@ -68,14 +68,14 @@ export async function PUT(
 // ── DELETE — delete preset ─────────────────────────────────────────────────────
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   if (!isAdminAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;

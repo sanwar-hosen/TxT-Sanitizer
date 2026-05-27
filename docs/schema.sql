@@ -1,5 +1,6 @@
 -- TxT Sanitizer V2 — D1 Schema
--- Run with: wrangler d1 execute txt-sanitizer-d1 --file=docs/schema.sql
+-- Run with: wrangler d1 execute txt-sanitizer-d1 --file=docs/schema.sql --local
+--       or: wrangler d1 execute txt-sanitizer-d1 --file=docs/schema.sql  (remote)
 
 -- System presets (editable by admin, served via GET /api/presets)
 CREATE TABLE IF NOT EXISTS presets (
@@ -9,6 +10,17 @@ CREATE TABLE IF NOT EXISTS presets (
   is_default INTEGER DEFAULT 1,
   version INTEGER DEFAULT 1,     -- incremented on admin update for cache-busting
   created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Notification alert banner (admin-controlled)
+CREATE TABLE IF NOT EXISTS notification_alert (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  enabled INTEGER DEFAULT 0,        -- 0 = off, 1 = on
+  heading TEXT NOT NULL DEFAULT '',  -- brief one-line title shown in the alert bar
+  has_learn_more INTEGER DEFAULT 0,  -- 0 = heading only, 1 = show Learn More button
+  body TEXT DEFAULT '',              -- required when has_learn_more = 1
+  version INTEGER DEFAULT 1,         -- bump to re-show to all users
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -36,6 +48,8 @@ CREATE TABLE IF NOT EXISTS analytics (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
+-- ── Seeds ───────────────────────────────────────────────────────────────────────
+
 -- Seed default presets (skip if already exists)
 INSERT OR IGNORE INTO presets (id, name, rules, is_default, version) VALUES
 (
@@ -53,8 +67,13 @@ INSERT OR IGNORE INTO presets (id, name, rules, is_default, version) VALUES
   1
 );
 
+-- Seed empty notification alert row
+INSERT OR IGNORE INTO notification_alert (id, enabled, heading, has_learn_more, body, version)
+VALUES (1, 0, '', 0, '', 1);
+
 -- Seed empty popup config row
 INSERT OR IGNORE INTO popup_config (id, content, enabled, version) VALUES (1, '', 0, 1);
 
 -- Seed empty about content row
 INSERT OR IGNORE INTO about_content (id, html_content) VALUES (1, '');
+

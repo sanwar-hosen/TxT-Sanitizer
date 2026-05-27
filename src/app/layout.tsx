@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
+import NotificationAlert from "@/components/notification/NotificationAlert";
 
 export default function RootLayout({
   children,
@@ -40,10 +41,35 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased min-h-screen flex flex-col">
+        {/*
+         * NotificationAlert renders as position:fixed — no layout shift.
+         * It slides in from the top and collapses to a 4px peek strip.
+         */}
+        <NotificationAlert />
+
         <Navbar />
+
+        {/*
+         * Ad Slot: Below Navbar
+         * Hidden by default (display:none via inline style).
+         * Admin dashboard toggles visibility via the AdminAdsControl component,
+         * which persists the state in localStorage and applies it on page load
+         * by toggling the `data-ad-below-navbar` attribute on <html>.
+         * The slot itself is always in the DOM so ad code can be injected.
+         */}
+        <div
+          id="ad-below-navbar"
+          className="w-full flex items-center justify-center bg-base-200 border-b border-base-300 hidden"
+          style={{ minHeight: '90px' }}
+          aria-hidden="true"
+        >
+          {/* Ad code goes here */}
+        </div>
+
         <div className="flex-1 flex flex-col">
           {children}
         </div>
+
         <Footer />
       </body>
     </html>

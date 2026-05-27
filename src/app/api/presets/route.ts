@@ -2,21 +2,15 @@
  * GET /api/presets
  * Returns system presets with a version number.
  * In production (Cloudflare Pages with D1), reads from DB.
- * Falls back to static default presets when DB is not configured.
+ * Falls back to static default presets when DB is not configured (local dev).
  */
 
 import { NextResponse } from 'next/server';
 import { DEFAULT_PRESETS } from '@/data/defaultPresets';
 
-// Cloudflare D1 binding is injected at runtime via `process.env` on CF Pages.
-// In local Next.js dev, we skip the DB and return defaults.
-
 export const runtime = 'edge';
 
 export async function GET(request: Request) {
-  // Cloudflare injects the D1 binding into the request's `cf` context.
-  // We access it via the experimental `getRequestContext` from @cloudflare/next-on-pages,
-  // but to avoid a hard dependency on that package we use a graceful fallback.
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;

@@ -1,6 +1,6 @@
 # TxT Sanitizer V2 — Finalized Implementation Plan
 
-## Status: 🚀 Phase 7 Complete — Moving to Phase 8
+## Status: 🚀 Phase 8 Complete — Moving to Phase 9
 
 ---
 
@@ -554,13 +554,15 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
   - [x] Date range filter (Last 30 Days, Last 6 Months, Last 12 Months)
   - [x] Clean tabbed layout for Analytics within the admin dashboard
 
-### Phase 8 — Notification Alert + Ads
-- [ ] `NotificationAlert.tsx` component — slide-in from top, hover-reveal mechanic, theme-aware
-- [ ] `GET /api/notification-alert` route — reads from `notification_alert` D1 table
-- [ ] `PUT /api/notification-alert` route — admin-only, updates alert config
-- [ ] Version-aware localStorage (`alertVersion`) to reset dismiss state on version bump
-- [ ] Learn More modal wired to shared `<Modal>` component
-- [ ] Ads slot divs integrated into layout (hidden by default, admin-toggled)
+### Phase 8 — Notification Alert + Ads ✅ DONE
+- [x] `NotificationAlert.tsx` component — slide-in from top, collapses to 4px peek strip, hover-reveal over top-center zone, theme-aware via daisyUI
+- [x] `GET /api/notification-alert` route — public endpoint reading from `notification_alert` D1 table with 60s cache
+- [x] `PUT /api/notification-alert` route — admin-only, updates alert config (already existed from Phase 7)
+- [x] Version-aware localStorage (`txts_v2_alertVersion`) to reset dismiss state on version bump
+- [x] Learn More modal wired to shared `<Modal>` component
+- [x] `id="ad-below-navbar"` div in `layout.tsx` — hidden by default, admin-toggled
+- [x] `id="ad-sidebar"` div in `page.tsx` workspace — hidden by default, admin-toggled
+- [x] Fixed pre-existing Next.js 16 async params type error in `/api/admin/presets/[id]/route.ts`
 
 ### Phase 9 — About Page + SEO
 - [ ] About page as SSR Server Component — fetches content from D1
