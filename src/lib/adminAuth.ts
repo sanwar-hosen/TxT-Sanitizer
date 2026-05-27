@@ -8,9 +8,8 @@
 export const ADMIN_COOKIE = 'admin_session';
 export const COOKIE_MAX_AGE = 60 * 60 * 24; // 24 h in seconds
 
-/**
- * Returns true if the request carries a valid admin session cookie.
- */
+import { getRequestContext } from '@cloudflare/next-on-pages';
+
 export function isAdminAuthorized(request: Request): boolean {
   const cookieHeader = request.headers.get('cookie') ?? '';
   const cookies = Object.fromEntries(
@@ -19,8 +18,12 @@ export function isAdminAuthorized(request: Request): boolean {
       return [k, rest.join('=')];
     })
   );
-  const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
-  const password = ctx?.ADMIN_PASSWORD ?? process.env.ADMIN_PASSWORD;
+  let password = process.env.ADMIN_PASSWORD;
+  try {
+    password = getRequestContext().env.ADMIN_PASSWORD || password;
+  } catch {
+    // getRequestContext throws when not running in Cloudflare context (e.g. local dev)
+  }
   if (!password) return false;
   return cookies[ADMIN_COOKIE] === password;
 }

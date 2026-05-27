@@ -1,23 +1,29 @@
 import { NextResponse } from 'next/server';
+import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
 
 export async function GET(request: Request) {
-  const cfEnvKeys = Object.keys((request as any).cf?.env ?? {});
-  const globalEnvKeys = Object.keys((globalThis as any).__env__ ?? {});
+  let cfCtxEnvKeys: string[] = [];
+  let hasAdminPassword = false;
+  let cfCtxEnvExists = false;
+
+  try {
+    const cfEnv = getRequestContext().env;
+    cfCtxEnvExists = !!cfEnv;
+    cfCtxEnvKeys = Object.keys(cfEnv ?? {});
+    hasAdminPassword = !!cfEnv.ADMIN_PASSWORD;
+  } catch (err: any) {
+    // Silent
+  }
+
   const processEnvKeys = Object.keys(process.env ?? {});
   
   return NextResponse.json({
-    cfEnvExists: !!(request as any).cf?.env,
-    cfEnvKeys,
-    globalEnvExists: !!(globalThis as any).__env__,
-    globalEnvKeys,
+    cfCtxEnvExists,
+    cfCtxEnvKeys,
     processEnvKeys,
     nodeEnv: process.env.NODE_ENV,
-    hasAdminPassword: !!(
-      ((request as any).cf?.env?.ADMIN_PASSWORD) ??
-      ((globalThis as any).__env__?.ADMIN_PASSWORD) ??
-      (process.env.ADMIN_PASSWORD)
-    )
+    hasAdminPassword: hasAdminPassword || !!process.env.ADMIN_PASSWORD
   });
 }

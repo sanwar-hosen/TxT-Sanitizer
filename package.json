@@ -11,6 +11,7 @@
     "db:migrate": "wrangler d1 execute txt-sanitizer-d1 --remote --file=docs/schema.sql"
   },
   "dependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "nanoid": "^5.1.11",
     "next": "^16.2.6",
     "nodemailer": "^8.0.7",

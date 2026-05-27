@@ -11,6 +11,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { getRequestContext } from '@cloudflare/next-on-pages';
 
 // This route must run in the Edge runtime.
 export const runtime = 'edge';
@@ -62,9 +63,15 @@ export async function POST(request: Request) {
   }
 
   // Check env vars
-  const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
-  const gmailUser = ctx?.GMAIL_USER ?? process.env.GMAIL_USER;
-  const gmailPass = ctx?.GMAIL_APP_PASSWORD ?? process.env.GMAIL_APP_PASSWORD;
+  let gmailUser = process.env.GMAIL_USER;
+  let gmailPass = process.env.GMAIL_APP_PASSWORD;
+  try {
+    const cfEnv = getRequestContext().env;
+    gmailUser = cfEnv.GMAIL_USER || gmailUser;
+    gmailPass = cfEnv.GMAIL_APP_PASSWORD || gmailPass;
+  } catch {
+    // getRequestContext throws when not running in Cloudflare context (e.g. local dev)
+  }
 
   if (!gmailUser || !gmailPass) {
     // In local dev without env vars, simulate success

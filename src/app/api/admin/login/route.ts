@@ -6,6 +6,8 @@
 
 import { NextResponse } from 'next/server';
 import { buildSessionCookie } from '@/lib/adminAuth';
+import { getRequestContext } from '@cloudflare/next-on-pages';
+
 
 export const runtime = 'edge';
 
@@ -14,8 +16,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { password } = body as { password?: string };
 
-    const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
-    const adminPassword = ctx?.ADMIN_PASSWORD ?? process.env.ADMIN_PASSWORD;
+    let adminPassword = process.env.ADMIN_PASSWORD;
+    try {
+      adminPassword = getRequestContext().env.ADMIN_PASSWORD || adminPassword;
+    } catch {
+      // getRequestContext throws when not running in Cloudflare context (e.g. local dev)
+    }
+
     if (!adminPassword) {
       return NextResponse.json(
         { error: 'Admin not configured' },
