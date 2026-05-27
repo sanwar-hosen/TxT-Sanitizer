@@ -12,7 +12,6 @@ export type ThemeId =
   | 'forest'
   | 'wireframe'
   | 'dracula'
-  | 'night'
   | 'coffee'
   | 'abyss'
   | 'sunset'
@@ -38,7 +37,7 @@ export function useDarkMode() {
     localStorage.setItem('txts_v2_theme', theme);
     
     // Also toggle the 'dark' variant class on document.documentElement for legacy Tailwind/CSS classes
-    const isDarkTheme = ['dark', 'synthwave', 'halloween', 'forest', 'dracula', 'night', 'coffee', 'abyss', 'sunset'].includes(theme);
+    const isDarkTheme = ['dark', 'synthwave', 'halloween', 'forest', 'dracula', 'coffee', 'abyss', 'sunset'].includes(theme);
     if (isDarkTheme) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('darkMode', 'true');
@@ -56,7 +55,7 @@ export function useDarkMode() {
     setTheme(nextTheme);
   };
 
-  const isDark = ['dark', 'synthwave', 'halloween', 'forest', 'dracula', 'night', 'coffee', 'abyss', 'sunset'].includes(theme);
+  const isDark = ['dark', 'synthwave', 'halloween', 'forest', 'dracula', 'coffee', 'abyss', 'sunset'].includes(theme);
 
   return { isDark, theme, toggleDarkMode, selectTheme };
 }

@@ -15,7 +15,6 @@ const THEMES: { id: ThemeId; name: string; preview: string[] }[] = [
   { id: 'forest', name: 'Forest', preview: ['#1eb854', '#171212', '#f1f1f1'] },
   { id: 'wireframe', name: 'Wireframe', preview: ['#b8b8b8', '#ffffff', '#000000'] },
   { id: 'dracula', name: 'Dracula', preview: ['#ff79c6', '#282a36', '#f8f8f2'] },
-  { id: 'night', name: 'Night', preview: ['#38bdf8', '#0f172a', '#f1f1f1'] },
   { id: 'coffee', name: 'Coffee', preview: ['#db924b', '#20161f', '#f1f1f1'] },
   { id: 'abyss', name: 'Abyss', preview: ['#1d4ed8', '#0f172a', '#e2e8f0'] },
   { id: 'sunset', name: 'Sunset', preview: ['#ff865b', '#120e16', '#f1f1f1'] },
@@ -72,33 +71,34 @@ export default function Navbar() {
             </button>
             <div
               tabIndex={0}
-              className="dropdown-content menu p-3 shadow-lg bg-base-100 border border-base-300 rounded-xl w-60 max-h-96 overflow-y-auto custom-scrollbar"
+              className="dropdown-content p-2 shadow-lg bg-base-100 border border-base-300 rounded-xl w-80 z-50"
             >
-              <div className="text-xs font-semibold text-base-content/60 px-2 pb-2 border-b border-base-300 mb-2">
-                Themes ({THEMES.length})
-              </div>
-              <div className="grid grid-cols-1 gap-1">
+              <div className="grid grid-cols-2 gap-2">
                 {THEMES.map((t) => {
                   const isActive = theme === t.id;
                   return (
                     <button
                       key={t.id}
+                      data-theme={t.id}
                       onClick={() => selectTheme(t.id)}
-                      className={`flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-left text-xs font-medium transition-colors hover:bg-base-200 ${
+                      className={`flex rounded-lg overflow-hidden text-left border text-xs font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 shadow-xs cursor-pointer ${
                         isActive
-                          ? 'bg-primary/10 text-primary font-bold'
-                          : 'text-base-content'
+                          ? 'border-primary ring-1 ring-primary'
+                          : 'border-base-content/10 bg-base-100'
                       }`}
                     >
-                      <span className="capitalize">{t.name}</span>
-                      <div className="flex gap-1">
-                        {t.preview.map((color, idx) => (
-                          <span
-                            key={idx}
-                            className="w-3 h-3 rounded-full border border-base-content/10 shadow-xs"
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
+                      {/* Left vertical strip */}
+                      <div className="w-3 bg-base-300 shrink-0" />
+                      
+                      {/* Right content */}
+                      <div className="flex-1 p-2 bg-base-100 text-base-content flex flex-col gap-1.5 min-w-0">
+                        <span className="font-bold tracking-wide capitalize text-[10px] truncate">{t.name}</span>
+                        <div className="flex gap-0.5">
+                          <span className="flex h-4 w-4 items-center justify-center rounded-[3px] bg-primary text-[9px] font-bold text-primary-content shrink-0">A</span>
+                          <span className="flex h-4 w-4 items-center justify-center rounded-[3px] bg-secondary text-[9px] font-bold text-secondary-content shrink-0">A</span>
+                          <span className="flex h-4 w-4 items-center justify-center rounded-[3px] bg-accent text-[9px] font-bold text-accent-content shrink-0">A</span>
+                          <span className="flex h-4 w-4 items-center justify-center rounded-[3px] bg-neutral text-[9px] font-bold text-neutral-content shrink-0">A</span>
+                        </div>
                       </div>
                     </button>
                   );
