@@ -1,21 +1,54 @@
-import type { Match, Rule, SanitizeResult } from '@/types/preset';
+import type { Match, Rule, SanitizeResult, ExemptRange } from '@/types/preset';
 
 interface Segment {
   text: string;
+  isExempt?: boolean;
   match?: {
     original: string;
     rulePriority: number;
   };
 }
 
-export function sanitize(text: string, rules: Rule[]): SanitizeResult {
-  if (!text || rules.length === 0) {
+export function sanitize(
+  text: string,
+  rules: Rule[],
+  exemptRanges?: ExemptRange[]
+): SanitizeResult {
+  if (!text) {
+    return { output: text, matches: [] };
+  }
+  if (rules.length === 0) {
     return { output: text, matches: [] };
   }
 
   const sorted = [...rules].sort((a, b) => a.priority - b.priority);
 
-  let segments: Segment[] = [{ text }];
+  // Initialize segments by splitting text by valid exempt ranges
+  let segments: Segment[] = [];
+  const validExempt = (exemptRanges ?? [])
+    .filter((r) => r.startIndex >= 0 && r.endIndex <= text.length && r.startIndex < r.endIndex)
+    .sort((a, b) => a.startIndex - b.startIndex);
+
+  let lastIndex = 0;
+  for (const range of validExempt) {
+    if (range.startIndex > lastIndex) {
+      segments.push({ text: text.slice(lastIndex, range.startIndex) });
+    }
+    if (range.startIndex >= lastIndex) {
+      segments.push({
+        text: text.slice(range.startIndex, range.endIndex),
+        isExempt: true,
+      });
+      lastIndex = range.endIndex;
+    }
+  }
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex) });
+  }
+
+  if (segments.length === 0) {
+    segments = [{ text }];
+  }
 
   for (const rule of sorted) {
     if (!rule.find) continue;
@@ -23,6 +56,11 @@ export function sanitize(text: string, rules: Rule[]): SanitizeResult {
     const newSegments: Segment[] = [];
     
     for (const seg of segments) {
+      if (seg.isExempt) {
+        newSegments.push(seg);
+        continue;
+      }
+
       const parts = seg.text.split(rule.find);
       
       if (parts.length === 1) {
@@ -31,9 +69,6 @@ export function sanitize(text: string, rules: Rule[]): SanitizeResult {
       }
       
       for (let i = 0; i < parts.length; i++) {
-        // Only push non-empty text parts, UNLESS the original text was somehow empty (shouldn't happen)
-        // Actually, if we push empty parts, it might create useless empty segments. But we need to maintain structure.
-        // It's safe to skip empty parts.
         if (parts[i].length > 0) {
           newSegments.push({
             text: parts[i],
@@ -41,7 +76,6 @@ export function sanitize(text: string, rules: Rule[]): SanitizeResult {
           });
         }
         
-        // Between parts, insert the replacement
         if (i < parts.length - 1) {
           newSegments.push({
             text: rule.replace,
@@ -60,28 +94,32 @@ export function sanitize(text: string, rules: Rule[]): SanitizeResult {
   // Flatten segments and compute final matches with accurate byte offsets
   let currentOutput = '';
   const finalMatches: Match[] = [];
-  let cursor = 0;
+  let inputCursor = 0;
+  let outputCursor = 0;
 
   for (const seg of segments) {
-    const startIndex = cursor;
+    const outStart = outputCursor;
     currentOutput += seg.text;
-    cursor += seg.text.length;
-    const endIndex = cursor;
+    outputCursor += seg.text.length;
+    const outEnd = outputCursor;
+
+    const inStart = inputCursor;
+    const inLen = seg.match ? seg.match.original.length : seg.text.length;
+    inputCursor += inLen;
+    const inEnd = inputCursor;
 
     if (seg.match) {
       finalMatches.push({
         original: seg.match.original,
         replaced: seg.text,
-        startIndex,
-        endIndex,
-        rulePriority: seg.match.rulePriority
+        startIndex: outStart,
+        endIndex: outEnd,
+        rulePriority: seg.match.rulePriority,
+        inputStartIndex: inStart,
+        inputEndIndex: inEnd
       });
     }
   }
-
-  // Merge adjacent un-matched text segments and adjacent matches of the SAME type to clean up the output?
-  // It's actually fine as is, `buildHighlightSegments` handles sorting and gap filling.
-  // Wait! If there are two adjacent matches, `buildHighlightSegments` will render them separately. That's fine.
 
   return { output: currentOutput, matches: finalMatches };
 }

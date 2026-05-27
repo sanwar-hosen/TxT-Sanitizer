@@ -10,6 +10,7 @@ import {
   saveActiveTabId,
   loadLastSelectedPresetId,
 } from '@/lib/storage';
+import { shiftExemptRanges } from '@/lib/restore';
 import { DEFAULT_PRESETS } from '@/data/defaultPresets';
 
 const MAX_TABS = 3;
@@ -81,7 +82,20 @@ export function useTabs() {
   const updateActiveTab = useCallback(
     (patch: Partial<Omit<TabState, 'id'>>) => {
       setTabs((prev) =>
-        prev.map((t) => (t.id === activeTabId ? { ...t, ...patch } : t))
+        prev.map((t) => {
+          if (t.id !== activeTabId) return t;
+          let nextExemptRanges = t.exemptRanges;
+          if ('inputText' in patch && patch.inputText !== t.inputText) {
+            if (patch.exemptRanges !== undefined) {
+              nextExemptRanges = patch.exemptRanges;
+            } else {
+              nextExemptRanges = shiftExemptRanges(t.inputText, patch.inputText ?? '', t.exemptRanges);
+            }
+          } else if ('exemptRanges' in patch) {
+            nextExemptRanges = patch.exemptRanges;
+          }
+          return { ...t, ...patch, exemptRanges: nextExemptRanges };
+        })
       );
     },
     [activeTabId, setTabs]
@@ -91,7 +105,20 @@ export function useTabs() {
   const updateTab = useCallback(
     (id: string, patch: Partial<Omit<TabState, 'id'>>) => {
       setTabs((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, ...patch } : t))
+        prev.map((t) => {
+          if (t.id !== id) return t;
+          let nextExemptRanges = t.exemptRanges;
+          if ('inputText' in patch && patch.inputText !== t.inputText) {
+            if (patch.exemptRanges !== undefined) {
+              nextExemptRanges = patch.exemptRanges;
+            } else {
+              nextExemptRanges = shiftExemptRanges(t.inputText, patch.inputText ?? '', t.exemptRanges);
+            }
+          } else if ('exemptRanges' in patch) {
+            nextExemptRanges = patch.exemptRanges;
+          }
+          return { ...t, ...patch, exemptRanges: nextExemptRanges };
+        })
       );
     },
     [setTabs]

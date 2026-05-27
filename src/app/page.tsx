@@ -6,6 +6,7 @@ import { usePresets } from '@/hooks/usePresets';
 import { useHistory } from '@/hooks/useHistory';
 import { useFindReplace } from '@/hooks/useFindReplace';
 import { sanitize, countWords, countChars } from '@/lib/sanitizer';
+import { shiftExemptRanges } from '@/lib/restore';
 import PresetTabs from '@/components/sanitizer/PresetTabs';
 import TabBar from '@/components/tabs/TabBar';
 import InputPanel from '@/components/sanitizer/InputPanel';
@@ -54,7 +55,7 @@ export default function Home() {
     const text = sessionStorage.getItem('txts_v2_editFromHistory');
     if (text) {
       sessionStorage.removeItem('txts_v2_editFromHistory');
-      updateActiveTab({ inputText: text, outputText: '', matches: [] });
+      updateActiveTab({ inputText: text, outputText: '', matches: [], exemptRanges: [] });
     }
   }, [hydrated, updateActiveTab]);
 
@@ -63,7 +64,7 @@ export default function Home() {
     if (manualSanitize) return;
     if (!activeTab || !activeTab.inputText.trim() || !activePreset) return;
 
-    const { output, matches } = sanitize(activeTab.inputText, activePreset.rules);
+    const { output, matches } = sanitize(activeTab.inputText, activePreset.rules, activeTab.exemptRanges);
     
     if (
       activeTab.outputText !== output ||
@@ -71,7 +72,7 @@ export default function Home() {
     ) {
       updateActiveTab({ outputText: output, matches });
     }
-  }, [manualSanitize, activeTab?.inputText, activePreset, updateActiveTab, activeTab?.outputText, activeTab?.matches]);
+  }, [manualSanitize, activeTab?.inputText, activePreset, updateActiveTab, activeTab?.outputText, activeTab?.matches, activeTab?.exemptRanges]);
 
   // F&R logic is lifted here because it operates on Input text but UI is in Output panel
   const fr = useFindReplace(activeTab?.inputText ?? '');
@@ -100,15 +101,16 @@ export default function Home() {
   const handleInputChange = useCallback(
     (text: string) => {
       if (!text.trim()) {
-        updateActiveTab({ inputText: text, outputText: '', matches: [] });
+        updateActiveTab({ inputText: text, outputText: '', matches: [], exemptRanges: [] });
       } else if (!manualSanitize && activePreset) {
-        const { output, matches } = sanitize(text, activePreset.rules);
-        updateActiveTab({ inputText: text, outputText: output, matches });
+        const shifted = shiftExemptRanges(activeTab?.inputText ?? '', text, activeTab?.exemptRanges);
+        const { output, matches } = sanitize(text, activePreset.rules, shifted);
+        updateActiveTab({ inputText: text, outputText: output, matches, exemptRanges: shifted });
       } else {
         updateActiveTab({ inputText: text });
       }
     },
-    [updateActiveTab, manualSanitize, activePreset]
+    [updateActiveTab, manualSanitize, activePreset, activeTab]
   );
 
   /** Run sanitizer, update output + match metadata, save to history */
@@ -118,7 +120,7 @@ export default function Home() {
 
     // Wrap in rAF to allow UI to update (show loading state) before heavy work
     requestAnimationFrame(() => {
-      const { output, matches } = sanitize(activeTab.inputText, activePreset.rules);
+      const { output, matches } = sanitize(activeTab.inputText, activePreset.rules, activeTab.exemptRanges);
       updateActiveTab({ outputText: output, matches });
 
       addEntry({
@@ -163,17 +165,30 @@ export default function Home() {
       inputText: activeTab.outputText,
       outputText: '',
       matches: [],
+      exemptRanges: [],
     });
   }, [activeTab, updateActiveTab]);
 
   /** Restore a single match back to its original value */
   const handleRestoreMatch = useCallback((match: import('@/types/preset').Match) => {
     if (!activeTab) return;
-    // Dynamic import to avoid top-level import conflict if needed, but standard import is fine.
-    // Wait, let's just use the function since we'll import it.
     const { restoreMatch } = require('@/lib/restore');
     const { output, matches } = restoreMatch(activeTab.outputText, activeTab.matches, match);
-    updateActiveTab({ outputText: output, matches });
+    
+    const newExempt = [...(activeTab.exemptRanges ?? [])];
+    if (match.inputStartIndex !== undefined && match.inputEndIndex !== undefined) {
+      newExempt.push({
+        startIndex: match.inputStartIndex,
+        endIndex: match.inputEndIndex,
+        original: match.original,
+      });
+    }
+    
+    updateActiveTab({
+      outputText: output,
+      matches,
+      exemptRanges: newExempt,
+    });
   }, [activeTab, updateActiveTab]);
 
   // ── Preset select (also syncs to active tab) ─────────────────────────────────
