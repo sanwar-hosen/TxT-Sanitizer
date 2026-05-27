@@ -14,7 +14,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { password } = body as { password?: string };
 
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
+    const adminPassword = ctx?.ADMIN_PASSWORD ?? process.env.ADMIN_PASSWORD;
     if (!adminPassword) {
       return NextResponse.json(
         { error: 'Admin not configured' },

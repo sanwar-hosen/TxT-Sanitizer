@@ -62,8 +62,9 @@ export async function POST(request: Request) {
   }
 
   // Check env vars
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailPass = process.env.GMAIL_APP_PASSWORD;
+  const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
+  const gmailUser = ctx?.GMAIL_USER ?? process.env.GMAIL_USER;
+  const gmailPass = ctx?.GMAIL_APP_PASSWORD ?? process.env.GMAIL_APP_PASSWORD;
 
   if (!gmailUser || !gmailPass) {
     // In local dev without env vars, simulate success

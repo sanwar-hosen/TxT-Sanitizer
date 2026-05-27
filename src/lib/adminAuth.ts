@@ -19,7 +19,8 @@ export function isAdminAuthorized(request: Request): boolean {
       return [k, rest.join('=')];
     })
   );
-  const password = process.env.ADMIN_PASSWORD;
+  const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
+  const password = ctx?.ADMIN_PASSWORD ?? process.env.ADMIN_PASSWORD;
   if (!password) return false;
   return cookies[ADMIN_COOKIE] === password;
 }
