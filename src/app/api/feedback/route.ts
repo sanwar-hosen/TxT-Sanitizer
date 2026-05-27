@@ -12,9 +12,8 @@
 
 import { NextResponse } from 'next/server';
 
-// NOTE: nodemailer does not support the Edge runtime.
-// This route must run in the Node.js runtime.
-export const runtime = 'nodejs';
+// This route must run in the Edge runtime.
+export const runtime = 'edge';
 
 // ── In-memory rate limiter ────────────────────────────────────────────────────
 // In production (multi-instance), replace with Cloudflare KV.
