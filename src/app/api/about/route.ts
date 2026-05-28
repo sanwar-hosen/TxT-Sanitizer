@@ -5,6 +5,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { getDB } from '@/lib/db';
 
 export const runtime = 'edge';
 
@@ -23,11 +24,9 @@ const DEFAULT_ABOUT_HTML = `
 </ul>
 `.trim();
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
-    const db = ctx?.DB;
+    const db = getDB();
 
     if (db) {
       const row = await db

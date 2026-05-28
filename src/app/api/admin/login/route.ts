@@ -6,8 +6,7 @@
 
 import { NextResponse } from 'next/server';
 import { buildSessionCookie } from '@/lib/adminAuth';
-import { getRequestContext } from '@cloudflare/next-on-pages';
-
+import { getCfEnv } from '@/lib/db';
 
 export const runtime = 'edge';
 
@@ -16,12 +15,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { password } = body as { password?: string };
 
-    let adminPassword = process.env.ADMIN_PASSWORD;
-    try {
-      adminPassword = getRequestContext().env.ADMIN_PASSWORD || adminPassword;
-    } catch {
-      // getRequestContext throws when not running in Cloudflare context (e.g. local dev)
-    }
+    const adminPassword = getCfEnv('ADMIN_PASSWORD');
 
     if (!adminPassword) {
       return NextResponse.json(

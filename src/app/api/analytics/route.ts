@@ -7,6 +7,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { getDB } from '@/lib/db';
 
 export const runtime = 'edge';
 
@@ -21,9 +22,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid event_type' }, { status: 400 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
-    const db = ctx?.DB;
+    const db = getDB();
 
     if (db) {
       await db

@@ -4,11 +4,22 @@ compatibility_flags = [ "nodejs_compat" ]
 pages_build_output_dir = ".vercel/output/static"
 
 
-[vars]
-ADMIN_PASSWORD = "sano pass"
-
-
+# ──────────────────────────────────────────────────────────────────────────────
+# D1 Database binding
+# The `binding` name below is how the code references it: env.txt_sanitizer_d1
+# ──────────────────────────────────────────────────────────────────────────────
 [[d1_databases]]
 binding = "txt_sanitizer_d1"
 database_name = "txt-sanitizer-d1"
 database_id = "10e1c684-acb9-483b-91d0-e4d658166693"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# DO NOT put secrets (ADMIN_PASSWORD, GMAIL_APP_PASSWORD, etc.) here.
+# Set them as encrypted environment variables in the Cloudflare Pages dashboard:
+#   Pages > txt-sanitizer-v2 > Settings > Environment variables > Add variable
+#
+# Required variables:
+#   ADMIN_PASSWORD      — password to access /admin
+#   GMAIL_USER          — Gmail address for feedback emails
+#   GMAIL_APP_PASSWORD  — Gmail App Password (not your account password)
+# ──────────────────────────────────────────────────────────────────────────────

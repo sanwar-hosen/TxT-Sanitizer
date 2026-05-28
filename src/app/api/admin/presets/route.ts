@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server';
 import { isAdminAuthorized } from '@/lib/adminAuth';
 import { DEFAULT_PRESETS } from '@/data/defaultPresets';
+import { getDB } from '@/lib/db';
 
 export const runtime = 'edge';
 
@@ -18,9 +19,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
-    const db = ctx?.DB;
+    const db = getDB();
 
     if (db) {
       const { results } = await db
@@ -68,9 +67,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields: id, name, rules' }, { status: 400 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ctx = (request as any).cf?.env ?? (globalThis as any).__env__;
-    const db = ctx?.DB;
+    const db = getDB();
 
     if (!db) {
       return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });

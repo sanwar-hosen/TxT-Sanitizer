@@ -8,7 +8,7 @@
 export const ADMIN_COOKIE = 'admin_session';
 export const COOKIE_MAX_AGE = 60 * 60 * 24; // 24 h in seconds
 
-import { getRequestContext } from '@cloudflare/next-on-pages';
+import { getCfEnv } from '@/lib/db';
 
 export function isAdminAuthorized(request: Request): boolean {
   const cookieHeader = request.headers.get('cookie') ?? '';
@@ -18,12 +18,7 @@ export function isAdminAuthorized(request: Request): boolean {
       return [k, rest.join('=')];
     })
   );
-  let password = process.env.ADMIN_PASSWORD;
-  try {
-    password = getRequestContext().env.ADMIN_PASSWORD || password;
-  } catch {
-    // getRequestContext throws when not running in Cloudflare context (e.g. local dev)
-  }
+  const password = getCfEnv('ADMIN_PASSWORD');
   if (!password) return false;
   return cookies[ADMIN_COOKIE] === password;
 }
