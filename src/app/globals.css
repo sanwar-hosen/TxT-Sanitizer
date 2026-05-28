@@ -152,3 +152,38 @@ body {
   from { opacity: 0; transform: translateY(12px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* Drag-reorder list animations */
+@keyframes shiftDown {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(6px); }
+  100% { transform: translateY(0); }
+}
+@keyframes shiftUp {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.drag-shift-down {
+  animation: shiftDown 0.28s ease-in-out;
+}
+.drag-shift-up {
+  animation: shiftUp 0.28s ease-in-out;
+}
+.drag-item-dragging {
+  opacity: 0.45;
+  scale: 0.97;
+  box-shadow: 0 8px 24px rgba(0, 74, 173, 0.18), 0 2px 8px rgba(0,0,0,0.12);
+  border-color: var(--brand) !important;
+  transition: opacity 0.15s, scale 0.15s, box-shadow 0.15s;
+  cursor: grabbing !important;
+}
+.drag-drop-above {
+  border-top: 2px solid var(--brand) !important;
+  box-shadow: 0 -2px 0 0 var(--brand);
+}
+.drag-drop-below {
+  border-bottom: 2px solid var(--brand) !important;
+  box-shadow: 0 2px 0 0 var(--brand);
+}

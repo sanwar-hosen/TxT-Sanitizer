@@ -569,12 +569,13 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] `id="ad-sidebar"` div in `page.tsx` workspace — hidden by default, admin-toggled
 - [x] Fixed pre-existing Next.js 16 async params type error in `/api/admin/presets/[id]/route.ts`
 
-### Phase 8.5 — Feedback rate limit cooldown, Resend integration, and bug fixes ✅ DONE
+### Phase 8.5 — Feedback rate limit cooldown, Resend integration, bug fixes, and drag animation ✅ DONE
 - [x] Replaced Nodemailer SMTP with Edge-compatible Resend API utilizing `RESEND_API_KEY` (kept Gmail REST API as fallback)
 - [x] Implemented a 24-hour rate limit cooldown per IP address on feedback submission stored in D1 database (`feedback_rate_limit` table)
 - [x] Added local storage cooldown validation (`txts_v2_feedbackCooldownUntil`) and live countdown ticker inside the `<FeedbackModal>` UI
 - [x] Fixed Admin Panel SMTP config component to fetch configuration status securely via server-side API rather than client-side `process.env` variables
 - [x] Fixed Sanitizer page to read and merge dynamic system presets from D1 database instead of hardcoded default values
+- [x] **Drag-reorder background animation** — added CSS keyframe animations (`shiftDown`/`shiftUp`) and drop-indicator border line to the preset rule list in the Preset Editor modal; dragged item fades/scales down, items between source and destination animate to indicate direction of movement, and a brand-colored top/bottom border shows the precise drop target position
 
 ### Phase 9 — About Page + SEO
 - [ ] About page as SSR Server Component — fetches content from D1

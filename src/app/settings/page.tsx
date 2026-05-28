@@ -27,6 +27,11 @@ function PresetEditorModal({
   const [name, setName] = useState('');
   const [rules, setRules] = useState<Rule[]>([]);
   const dragIdx = useRef<number | null>(null);
+  const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+  const [overHalf, setOverHalf] = useState<'top' | 'bottom'>('bottom');
+  // Per-item shift class: 'shift-down' | 'shift-up' | ''
+  const [shiftMap, setShiftMap] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (open && initial) {
@@ -36,6 +41,9 @@ function PresetEditorModal({
       setName('');
       setRules([{ priority: 1, find: '', replace: '' }]);
     }
+    setDraggingIdx(null);
+    setOverIdx(null);
+    setShiftMap({});
   }, [open, initial]);
 
   const addRule = () => {
@@ -51,17 +59,66 @@ function PresetEditorModal({
     setRules(rules.map((r, i) => (i === idx ? { ...r, [field]: value } : r)));
   };
 
-  const handleDragStart = (idx: number) => { dragIdx.current = idx; };
+  const handleDragStart = (idx: number) => {
+    dragIdx.current = idx;
+    setDraggingIdx(idx);
+    setOverIdx(null);
+    setShiftMap({});
+  };
+
   const handleDragOver = (e: React.DragEvent, idx: number) => {
     e.preventDefault();
-    if (dragIdx.current === null || dragIdx.current === idx) return;
+    const src = dragIdx.current;
+    if (src === null) return;
+
+    // Determine which half of the target item the cursor is on
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const half: 'top' | 'bottom' = e.clientY < rect.top + rect.height / 2 ? 'top' : 'bottom';
+
+    setOverIdx(idx);
+    setOverHalf(half);
+
+    // Compute the effective drop index
+    const dropAt = half === 'top' ? idx : idx + 1;
+    const insertAt = dropAt > src ? dropAt - 1 : dropAt;
+
+    // Build shift classes: items between src and insertAt shift toward the gap
+    const newShiftMap: Record<number, string> = {};
+    if (src < insertAt) {
+      for (let i = src + 1; i <= insertAt; i++) newShiftMap[i] = 'shift-up';
+    } else if (src > insertAt) {
+      for (let i = insertAt; i < src; i++) newShiftMap[i] = 'shift-down';
+    }
+    setShiftMap(newShiftMap);
+  };
+
+  const handleDrop = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    const src = dragIdx.current;
+    if (src === null || src === idx) return;
+
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const half: 'top' | 'bottom' = e.clientY < rect.top + rect.height / 2 ? 'top' : 'bottom';
+    const dropAt = half === 'top' ? idx : idx + 1;
+
     const reordered = [...rules];
-    const [moved] = reordered.splice(dragIdx.current, 1);
-    reordered.splice(idx, 0, moved);
-    dragIdx.current = idx;
+    const [moved] = reordered.splice(src, 1);
+    const insertAt = dropAt > src ? dropAt - 1 : dropAt;
+    reordered.splice(insertAt, 0, moved);
+
+    dragIdx.current = insertAt;
+    setDraggingIdx(null);
+    setOverIdx(null);
+    setShiftMap({});
     setRules(reordered);
   };
-  const handleDragEnd = () => { dragIdx.current = null; };
+
+  const handleDragEnd = () => {
+    dragIdx.current = null;
+    setDraggingIdx(null);
+    setOverIdx(null);
+    setShiftMap({});
+  };
 
   const handleSave = () => {
     if (!name.trim() || rules.length === 0) return;
@@ -102,28 +159,49 @@ function PresetEditorModal({
             </Button>
           </div>
           <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-1">
-            {rules.map((rule, idx) => (
-              <div
-                key={idx}
-                draggable
-                onDragStart={() => handleDragStart(idx)}
-                onDragOver={(e) => handleDragOver(e, idx)}
-                onDragEnd={handleDragEnd}
-                className="flex items-center gap-2 bg-surface-container-low rounded-lg p-2.5 border border-outline-variant/50 transition-shadow hover:shadow-sm"
-              >
-                {/* Drag handle — 6 dots */}
-                <span className="shrink-0 cursor-grab active:cursor-grabbing text-on-surface-variant/40 hover:text-on-surface-variant transition-colors" title="Drag to reorder">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
-                </span>
-                <input value={rule.find} onChange={(e) => updateRule(idx, 'find', e.target.value)} placeholder="Find" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-on-surface-variant shrink-0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                <input value={rule.replace} onChange={(e) => updateRule(idx, 'replace', e.target.value)} placeholder="Replace" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
-                {/* Remove rule — red accent */}
-                <Button variant="danger-outline" size="sm" onClick={() => removeRule(idx)} disabled={rules.length <= 1} className="shrink-0 p-1 min-w-0 h-7 w-7 min-h-0 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                </Button>
-              </div>
-            ))}
+            {rules.map((rule, idx) => {
+              const isDragging = draggingIdx === idx;
+              const isOver = overIdx === idx && draggingIdx !== null && draggingIdx !== idx;
+              const shiftClass = shiftMap[idx] === 'shift-up'
+                ? 'drag-shift-up'
+                : shiftMap[idx] === 'shift-down'
+                ? 'drag-shift-down'
+                : '';
+              const dropLineClass = isOver
+                ? overHalf === 'top' ? 'drag-drop-above' : 'drag-drop-below'
+                : '';
+
+              return (
+                <div
+                  key={idx}
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={(e) => handleDragOver(e, idx)}
+                  onDrop={(e) => handleDrop(e, idx)}
+                  onDragEnd={handleDragEnd}
+                  className={[
+                    'flex items-center gap-2 rounded-lg p-2.5 border transition-all duration-150',
+                    isDragging
+                      ? 'bg-primary/5 border-primary/40 drag-item-dragging'
+                      : 'bg-surface-container-low border-outline-variant/50 hover:shadow-sm',
+                    shiftClass,
+                    dropLineClass,
+                  ].join(' ')}
+                >
+                  {/* Drag handle — 6 dots */}
+                  <span className="shrink-0 cursor-grab active:cursor-grabbing text-on-surface-variant/40 hover:text-on-surface-variant transition-colors" title="Drag to reorder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                  </span>
+                  <input value={rule.find} onChange={(e) => updateRule(idx, 'find', e.target.value)} placeholder="Find" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-on-surface-variant shrink-0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  <input value={rule.replace} onChange={(e) => updateRule(idx, 'replace', e.target.value)} placeholder="Replace" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
+                  {/* Remove rule — red accent */}
+                  <Button variant="danger-outline" size="sm" onClick={() => removeRule(idx)} disabled={rules.length <= 1} className="shrink-0 p-1 min-w-0 h-7 w-7 min-h-0 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
