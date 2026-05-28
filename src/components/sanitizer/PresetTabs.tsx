@@ -17,6 +17,9 @@ function truncateName(name: string): string {
   return name.length > PRESET_NAME_MAX ? name.slice(0, PRESET_NAME_MAX - 1) + '…' : name;
 }
 
+// Map of presetId → CSS animation class applied to that tab's inner content span
+type AnimMap = Record<string, string>;
+
 export default function PresetTabs({
   visiblePresets,
   overflowPresets,
@@ -27,21 +30,19 @@ export default function PresetTabs({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // ── Slide animation state ──────────────────────────────────────────────────
-  // 'right' = new tab is to the right of old → content slides in from right
-  // 'left'  = new tab is to the left of old  → content slides in from left
-  const [slideDir, setSlideDir] = useState<'left' | 'right' | null>(null);
-  const [animatingId, setAnimatingId] = useState<string | null>(null);
+  // ── Swap animation state ───────────────────────────────────────────────────
+  // animMap maps each preset ID to the CSS animation class it should carry.
+  // Two entries per swap: the exiting tab + the entering tab.
+  const [animMap, setAnimMap] = useState<AnimMap>({});
   const prevActiveIdxRef = useRef<number>(-1);
-  const animationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const animTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Build a combined ordered list (visible + overflow) for index comparison
+  // Full ordered list used for index comparison (visible first, then overflow)
   const allPresets = [...visiblePresets, ...overflowPresets];
 
-  // Keep previous active index in sync
+  // Keep prev index in sync whenever the active preset changes
   useEffect(() => {
-    const idx = allPresets.findIndex((p) => p.id === activePresetId);
-    prevActiveIdxRef.current = idx;
+    prevActiveIdxRef.current = allPresets.findIndex((p) => p.id === activePresetId);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePresetId]);
 
@@ -51,17 +52,23 @@ export default function PresetTabs({
     const prevIdx = prevActiveIdxRef.current;
     const nextIdx = allPresets.findIndex((p) => p.id === id);
 
-    // Determine direction
-    const dir: 'left' | 'right' = nextIdx > prevIdx ? 'right' : 'left';
-    setSlideDir(dir);
-    setAnimatingId(id);
+    // Direction: is the new tab to the right or left of the old one?
+    const goingRight = nextIdx > prevIdx;
 
-    // Clear class after animation finishes (0.18 s + small buffer)
-    if (animationTimer.current) clearTimeout(animationTimer.current);
-    animationTimer.current = setTimeout(() => {
-      setSlideDir(null);
-      setAnimatingId(null);
-    }, 260);
+    // Old tab exits TOWARD the new tab:
+    //   going right → old tab content slides right (exits right)
+    //   going left  → old tab content slides left  (exits left)
+    // New tab enters FROM the same direction (conveyor-belt swap):
+    //   going right → new tab content arrives from the right
+    //   going left  → new tab content arrives from the left
+    const exitClass  = goingRight ? 'preset-tab-exit-right'  : 'preset-tab-exit-left';
+    const enterClass = goingRight ? 'preset-tab-enter-right' : 'preset-tab-enter-left';
+
+    setAnimMap({ [activePresetId]: exitClass, [id]: enterClass });
+
+    // Clear after both animations finish (exit 150ms + enter 80ms delay + 200ms = ~430ms)
+    if (animTimer.current) clearTimeout(animTimer.current);
+    animTimer.current = setTimeout(() => setAnimMap({}), 430);
 
     onSelect(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,27 +76,25 @@ export default function PresetTabs({
 
   // Close dropdown on outside click
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function onOutsideClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
       }
     }
-    if (dropdownOpen) document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    if (dropdownOpen) document.addEventListener('mousedown', onOutsideClick);
+    return () => document.removeEventListener('mousedown', onOutsideClick);
   }, [dropdownOpen]);
 
-  // Cleanup timer on unmount
-  useEffect(() => () => { if (animationTimer.current) clearTimeout(animationTimer.current); }, []);
+  // Clean up timer on unmount
+  useEffect(() => () => { if (animTimer.current) clearTimeout(animTimer.current); }, []);
 
   return (
     <div className="flex items-end gap-px h-full">
-      {/* Visible preset tabs — browser-tab style */}
+
+      {/* ── Visible preset tabs — browser-tab style ──────────────────────── */}
       {visiblePresets.map((preset) => {
-        const isActive = preset.id === activePresetId;
-        const isAnimating = animatingId === preset.id;
-        const slideClass = isAnimating && slideDir
-          ? slideDir === 'right' ? 'preset-tab-slide-right' : 'preset-tab-slide-left'
-          : '';
+        const isActive   = preset.id === activePresetId;
+        const animClass  = animMap[preset.id] ?? '';
 
         return (
           <button
@@ -99,17 +104,23 @@ export default function PresetTabs({
             onClick={() => handleSelect(preset.id)}
             title={preset.name}
             className={[
-              'group relative flex items-center gap-2 px-3 py-2 min-w-[80px] max-w-[160px] rounded-t-md cursor-pointer',
-              'transition-all duration-200 text-[10px] font-semibold uppercase tracking-wider shrink-0',
+              // Outer tab button — overflow:hidden so content clips during slide
+              'group relative flex items-center gap-2 px-3 py-2 min-w-[80px] max-w-[160px]',
+              'rounded-t-md cursor-pointer overflow-hidden',
+              'text-[10px] font-semibold uppercase tracking-wider shrink-0',
               'border-t border-x',
+              // No transition-all here — we rely on CSS @keyframes on the inner span
               isActive
                 ? 'bg-white dark:bg-[var(--surface)] text-primary dark:text-blue-400 shadow-[0_-2px_8px_-2px_rgba(0,74,173,0.12)] z-10 border-primary dark:border-blue-400 border-b-white dark:border-b-[var(--surface)] -mb-px'
                 : 'text-gray-400 dark:text-slate-400/80 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-600 dark:hover:text-slate-200 hover:shadow-sm border-transparent hover:border-t hover:border-x hover:border-gray-200 dark:hover:border-slate-600',
             ].join(' ')}
           >
-            {/* Sliding inner wrapper — only the tab contents animate, not the outer shape */}
-            <span className={['flex items-center gap-2 w-full', slideClass].join(' ')}>
-              {/* Active indicator dot */}
+            {/*
+              Inner content span — this is what actually slides.
+              The outer button keeps its fixed shape / border / background;
+              only the label + dot animate to avoid layout shift.
+            */}
+            <span className={['flex items-center gap-2 w-full', animClass].join(' ')}>
               {isActive && (
                 <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
               )}
@@ -119,7 +130,7 @@ export default function PresetTabs({
         );
       })}
 
-      {/* More / overflow button — chevron icon */}
+      {/* ── More / overflow button ────────────────────────────────────────── */}
       {hasOverflow && (
         <div className="relative" ref={dropdownRef}>
           <button
@@ -172,6 +183,7 @@ export default function PresetTabs({
           )}
         </div>
       )}
+
     </div>
   );
 }
