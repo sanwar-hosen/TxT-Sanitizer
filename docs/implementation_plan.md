@@ -86,6 +86,11 @@ CREATE TABLE IF NOT EXISTS analytics (
   metadata TEXT,              -- JSON metadata: { presetId, charCount, etc. }
   created_at TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS feedback_rate_limit (
+  ip TEXT PRIMARY KEY,
+  last_sent_at INTEGER NOT NULL
+);
 ```
 
 ### 2.3 Preset JSON Format (Canonical)
@@ -564,6 +569,13 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] `id="ad-sidebar"` div in `page.tsx` workspace — hidden by default, admin-toggled
 - [x] Fixed pre-existing Next.js 16 async params type error in `/api/admin/presets/[id]/route.ts`
 
+### Phase 8.5 — Feedback rate limit cooldown, Resend integration, and bug fixes ✅ DONE
+- [x] Replaced Nodemailer SMTP with Edge-compatible Resend API utilizing `RESEND_API_KEY` (kept Gmail REST API as fallback)
+- [x] Implemented a 24-hour rate limit cooldown per IP address on feedback submission stored in D1 database (`feedback_rate_limit` table)
+- [x] Added local storage cooldown validation (`txts_v2_feedbackCooldownUntil`) and live countdown ticker inside the `<FeedbackModal>` UI
+- [x] Fixed Admin Panel SMTP config component to fetch configuration status securely via server-side API rather than client-side `process.env` variables
+- [x] Fixed Sanitizer page to read and merge dynamic system presets from D1 database instead of hardcoded default values
+
 ### Phase 9 — About Page + SEO
 - [ ] About page as SSR Server Component — fetches content from D1
 - [ ] Title tags + meta descriptions for all routes
@@ -613,7 +625,7 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 | Restore | None | **Hover-only floating button under cursor** |
 | Find & Replace | None | **Output panel 🔍 icon → full tool** |
 | Dark mode | None | **Yes, toggle in navbar** |
-| Feedback | None | **Footer link → modal → Nodemailer** |
+| Feedback | None | **Footer link → modal → Resend API (Gmail REST fallback) + 24h IP cooldown** |
 | Admin | None | **Full dashboard at `/admin`** |
 | Analytics | None | **Dashboard tab with monthly SVG line charts, summary cards, and preset usage statistics** |
 | About CMS | Static | **Admin-editable via D1** |
