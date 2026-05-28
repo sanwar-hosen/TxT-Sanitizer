@@ -391,13 +391,7 @@ export default function AdminPage() {
                     <AdminAdsControl initialConfig={{ belowNavbar: false, sidebar: false }} />
                   )}
 
-                  {activeTab === 'email' && (
-                    <AdminEmailConfig
-                      gmailUser={typeof process.env.NEXT_PUBLIC_GMAIL_CONFIGURED === 'string'
-                        ? process.env.NEXT_PUBLIC_GMAIL_CONFIGURED
-                        : null}
-                    />
-                  )}
+                  {activeTab === 'email' && <AdminEmailConfig />}
                 </div>
               </div>
             )}

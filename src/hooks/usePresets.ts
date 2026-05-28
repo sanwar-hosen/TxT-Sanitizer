@@ -9,6 +9,7 @@ import {
   loadUserPresets,
   loadPresetOverrides,
 } from '@/lib/storage';
+import { useSystemPresets } from '@/hooks/useSystemPresets';
 
 /**
  * Reorders presets so that the last-selected preset is always first.
@@ -26,29 +27,29 @@ function reorder(presets: Preset[], lastId: string | null): Preset[] {
 const MAX_VISIBLE = 3;
 
 export function usePresets() {
-  // All available presets (system + user — for now just defaults)
-  const [allPresets, setAllPresets] = useState<Preset[]>(DEFAULT_PRESETS);
+  // useSystemPresets fetches system presets from the backend API and caches them.
+  // Falls back to DEFAULT_PRESETS when the API is unreachable.
+  const { systemPresets } = useSystemPresets();
+
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const [activePresetId, setActivePresetIdRaw] = useState<string>(
     DEFAULT_PRESETS[0]?.id ?? ''
   );
+  const [userPresets, setUserPresets] = useState<Preset[]>([]);
 
-  // Hydrate last-selected + user presets + overrides from localStorage
+  // Hydrate last-selected + user presets from localStorage
   useEffect(() => {
     const stored = loadLastSelectedPresetId();
     if (stored) {
       setLastSelectedId(stored);
       setActivePresetIdRaw(stored);
     }
-
-    // Apply local overrides to system presets
-    const overrides = loadPresetOverrides();
-    const systemWithOverrides = DEFAULT_PRESETS.map((p) => overrides[p.id] ?? p);
-
-    // Merge user presets
-    const userPresets = loadUserPresets();
-    setAllPresets([...systemWithOverrides, ...userPresets]);
+    setUserPresets(loadUserPresets());
   }, []);
+
+  // Merge system presets (with local overrides) + user presets
+  // This recomputes whenever systemPresets updates (i.e. after API fetch)
+  const allPresets: Preset[] = [...systemPresets, ...userPresets];
 
   // Derived: ordered presets (last-selected first)
   const ordered = reorder(allPresets, lastSelectedId);
@@ -69,12 +70,9 @@ export function usePresets() {
     []
   );
 
-  /** Refresh presets from storage (call after settings page changes) */
+  /** Refresh user presets from storage (call after settings page changes) */
   const refreshPresets = useCallback(() => {
-    const overrides = loadPresetOverrides();
-    const systemWithOverrides = DEFAULT_PRESETS.map((p) => overrides[p.id] ?? p);
-    const userPresets = loadUserPresets();
-    setAllPresets([...systemWithOverrides, ...userPresets]);
+    setUserPresets(loadUserPresets());
   }, []);
 
   return {
@@ -85,7 +83,7 @@ export function usePresets() {
     activePreset,
     activePresetId,
     selectPreset,
-    setAllPresets,
+    setAllPresets: () => {}, // kept for API compatibility; use refreshPresets instead
     refreshPresets,
   };
 }

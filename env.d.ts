@@ -33,4 +33,6 @@ interface CloudflareEnv {
   ADMIN_PASSWORD: string;
   GMAIL_USER: string;
   GMAIL_APP_PASSWORD: string;
+  // Optional: Resend API key for edge-compatible email sending (recommended over Gmail SMTP)
+  RESEND_API_KEY: string;
 }
