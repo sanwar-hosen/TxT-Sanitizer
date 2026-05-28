@@ -10,9 +10,14 @@ const rubik = Rubik({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://txt-sanitizer.pages.dev'),
   title: "TxT Sanitizer — Clean & Transform Your Text",
   description:
     "A free, fast, browser-based text sanitizer. Remove markdown, bypass platform word filters, and clean your text with custom presets.",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+  },
 };
 
 import Navbar from "@/components/navbar/Navbar";
