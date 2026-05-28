@@ -4,34 +4,90 @@
  *
  * Sending strategy (in priority order):
  *   1. Resend API (RESEND_API_KEY env var) — recommended, edge-compatible
- *   2. Gmail REST API via SMTP2HTTP (GMAIL_USER + GMAIL_APP_PASSWORD) — fallback
- *      Note: Nodemailer is NOT used because it requires Node.js TCP sockets (net/tls)
- *      which are unavailable in Cloudflare Workers even with nodejs_compat.
- *      Instead, we encode the email as an RFC 2822 message and send it via
- *      the Gmail API's /gmail/v1/users/me/messages/send endpoint using
- *      basic auth with an App Password.
+ *   2. Gmail REST API (GMAIL_USER + GMAIL_APP_PASSWORD) — fallback
+ *      Note: Nodemailer is NOT used; it requires Node.js TCP sockets unavailable on Edge.
  *
- * Rate limiting: max 5 submissions per IP per hour (in-memory).
+ * Rate limiting: 1 submission per IP per 24 hours, persisted in D1.
+ * Falls back to in-memory limiting when D1 is unavailable (local dev).
+ *
  * Body: { email?: string; subject: string; message: string }
  */
 
 import { NextResponse } from 'next/server';
-import { getCfEnv } from '@/lib/db';
+import { getCfEnv, getDB } from '@/lib/db';
 
-// This route must run in the Edge runtime (Cloudflare Workers).
 export const runtime = 'edge';
 
-// ── In-memory rate limiter ────────────────────────────────────────────────────
-const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const RATE_LIMIT = 5;
-const ipLog = new Map<string, number[]>();
+const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-function isRateLimited(ip: string): boolean {
+// ── Fallback in-memory limiter (local dev only) ────────────────────────────────
+const memoryLog = new Map<string, number>();
+
+// ── D1-backed rate limiter ─────────────────────────────────────────────────────
+/**
+ * Creates the rate-limit table if it doesn't exist, then checks whether the
+ * given IP is within the 24-hour cooldown.
+ *
+ * Returns: { limited: false } | { limited: true; retryAfterMs: number }
+ */
+async function checkRateLimit(
+  ip: string
+): Promise<{ limited: false } | { limited: true; retryAfterMs: number }> {
+  const db = getDB();
+
+  if (!db) {
+    // Local dev — use in-memory fallback
+    const lastSent = memoryLog.get(ip);
+    const now = Date.now();
+    if (lastSent && now - lastSent < COOLDOWN_MS) {
+      return { limited: true, retryAfterMs: COOLDOWN_MS - (now - lastSent) };
+    }
+    memoryLog.set(ip, now);
+    return { limited: false };
+  }
+
+  // Ensure table exists (idempotent)
+  await db
+    .prepare(
+      `CREATE TABLE IF NOT EXISTS feedback_rate_limit (
+        ip TEXT PRIMARY KEY,
+        last_sent_at INTEGER NOT NULL
+      )`
+    )
+    .run();
+
   const now = Date.now();
-  const hits = (ipLog.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
-  if (hits.length >= RATE_LIMIT) return true;
-  ipLog.set(ip, [...hits, now]);
-  return false;
+  const row = await db
+    .prepare('SELECT last_sent_at FROM feedback_rate_limit WHERE ip = ?')
+    .bind(ip)
+    .first<{ last_sent_at: number }>();
+
+  if (row && now - row.last_sent_at < COOLDOWN_MS) {
+    return { limited: true, retryAfterMs: COOLDOWN_MS - (now - row.last_sent_at) };
+  }
+
+  // Upsert the timestamp
+  await db
+    .prepare(
+      `INSERT INTO feedback_rate_limit (ip, last_sent_at)
+       VALUES (?, ?)
+       ON CONFLICT(ip) DO UPDATE SET last_sent_at = excluded.last_sent_at`
+    )
+    .bind(ip, now)
+    .run();
+
+  return { limited: false };
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+/** Formats milliseconds into a human-readable "Xh Ym" string. */
+function formatCooldown(ms: number): string {
+  const totalSeconds = Math.ceil(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.ceil((totalSeconds % 3600) / 60);
+  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h`;
+  return `${minutes}m`;
 }
 
 // ── Send via Resend API ────────────────────────────────────────────────────────
@@ -69,8 +125,6 @@ async function sendViaResend(opts: {
 }
 
 // ── Send via Gmail REST API ────────────────────────────────────────────────────
-// Uses Gmail's HTTP API with App Password auth (basic auth via fetch).
-// This is edge-compatible because it's just HTTPS, no TCP sockets.
 async function sendViaGmailApi(opts: {
   gmailUser: string;
   gmailPass: string;
@@ -79,7 +133,6 @@ async function sendViaGmailApi(opts: {
   html: string;
   text: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  // Build RFC 2822 raw email
   const boundary = `boundary_${Date.now()}`;
   const rawEmail = [
     `From: "TxT Sanitizer Feedback" <${opts.gmailUser}>`,
@@ -104,13 +157,11 @@ async function sendViaGmailApi(opts: {
     .filter((line) => line !== null)
     .join('\r\n');
 
-  // Base64url encode
   const encoded = btoa(unescape(encodeURIComponent(rawEmail)))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 
-  // Basic auth credentials for Gmail API
   const credentials = btoa(`${opts.gmailUser}:${opts.gmailPass}`);
 
   const res = await fetch(
@@ -134,19 +185,25 @@ async function sendViaGmailApi(opts: {
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
-  // Get client IP
   const ip =
     request.headers.get('cf-connecting-ip') ??
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     'unknown';
 
-  if (isRateLimited(ip)) {
+  // ── Rate limit check ──────────────────────────────────────────────────────
+  const rateLimit = await checkRateLimit(ip);
+  if (rateLimit.limited) {
+    const retryIn = formatCooldown(rateLimit.retryAfterMs);
     return NextResponse.json(
-      { error: 'Too many requests. Please wait before sending again.' },
+      {
+        error: `You've already sent feedback today. Please try again in ${retryIn}.`,
+        retryAfterMs: rateLimit.retryAfterMs,
+      },
       { status: 429 }
     );
   }
 
+  // ── Body validation ───────────────────────────────────────────────────────
   let body: { email?: string; subject?: string; message?: string };
   try {
     body = await request.json();
@@ -156,7 +213,6 @@ export async function POST(request: Request) {
 
   const { email, subject, message } = body;
 
-  // Validate required fields
   if (!subject?.trim() || !message?.trim()) {
     return NextResponse.json(
       { error: 'Subject and message are required.' },
@@ -164,6 +220,7 @@ export async function POST(request: Request) {
     );
   }
 
+  // ── Email sending ─────────────────────────────────────────────────────────
   const resendApiKey = getCfEnv('RESEND_API_KEY' as keyof CloudflareEnv);
   const gmailUser = getCfEnv('GMAIL_USER');
   const gmailPass = getCfEnv('GMAIL_APP_PASSWORD');
@@ -189,7 +246,6 @@ export async function POST(request: Request) {
     error: 'No email provider configured.',
   };
 
-  // Try Resend first
   if (resendApiKey) {
     sendResult = await sendViaResend({
       resendApiKey,
@@ -200,7 +256,6 @@ export async function POST(request: Request) {
       text: textBody,
     });
   } else if (gmailUser && gmailPass) {
-    // Fall back to Gmail REST API
     sendResult = await sendViaGmailApi({
       gmailUser,
       gmailPass,
@@ -210,7 +265,6 @@ export async function POST(request: Request) {
       text: textBody,
     });
   } else {
-    // No email provider configured — simulate in dev
     console.warn('[feedback] No email provider configured — simulating send');
     sendResult = { ok: true };
   }
