@@ -35,4 +35,7 @@ interface CloudflareEnv {
   GMAIL_APP_PASSWORD: string;
   // Optional: Resend API key for edge-compatible email sending (recommended over Gmail SMTP)
   RESEND_API_KEY: string;
+  // Recipient email address for feedback submissions (set in Cloudflare Pages dashboard)
+  // Falls back to GMAIL_USER if not set.
+  FEEDBACK_EMAIL: string;
 }

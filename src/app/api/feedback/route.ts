@@ -1,11 +1,16 @@
 /**
  * POST /api/feedback
- * Validates the form body and sends an email.
+ * Validates the form body and sends an email via Resend API.
  *
- * Sending strategy (in priority order):
- *   1. Resend API (RESEND_API_KEY env var) — recommended, edge-compatible
- *   2. Gmail REST API (GMAIL_USER + GMAIL_APP_PASSWORD) — fallback
- *      Note: Nodemailer is NOT used; it requires Node.js TCP sockets unavailable on Edge.
+ * Sending strategy:
+ *   Resend API (RESEND_API_KEY env var) — edge-compatible, recommended.
+ *   Configure these in Cloudflare Pages environment variables:
+ *     RESEND_API_KEY   — your Resend API key
+ *     FEEDBACK_EMAIL   — the inbox that receives feedback (e.g. you@gmail.com)
+ *                        Falls back to GMAIL_USER if FEEDBACK_EMAIL is not set.
+ *
+ * NOTE: The Gmail REST API fallback was removed. It required OAuth2 Bearer tokens
+ * which are not practical for a server-side secrets setup. Use Resend instead.
  *
  * Rate limiting: 1 submission per IP per 24 hours, persisted in D1.
  * Falls back to in-memory limiting when D1 is unavailable (local dev).
@@ -119,66 +124,7 @@ async function sendViaResend(opts: {
 
   if (!res.ok) {
     const err = await res.text().catch(() => 'Unknown error');
-    return { ok: false, error: err };
-  }
-  return { ok: true };
-}
-
-// ── Send via Gmail REST API ────────────────────────────────────────────────────
-async function sendViaGmailApi(opts: {
-  gmailUser: string;
-  gmailPass: string;
-  replyTo?: string;
-  subject: string;
-  html: string;
-  text: string;
-}): Promise<{ ok: boolean; error?: string }> {
-  const boundary = `boundary_${Date.now()}`;
-  const rawEmail = [
-    `From: "TxT Sanitizer Feedback" <${opts.gmailUser}>`,
-    `To: ${opts.gmailUser}`,
-    opts.replyTo ? `Reply-To: ${opts.replyTo}` : '',
-    `Subject: ${opts.subject}`,
-    `MIME-Version: 1.0`,
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
-    '',
-    `--${boundary}`,
-    'Content-Type: text/plain; charset=UTF-8',
-    '',
-    opts.text,
-    '',
-    `--${boundary}`,
-    'Content-Type: text/html; charset=UTF-8',
-    '',
-    opts.html,
-    '',
-    `--${boundary}--`,
-  ]
-    .filter((line) => line !== null)
-    .join('\r\n');
-
-  const encoded = btoa(unescape(encodeURIComponent(rawEmail)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-
-  const credentials = btoa(`${opts.gmailUser}:${opts.gmailPass}`);
-
-  const res = await fetch(
-    'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ raw: encoded }),
-    }
-  );
-
-  if (!res.ok) {
-    const err = await res.text().catch(() => 'Unknown error');
-    return { ok: false, error: err };
+    return { ok: false, error: `Resend API error (${res.status}): ${err}` };
   }
   return { ok: true };
 }
@@ -220,10 +166,12 @@ export async function POST(request: Request) {
     );
   }
 
-  // ── Email sending ─────────────────────────────────────────────────────────
+  // ── Resolve recipient & sender credentials ────────────────────────────────
   const resendApiKey = getCfEnv('RESEND_API_KEY' as keyof CloudflareEnv);
-  const gmailUser = getCfEnv('GMAIL_USER');
-  const gmailPass = getCfEnv('GMAIL_APP_PASSWORD');
+  // FEEDBACK_EMAIL is the preferred recipient; fall back to GMAIL_USER
+  const recipientEmail =
+    getCfEnv('FEEDBACK_EMAIL' as keyof CloudflareEnv) ??
+    getCfEnv('GMAIL_USER' as keyof CloudflareEnv);
 
   const subjectLine = `[TxT Sanitizer Feedback] ${subject.trim().slice(0, 200)}`;
   const textBody = [
@@ -241,31 +189,25 @@ export async function POST(request: Request) {
     </div>
   `;
 
-  let sendResult: { ok: boolean; error?: string } = {
-    ok: false,
-    error: 'No email provider configured.',
-  };
+  // ── Email sending ─────────────────────────────────────────────────────────
+  let sendResult: { ok: boolean; error?: string };
 
-  if (resendApiKey) {
+  if (resendApiKey && recipientEmail) {
     sendResult = await sendViaResend({
       resendApiKey,
-      to: gmailUser ?? 'feedback@example.com',
-      replyTo: email?.trim() || undefined,
-      subject: subjectLine,
-      html: htmlBody,
-      text: textBody,
-    });
-  } else if (gmailUser && gmailPass) {
-    sendResult = await sendViaGmailApi({
-      gmailUser,
-      gmailPass,
+      to: recipientEmail,
       replyTo: email?.trim() || undefined,
       subject: subjectLine,
       html: htmlBody,
       text: textBody,
     });
   } else {
-    console.warn('[feedback] No email provider configured — simulating send');
+    // Local dev / unconfigured: simulate a successful send so the UI works.
+    // In production, set RESEND_API_KEY + FEEDBACK_EMAIL in Cloudflare Pages env vars.
+    console.warn(
+      '[feedback] No email provider configured — simulating send. ' +
+      'Set RESEND_API_KEY and FEEDBACK_EMAIL in Cloudflare Pages environment variables.'
+    );
     sendResult = { ok: true };
   }
 
@@ -277,16 +219,14 @@ export async function POST(request: Request) {
     );
   }
 
-  // Log analytics event (fire-and-forget)
-  try {
-    await fetch(new URL('/api/analytics', request.url), {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ event_type: 'feedback' }),
-    });
-  } catch {
-    // Non-critical
-  }
+  // Log analytics event — truly fire-and-forget (no await, errors are swallowed)
+  fetch(new URL('/api/analytics', request.url), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ event_type: 'feedback' }),
+  }).catch(() => {
+    // Non-critical — never surface analytics errors to the user
+  });
 
   return NextResponse.json({ ok: true });
 }
