@@ -106,7 +106,7 @@ export default function HistoryClient() {
       <div className="max-w-[1000px] w-full mx-auto">
 
         {/* ── Page Header ───────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -128,7 +128,7 @@ export default function HistoryClient() {
           </div>
 
           {manualSanitize && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
               {/* Sort toggle */}
               <div className="flex items-center bg-surface-container rounded-lg p-0.5 border border-outline-variant">
                 <button

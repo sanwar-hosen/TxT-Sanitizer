@@ -608,8 +608,15 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] Updated resolved decision Q5: max visible tabs is now **5**
 
 ### Phase 10 — Polish & QA
-- [ ] Keyboard shortcut audit
-- [ ] Responsive layout (desktop-first, tablet acceptable)
+- [x] Keyboard shortcut audit
+- [x] Mobile responsive layout updates (Phase 10.1)
+  - [x] Workspace input/output panel stacked top and bottom on mobile (desktop stays side-by-side)
+  - [x] Workspace tab row on top and preset row underneath on mobile (desktop stays side-by-side)
+  - [x] Navbar optimization on narrow screens (hide "By Sano" author block below sm breakpoint)
+  - [x] History page header stack/wrap neatly on mobile
+  - [x] Settings page PresetEditorModal stack find/replace inputs vertically with rotating arrow on mobile
+  - [x] Admin panel navigation tab wrapping on mobile
+- [ ] Responsive layout validation & cross-device compatibility check
 - [ ] Accessibility: focus management, ARIA labels, contrast
 - [ ] Performance: code splitting, font optimization
 - [ ] Cross-browser testing

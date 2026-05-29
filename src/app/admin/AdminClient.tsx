@@ -307,7 +307,7 @@ export default function AdminClient() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar nav */}
           <aside className="lg:w-52 shrink-0">
-            <nav className="flex lg:flex-col gap-1">
+            <nav className="flex flex-wrap lg:flex-col gap-1">
               {TABS.map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (

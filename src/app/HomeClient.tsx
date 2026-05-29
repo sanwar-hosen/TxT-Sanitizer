@@ -217,27 +217,31 @@ export default function HomeClient() {
       <div className="max-w-[1400px] w-full mx-auto bg-white dark:bg-[var(--surface)] rounded-lg shadow-sm border border-outline-variant dark:border-[var(--border)] flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
 
         {/* ── TopToolbar ─────────────────────────────────────────────────────── */}
-        <header className="flex items-end justify-between px-4 border-b border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface)] pt-3 shrink-0">
+        <header className="flex flex-col md:flex-row md:items-end justify-between px-4 border-b border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface)] pt-3 shrink-0 gap-2 md:gap-0">
 
           {/* LEFT: Preset tabs */}
-          <PresetTabs
-            visiblePresets={visiblePresets}
-            overflowPresets={overflowPresets}
-            hasOverflow={hasOverflow}
-            activePresetId={activePresetId}
-            onSelect={handleSelectPreset}
-          />
+          <div className="order-2 md:order-1 flex items-end">
+            <PresetTabs
+              visiblePresets={visiblePresets}
+              overflowPresets={overflowPresets}
+              hasOverflow={hasOverflow}
+              activePresetId={activePresetId}
+              onSelect={handleSelectPreset}
+            />
+          </div>
 
           {/* RIGHT: Workspace tabs */}
-          <TabBar
-            tabs={tabs}
-            activeTabId={activeTabId}
-            canAddTab={canAddTab}
-            canCloseTab={canCloseTab}
-            onSwitch={switchTab}
-            onAdd={addTab}
-            onClose={closeTab}
-          />
+          <div className="order-1 md:order-2 flex items-end justify-between md:justify-end w-full md:w-auto">
+            <TabBar
+              tabs={tabs}
+              activeTabId={activeTabId}
+              canAddTab={canAddTab}
+              canCloseTab={canCloseTab}
+              onSwitch={switchTab}
+              onAdd={addTab}
+              onClose={closeTab}
+            />
+          </div>
 
         </header>
         {/* ── END TopToolbar ─────────────────────────────────────────────────── */}
@@ -255,7 +259,7 @@ export default function HomeClient() {
             {/* Sidebar ad code goes here */}
           </div>
 
-          <div className="flex-1 flex w-full min-h-0">
+          <div className="flex-1 flex flex-col md:flex-row w-full min-h-0">
 
             <InputPanel
               value={activeTab?.inputText ?? ''}

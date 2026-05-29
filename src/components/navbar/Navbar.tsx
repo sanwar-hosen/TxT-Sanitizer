@@ -133,8 +133,8 @@ export default function Navbar() {
           </Link>
 
           {/* By Sano */}
-          <div className="ml-2 h-6 w-px bg-[var(--border)]" />
-          <span className="ml-2 text-xs font-medium text-[var(--text-muted)]">
+          <div className="hidden sm:block ml-2 h-6 w-px bg-[var(--border)]" />
+          <span className="hidden sm:inline ml-2 text-xs font-medium text-[var(--text-muted)]">
             By{" "}
             <span className="font-semibold text-[var(--brand)]">Sano</span>
           </span>

@@ -121,7 +121,7 @@ export default function InputPanel({
 
   return (
     <section
-      className="flex-1 flex flex-col relative border-r border-outline-variant dark:border-[var(--border)]"
+      className="flex-1 flex flex-col relative border-b md:border-b-0 md:border-r border-outline-variant dark:border-[var(--border)]"
       data-purpose="input-pane"
     >
       {/* Clear button — top-right */}
