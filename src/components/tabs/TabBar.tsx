@@ -28,7 +28,7 @@ export default function TabBar({
         const rawInput = tab.inputText?.trim() ?? '';
         const displayLabel =
           rawInput.length > 0
-            ? rawInput.slice(0, 16) + (rawInput.length > 16 ? '…' : '')
+            ? rawInput.slice(0, 12) + (rawInput.length > 12 ? '…' : '')
             : tab.label;
         return (
           <button
@@ -44,7 +44,7 @@ export default function TabBar({
                 : 'text-gray-400 dark:text-slate-400/80 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-600 dark:hover:text-slate-200 border-transparent hover:border-t hover:border-x hover:border-gray-200 dark:hover:border-slate-600',
             ].join(' ')}
           >
-            <span className="truncate flex-grow text-left pointer-events-none">
+            <span className="overflow-hidden whitespace-nowrap flex-grow text-left pointer-events-none">
               {displayLabel}
             </span>
 
