@@ -148,22 +148,8 @@ export default function AdminEmailConfig() {
         </div>
       )}
 
-      {status?.configured && !status.resendConfigured && status.gmailConfigured && (
-        <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 px-4 py-3 text-xs text-blue-700 dark:text-blue-400">
-          <strong>Tip:</strong> You&apos;re using Gmail as a fallback. For better deliverability on
-          Cloudflare Pages, consider adding a{' '}
-          <code className="font-mono">RESEND_API_KEY</code> from{' '}
-          <a
-            href="https://resend.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            resend.com
-          </a>{' '}
-          (free tier: 100 emails/day).
-        </div>
-      )}
+
+
     </div>
   );
 }
