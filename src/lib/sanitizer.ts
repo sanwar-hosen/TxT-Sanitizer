@@ -9,6 +9,62 @@ interface Segment {
   };
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Returns true if the string contains at least one alphabetic character. */
+function hasAlpha(str: string): boolean {
+  return /[a-zA-Z]/.test(str);
+}
+
+/** Escapes special regex characters in a string for safe use in RegExp. */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Returns true if the alphabetic characters (lowercased) of `find` and `replace`
+ * are identical — meaning the replacement is a structural modification
+ * (e.g. a dash inserted) rather than a completely different word.
+ *
+ * Examples:
+ *   isStructural("pay", "pa-y")  → true   (same alpha: "pay" === "pay")
+ *   isStructural("pay", "p-ay")  → true   (same alpha: "pay" === "pay")
+ *   isStructural("pay", "abcd")  → false  ("pay" !== "abcd")
+ */
+function isStructural(find: string, replace: string): boolean {
+  const alphaOnly = (s: string) => s.replace(/[^a-zA-Z]/g, '').toLowerCase();
+  return alphaOnly(find) === alphaOnly(replace);
+}
+
+/**
+ * Maps the casing of alphabetic characters from `matched` onto the
+ * corresponding alphabetic characters in `template`, leaving non-alpha
+ * characters in `template` (like dashes) untouched.
+ *
+ * Examples:
+ *   applyCase("PAY",  "pa-y") → "PA-Y"
+ *   applyCase("Pay",  "pa-y") → "Pa-y"
+ *   applyCase("pAy",  "pa-y") → "pA-y"
+ *   applyCase("pay",  "pa-y") → "pa-y"
+ */
+function applyCase(matched: string, template: string): string {
+  const matchedAlpha = matched.replace(/[^a-zA-Z]/g, '');
+  let alphaIdx = 0;
+  return template
+    .split('')
+    .map((ch) => {
+      if (/[a-zA-Z]/.test(ch)) {
+        const src = matchedAlpha[alphaIdx] ?? ch;
+        alphaIdx++;
+        return src === src.toUpperCase() ? ch.toUpperCase() : ch.toLowerCase();
+      }
+      return ch;
+    })
+    .join('');
+}
+
+// ── Main sanitize function ────────────────────────────────────────────────────
+
 export function sanitize(
   text: string,
   rules: Rule[],
@@ -54,40 +110,102 @@ export function sanitize(
     if (!rule.find) continue;
 
     const newSegments: Segment[] = [];
-    
-    for (const seg of segments) {
-      if (seg.isExempt) {
-        newSegments.push(seg);
-        continue;
-      }
 
-      const parts = seg.text.split(rule.find);
-      
-      if (parts.length === 1) {
-        newSegments.push(seg);
-        continue;
-      }
-      
-      for (let i = 0; i < parts.length; i++) {
-        if (parts[i].length > 0) {
-          newSegments.push({
-            text: parts[i],
-            match: seg.match
-          });
+    if (!hasAlpha(rule.find)) {
+      // ── Original path: exact literal case-sensitive match ─────────────────
+      // Used for rules whose `find` has no alphabetic characters (e.g. * → -, --> → —)
+      for (const seg of segments) {
+        if (seg.isExempt) {
+          newSegments.push(seg);
+          continue;
         }
-        
-        if (i < parts.length - 1) {
+
+        const parts = seg.text.split(rule.find);
+
+        if (parts.length === 1) {
+          newSegments.push(seg);
+          continue;
+        }
+
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i].length > 0) {
+            newSegments.push({ text: parts[i], match: seg.match });
+          }
+          if (i < parts.length - 1) {
+            newSegments.push({
+              text: rule.replace,
+              match: {
+                original: rule.find,
+                rulePriority: rule.priority,
+              },
+            });
+          }
+        }
+      }
+    } else {
+      // ── New path: case-insensitive match + smart case-preserving replace ──
+      // Used for rules whose `find` contains alphabetic characters.
+      //
+      // If the replacement is a structural modification (same alpha chars as find,
+      // e.g. "pa-y" from "pay"), casing of the matched text is preserved.
+      // If the replacement is a completely different word (e.g. "abcd"), the
+      // literal replacement is used regardless of the matched casing.
+      const regex = new RegExp(escapeRegex(rule.find), 'gi');
+      const structural = isStructural(rule.find, rule.replace);
+
+      for (const seg of segments) {
+        if (seg.isExempt) {
+          newSegments.push(seg);
+          continue;
+        }
+
+        const segText = seg.text;
+        let cursor = 0;
+        let regexMatch: RegExpExecArray | null;
+        regex.lastIndex = 0;
+        let hadMatch = false;
+
+        while ((regexMatch = regex.exec(segText)) !== null) {
+          hadMatch = true;
+          const matchedText = regexMatch[0];
+          const matchStart = regexMatch.index;
+          const matchEnd = matchStart + matchedText.length;
+
+          // Push unmatched text before this match
+          if (matchStart > cursor) {
+            newSegments.push({
+              text: segText.slice(cursor, matchStart),
+              match: seg.match,
+            });
+          }
+
+          // Determine the actual replacement text:
+          // - Structural: mirror casing from the matched token onto the template
+          // - Non-structural: use literal replacement as-is
+          const actualReplacement = structural
+            ? applyCase(matchedText, rule.replace)
+            : rule.replace;
+
           newSegments.push({
-            text: rule.replace,
+            text: actualReplacement,
             match: {
-              original: rule.find,
-              rulePriority: rule.priority
-            }
+              original: matchedText, // store the actual matched text (e.g. "PAY"), not rule.find
+              rulePriority: rule.priority,
+            },
           });
+
+          cursor = matchEnd;
+        }
+
+        if (!hadMatch) {
+          newSegments.push(seg);
+        } else if (cursor < segText.length) {
+          // Push remaining unmatched text after the last match
+          newSegments.push({ text: segText.slice(cursor), match: seg.match });
         }
       }
     }
-    
+
     segments = newSegments;
   }
 
@@ -116,7 +234,7 @@ export function sanitize(
         endIndex: outEnd,
         rulePriority: seg.match.rulePriority,
         inputStartIndex: inStart,
-        inputEndIndex: inEnd
+        inputEndIndex: inEnd,
       });
     }
   }
