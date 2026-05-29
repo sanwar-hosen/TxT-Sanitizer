@@ -10,7 +10,7 @@
 |---|---|
 | **Q1 Database** | **Cloudflare D1** — free, native Cloudflare Pages integration |
 | **Q2 Admin Auth** | **Hardcoded password via `.env`** — single `ADMIN_PASSWORD` env var + session cookie |
-| **Q3 Feedback Email** | **Nodemailer + Gmail SMTP** — see setup guide in §2.4 |
+| **Q3 Feedback Email** | **Resend API** — edge-compatible, free tier 100 emails/day; `RESEND_API_KEY` + `FEEDBACK_EMAIL` env vars |
 | **Q4 UI Style** | **Modernized** — same blue palette (`#004AAD`) + Rubik font, but premium feel: richer shadows, micro-animations, glassmorphism cards |
 | **Q5 Preset Tabs** | Max 3 visible. Default order: last-selected preset first → rest in natural order. Overflow via "More" icon button; selecting from overflow moves that preset to position 1 |
 | **Q6 Feedback** | **Footer link** — clicking opens a feedback modal |
@@ -28,7 +28,7 @@
 | Tab Persistence | **localStorage** | Tabs persist across reloads |
 | User Data | **localStorage** | Presets, history, dark mode pref |
 | System Data | **Cloudflare D1** | System presets, notification alert config, About content, analytics |
-| Email | **Nodemailer + Gmail SMTP** | Free, no external service |
+| Email | **Resend API** (`resend.com`) | Edge-compatible; 100 emails/day free tier; no Node.js SMTP needed |
 | Deployment | **Cloudflare Pages** | Existing, no change |
 | Font | **Rubik** (Google Fonts via `next/font`) | Brand consistency |
 
@@ -129,20 +129,27 @@ CREATE TABLE IF NOT EXISTS feedback_rate_limit (
 - `replace`: literal string, can be empty (deletion)
 - `isDefault`: `true` = system preset (fetched from D1)
 
-### 2.4 Nodemailer Gmail SMTP Setup
+### 2.4 Resend API Email Setup ✅ IMPLEMENTED
 
-> **What you need to give me (only needed when we reach Phase 6):**
-> 1. A Gmail address that will be the **sender** (e.g. `txtsanitizer@gmail.com` or your own)
-> 2. A **Gmail App Password** — NOT your regular Gmail password
->
-> **How to get an App Password:**
-> 1. Go to your Google Account → Security
-> 2. Enable **2-Step Verification** (required)
-> 3. Search "App Passwords" → Create one → App: Mail, Device: Other (Custom name)
-> 4. Copy the 16-character password Google generates
-> 5. Provide: `GMAIL_USER=youremail@gmail.com` and `GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx`
->
-> These go in `.env.local` (never committed to git) and Cloudflare Pages environment variables.
+We use **Resend** (`resend.com`) for all feedback emails. Nodemailer + Gmail SMTP was evaluated but **rejected** because:
+- Nodemailer requires Node.js runtime — incompatible with Cloudflare Pages Edge runtime.
+- Gmail OAuth2 tokens are not practical for server-side secrets on Cloudflare.
+
+**Required environment variables** (set in `.env.local` for local dev and in Cloudflare Pages dashboard for production):
+
+| Variable | Purpose |
+|---|---|
+| `RESEND_API_KEY` | API key from [resend.com](https://resend.com) — used to authenticate email sends |
+| `FEEDBACK_EMAIL` | Recipient inbox — feedback submissions are delivered here |
+
+**How Resend works in this project:**
+1. `POST /api/feedback` receives the form submission.
+2. It calls the Resend REST API directly (`fetch('https://api.resend.com/emails', ...)`).
+3. The `from` address is `onboarding@resend.dev` (Resend's shared sending domain, no domain verification needed for free tier).
+4. `reply_to` is set to the user's email (if provided) so you can reply directly.
+5. If `RESEND_API_KEY` is missing in local dev, the route logs a warning and **simulates** a successful send so the UI works without credentials.
+
+**Free tier:** 100 emails/day, 3,000/month — sufficient for a feedback form.
 
 ---
 
@@ -175,7 +182,7 @@ CREATE TABLE IF NOT EXISTS feedback_rate_limit (
 | 6 | **Find & Replace tool** — 🔍 icon at top-right of Output panel, expands full tool, operates on output text | High |
 | 7 | **Search highlighting** in output (blue tone, distinct from amber preset highlights) | Medium |
 | 8 | **Dark mode toggle** in navbar | Medium |
-| 9 | **Feedback form** in Footer — modal with email/subject/message → Nodemailer | Medium |
+| 9 | **Feedback form** in Footer — modal with email/subject/message → Resend API | Medium |
 | 10 | **System presets** — fetched once, cached in localStorage, user-editable locally, "Reset to default" per preset | Medium |
 | 11 | **Admin dashboard** (`/admin`) — CRUD presets, popup, About CMS, ads toggle, analytics | High |
 | 12 | **Notification Alert system** — slide-in banner from top of site, center-top hover zone, heading + optional "Learn More" modal; admin-controlled | Medium |
@@ -347,12 +354,14 @@ Merge for display:
   - Search highlights use **blue tone** — distinct from amber preset highlights
 - Closing the tool clears search highlights; preset highlights are preserved
 
-### 5.8 Feedback Modal
+### 5.8 Feedback Modal ✅ IMPLEMENTED
 - Footer link: "Send Feedback"
 - Clicking opens a centered modal
 - Fields: **Email** (optional), **Subject**, **Message** (all except email required)
-- Submit → `POST /api/feedback` → Nodemailer → Gmail inbox
-- Rate limiting: max 5 submissions per IP per hour
+- Submit → `POST /api/feedback` → **Resend API** → recipient inbox (`FEEDBACK_EMAIL` env var)
+- Rate limiting: **1 submission per IP per 24 hours** — stored in D1 `feedback_rate_limit` table
+- Local dev fallback: in-memory rate limiter when D1 is unavailable
+- Client-side cooldown: `txts_v2_feedbackCooldownUntil` localStorage key with live countdown ticker in the modal UI
 - Success and error states shown inline
 
 ### 5.9 Admin Dashboard (`/admin`)
@@ -367,7 +376,12 @@ Merge for display:
      - Summary Statistics: Total counts and percentage changes for key metrics.
      - Usage Analytics: Top presets used (extracted from sanitize event metadata), average sanitized text length.
      - Date Filters: Toggle between last 30 days, last 6 months, and last 12 months.
-  6. **Email Config** — display current GMAIL_USER status (read-only, set via env)
+  6. **Email Config** — display current email provider status (read-only, set via env):
+     - `RESEND_API_KEY` — shows configured/not set (masked)
+     - `FEEDBACK_EMAIL` — shows recipient address when configured
+     - `Feedback Email Status` — Operational / Inactive badge
+     - Setup instructions link to [resend.com](https://resend.com) when not configured
+     - **Note:** `GMAIL_USER` and `GMAIL_APP_PASSWORD` are NOT shown — Gmail SMTP is not used
 
 ### 5.10 Ads Layout
 - Two reserved `<div>` slots built into the HTML from day one:
@@ -515,7 +529,7 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] `GET /api/presets` — return system presets with version
 - [x] `GET /api/notification-alert` — return alert config
 - [x] `GET /api/about` — return about content
-- [x] `POST /api/feedback` — validate + Nodemailer send (rate-limited 5/hr/IP)
+- [x] `POST /api/feedback` — validate + **Resend API** send (rate-limited 1/24hr/IP via D1; in-memory fallback for local dev)
 - [x] `POST /api/analytics` — log events to D1
 - [x] Client: `useSystemPresets` hook — fetch + cache system presets in localStorage, merge with user presets
 - [x] "Reset to default" per system preset (settings page wired to fetched presets)
@@ -570,10 +584,11 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] Fixed pre-existing Next.js 16 async params type error in `/api/admin/presets/[id]/route.ts`
 
 ### Phase 8.5 — Feedback rate limit cooldown, Resend integration, bug fixes, and drag animation ✅ DONE
-- [x] Replaced Nodemailer SMTP with Edge-compatible Resend API utilizing `RESEND_API_KEY` (kept Gmail REST API as fallback)
+- [x] Replaced original Nodemailer SMTP plan with Edge-compatible **Resend API** (`RESEND_API_KEY`) — Nodemailer was never implemented as it requires Node.js runtime which is incompatible with Cloudflare Pages Edge
 - [x] Implemented a 24-hour rate limit cooldown per IP address on feedback submission stored in D1 database (`feedback_rate_limit` table)
 - [x] Added local storage cooldown validation (`txts_v2_feedbackCooldownUntil`) and live countdown ticker inside the `<FeedbackModal>` UI
-- [x] Fixed Admin Panel SMTP config component to fetch configuration status securely via server-side API rather than client-side `process.env` variables
+- [x] Fixed Admin Panel email config component to fetch configuration status securely via `GET /api/admin/email-status` (server-side) rather than client-side `process.env` variables
+- [x] Refactored Admin Email Panel to show only **Resend-relevant** env vars (`RESEND_API_KEY`, `FEEDBACK_EMAIL`) — removed `GMAIL_USER` and `GMAIL_APP_PASSWORD` rows which were irrelevant to the active sending strategy
 - [x] Fixed Sanitizer page to read and merge dynamic system presets from D1 database instead of hardcoded default values
 - [x] **Drag-reorder background animation** — added CSS keyframe animations (`shiftDown`/`shiftUp`) and drop-indicator border line to the preset rule list in the Preset Editor modal; dragged item fades/scales down, items between source and destination animate to indicate direction of movement, and a brand-colored top/bottom border shows the precise drop target position
 
@@ -599,16 +614,32 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 
 ---
 
-## 7. What You Need to Provide Before Phase 6
+## 7. Environment Variables Reference
 
-> [!IMPORTANT]
-> Before Phase 6 (backend), provide:
-> 1. **Gmail address** — the sender address for feedback emails
-> 2. **Gmail App Password** — see setup steps in §2.4
->
-> These go in `.env.local` as `GMAIL_USER` and `GMAIL_APP_PASSWORD`. I'll remind you when we get there.
+All environment variables are set in `.env.local` for local development and in the **Cloudflare Pages dashboard** for production. See [`.env.local.example`](file:///c:/Users/Sano/Documents/Personal%20Projects/txt-sanitizerV2/.env.local.example) for a template.
+
+### Cloudflare Binding (wrangler.toml)
+
+| Binding | Type | Purpose |
+|---|---|---|
+| `txt_sanitizer_d1` | D1 Database | All persistent data: presets, alerts, analytics, feedback rate-limits, about content |
+
+### Environment Variables (Cloudflare Pages dashboard / `.env.local`)
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `ADMIN_PASSWORD` | ✅ Yes | Password for the `/admin` dashboard route |
+| `RESEND_API_KEY` | ✅ Yes (production) | Resend API key for sending feedback emails — free key at [resend.com](https://resend.com) (100/day) |
+| `FEEDBACK_EMAIL` | ✅ Yes (production) | Inbox address that receives feedback form submissions |
+
+> [!NOTE]
+> `GMAIL_USER` and `GMAIL_APP_PASSWORD` are **no longer used for sending**. They were part of an earlier Nodemailer plan that was discarded — Nodemailer requires Node.js runtime which is incompatible with Cloudflare Pages Edge. `GMAIL_USER` can still act as a **fallback recipient** if `FEEDBACK_EMAIL` is not set, but setting `FEEDBACK_EMAIL` explicitly is preferred. Both variables can otherwise be safely removed.
+
+> [!TIP]
+> For local development without a Resend key, `POST /api/feedback` simulates a successful send and logs a warning — the UI works normally without credentials.
 
 ---
+
 
 ## 8. V1 → V2 Delta Summary
 
@@ -626,7 +657,7 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 | Restore | None | **Hover-only floating button under cursor** |
 | Find & Replace | None | **Output panel 🔍 icon → full tool** |
 | Dark mode | None | **Yes, toggle in navbar** |
-| Feedback | None | **Footer link → modal → Resend API (Gmail REST fallback) + 24h IP cooldown** |
+| Feedback | None | **Footer link → modal → Resend API + 24h IP cooldown per D1** |
 | Admin | None | **Full dashboard at `/admin`** |
 | Analytics | None | **Dashboard tab with monthly SVG line charts, summary cards, and preset usage statistics** |
 | About CMS | Static | **Admin-editable via D1** |

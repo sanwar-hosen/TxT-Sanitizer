@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 
 interface EmailStatus {
   configured: boolean;
-  provider: 'resend' | 'gmail' | null;
+  provider: 'resend' | null;
   displayEmail: string | null;
   resendConfigured: boolean;
-  gmailConfigured: boolean;
+  feedbackEmailConfigured: boolean;
 }
 
 export default function AdminEmailConfig() {
@@ -42,13 +42,6 @@ export default function AdminEmailConfig() {
     );
   }
 
-  const providerLabel =
-    status?.provider === 'resend'
-      ? 'Resend API'
-      : status?.provider === 'gmail'
-      ? 'Gmail SMTP (REST)'
-      : null;
-
   return (
     <div className="space-y-4">
       <div className="rounded-lg bg-base-200/60 border border-base-300 px-4 py-3 text-xs text-base-content/60">
@@ -63,7 +56,7 @@ export default function AdminEmailConfig() {
           <div>
             <p className="text-sm font-semibold text-base-content">RESEND_API_KEY</p>
             <p className="text-xs text-base-content/50 mt-0.5">
-              Resend API key — recommended for Cloudflare Pages
+              Resend API key — used to send feedback emails via Resend
             </p>
           </div>
           {status?.resendConfigured ? (
@@ -81,15 +74,15 @@ export default function AdminEmailConfig() {
           )}
         </div>
 
-        {/* GMAIL_USER */}
+        {/* FEEDBACK_EMAIL */}
         <div className="flex items-center justify-between px-5 py-4">
           <div>
-            <p className="text-sm font-semibold text-base-content">GMAIL_USER</p>
+            <p className="text-sm font-semibold text-base-content">FEEDBACK_EMAIL</p>
             <p className="text-xs text-base-content/50 mt-0.5">
-              Gmail address — used as the feedback recipient
+              Recipient inbox — feedback emails are delivered here
             </p>
           </div>
-          {status?.gmailConfigured ? (
+          {status?.feedbackEmailConfigured ? (
             <div className="flex items-center gap-2">
               <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-sm font-mono font-medium text-base-content">
@@ -98,31 +91,10 @@ export default function AdminEmailConfig() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 rounded-full bg-error/70" />
-              <span className="text-sm font-medium text-error">Not configured</span>
-            </div>
-          )}
-        </div>
-
-        {/* GMAIL_APP_PASSWORD */}
-        <div className="flex items-center justify-between px-5 py-4">
-          <div>
-            <p className="text-sm font-semibold text-base-content">GMAIL_APP_PASSWORD</p>
-            <p className="text-xs text-base-content/50 mt-0.5">
-              Gmail App Password — used as the fallback sender
-            </p>
-          </div>
-          {status?.gmailConfigured ? (
-            <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-sm font-mono font-medium text-base-content/60">
-                ••••••••••••••••
+              <span className="flex h-2 w-2 rounded-full bg-amber-400" />
+              <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                Not set — emails won't be delivered
               </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 rounded-full bg-error/70" />
-              <span className="text-sm font-medium text-error">Not configured</span>
             </div>
           )}
         </div>
@@ -132,7 +104,9 @@ export default function AdminEmailConfig() {
           <div>
             <p className="text-sm font-semibold text-base-content">Feedback Email Status</p>
             <p className="text-xs text-base-content/50 mt-0.5">
-              {providerLabel ? `Active provider: ${providerLabel}` : 'No email provider configured'}
+              {status?.provider === 'resend'
+                ? 'Active provider: Resend API'
+                : 'No email provider configured'}
             </p>
           </div>
           {status?.configured ? (
@@ -150,12 +124,12 @@ export default function AdminEmailConfig() {
       {!status?.configured && (
         <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 px-4 py-3 text-xs text-amber-700 dark:text-amber-400 space-y-2">
           <p>
-            <strong>Setup required:</strong> To enable feedback emails, add one of the following to
-            your Cloudflare Pages environment variables:
+            <strong>Setup required:</strong> To enable feedback emails, add the following to your
+            Cloudflare Pages environment variables:
           </p>
           <ul className="list-disc list-inside space-y-1 mt-1">
             <li>
-              <code className="font-mono">RESEND_API_KEY</code> — Recommended. Free account at{' '}
+              <code className="font-mono">RESEND_API_KEY</code> — Free account at{' '}
               <a
                 href="https://resend.com"
                 target="_blank"
@@ -167,9 +141,8 @@ export default function AdminEmailConfig() {
               . 100 emails/day free.
             </li>
             <li>
-              <code className="font-mono">GMAIL_USER</code> +{' '}
-              <code className="font-mono">GMAIL_APP_PASSWORD</code> — Gmail fallback (limited
-              deliverability on Cloudflare Edge).
+              <code className="font-mono">FEEDBACK_EMAIL</code> — The inbox address that will
+              receive feedback submissions.
             </li>
           </ul>
         </div>

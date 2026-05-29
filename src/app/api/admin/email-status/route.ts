@@ -2,6 +2,9 @@
  * GET /api/admin/email-status
  * Returns whether email sending is configured (admin-only).
  * Reads server-side env vars — NEVER exposes secrets to the client.
+ *
+ * Email provider: Resend API (RESEND_API_KEY)
+ * Recipient:      FEEDBACK_EMAIL env var
  */
 
 import { NextResponse } from 'next/server';
@@ -16,31 +19,22 @@ export async function GET(request: Request) {
   }
 
   const resendApiKey = getCfEnv('RESEND_API_KEY' as keyof CloudflareEnv);
-  const gmailUser = getCfEnv('GMAIL_USER');
-  const gmailPass = getCfEnv('GMAIL_APP_PASSWORD');
+  const feedbackEmail =
+    getCfEnv('FEEDBACK_EMAIL' as keyof CloudflareEnv) ??
+    getCfEnv('GMAIL_USER' as keyof CloudflareEnv); // legacy fallback for recipient
 
   const hasResend = Boolean(resendApiKey);
-  const hasGmail = Boolean(gmailUser && gmailPass);
+  const hasFeedbackEmail = Boolean(feedbackEmail);
 
-  // Determine which provider is active
-  let provider: 'resend' | 'gmail' | null = null;
-  let displayEmail: string | null = null;
-
-  if (hasResend) {
-    provider = 'resend';
-    // Show the Gmail address as the recipient (if set), else show generic
-    displayEmail = gmailUser ?? null;
-  } else if (hasGmail) {
-    provider = 'gmail';
-    displayEmail = gmailUser ?? null;
-  }
+  // Active provider — Resend only; Gmail SMTP is not used on Cloudflare Edge
+  const provider: 'resend' | null = hasResend ? 'resend' : null;
 
   return NextResponse.json({
-    configured: provider !== null,
+    configured: hasResend && hasFeedbackEmail,
     provider,
-    displayEmail,
-    // Mask the API key — just show whether it's set
+    // Show the recipient address (masked label only — do not expose full address)
+    displayEmail: hasFeedbackEmail ? feedbackEmail : null,
     resendConfigured: hasResend,
-    gmailConfigured: hasGmail,
+    feedbackEmailConfigured: hasFeedbackEmail,
   });
 }

@@ -29,13 +29,19 @@ interface CloudflareEnv {
   // D1 Database — binding name must match [[d1_databases]] binding in wrangler.toml
   txt_sanitizer_d1: D1Database;
 
-  // Environment variables (secrets set in Cloudflare Pages dashboard)
+  // ── Admin ──────────────────────────────────────────────────────────────────
   ADMIN_PASSWORD: string;
+
+  // ── Email (Resend API) ─────────────────────────────────────────────────────
+  // Primary email provider — edge-compatible, no Node.js required
+  RESEND_API_KEY: string;
+  // Recipient inbox for feedback submissions
+  FEEDBACK_EMAIL: string;
+
+  // ── Legacy / deprecated ────────────────────────────────────────────────────
+  // GMAIL_USER can still serve as a fallback recipient if FEEDBACK_EMAIL is not set.
+  // GMAIL_APP_PASSWORD is NOT used — Gmail SMTP requires Node.js runtime (incompatible
+  // with Cloudflare Pages Edge). These can be safely removed.
   GMAIL_USER: string;
   GMAIL_APP_PASSWORD: string;
-  // Optional: Resend API key for edge-compatible email sending (recommended over Gmail SMTP)
-  RESEND_API_KEY: string;
-  // Recipient email address for feedback submissions (set in Cloudflare Pages dashboard)
-  // Falls back to GMAIL_USER if not set.
-  FEEDBACK_EMAIL: string;
 }

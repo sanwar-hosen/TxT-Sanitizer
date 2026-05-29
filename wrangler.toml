@@ -14,12 +14,12 @@ database_name = "txt-sanitizer-d1"
 database_id = "10e1c684-acb9-483b-91d0-e4d658166693"
 
 # ──────────────────────────────────────────────────────────────────────────────
-# DO NOT put secrets (ADMIN_PASSWORD, GMAIL_APP_PASSWORD, etc.) here.
+# DO NOT put secrets here.
 # Set them as encrypted environment variables in the Cloudflare Pages dashboard:
 #   Pages > txt-sanitizer-v2 > Settings > Environment variables > Add variable
 #
 # Required variables:
 #   ADMIN_PASSWORD      — password to access /admin
-#   GMAIL_USER          — Gmail address for feedback emails
-#   GMAIL_APP_PASSWORD  — Gmail App Password (not your account password)
+#   RESEND_API_KEY      — Resend API key for sending feedback emails (resend.com)
+#   FEEDBACK_EMAIL      — inbox address that receives feedback submissions
 # ──────────────────────────────────────────────────────────────────────────────
