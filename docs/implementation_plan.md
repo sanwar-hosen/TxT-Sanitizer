@@ -277,11 +277,11 @@ We use **Resend** (`resend.com`) for all feedback emails. Nodemailer + Gmail SMT
 - Empty input → button hidden, no processing, no history entry
 
 ### 5.2 Multi-Tab Workspace
-- Max **3 tabs**
+- Max **5 tabs**
 - Each tab state: `{ id, label, inputText, outputText, selectedPresetId, matchMetadata }`
 - **Persisted to localStorage** — survives page refresh
-- Tab label: "Tab 1", "Tab 2", "Tab 3"
-- Close button hidden when only 1 tab; Add button hidden when 3 tabs exist
+- Tab label (display): **first 16 characters of `inputText`** updated in real time; falls back to "Tab 1", "Tab 2" … when input is empty
+- Close button hidden when only 1 tab; Add button hidden when 5 tabs exist
 
 ### 5.3 Preset Tab UX
 
@@ -598,6 +598,14 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] OG tags
 - [x] Semantic HTML hierarchy
 - [x] JSON-LD structured data
+
+### Phase 9.5 — Dynamic Tab Labels + Increased Tab Limit ✅ DONE
+- [x] Increased max workspace tabs from **3 → 5** (`MAX_TABS` constant in `useTabs.ts`)
+- [x] Tab labels now show the **first 16 characters of the tab's input text**, updated in real time as the user types
+- [x] When the input box is empty the tab falls back to the static label ("Tab 1", "Tab 2", …)
+- [x] Labels truncate with a `…` ellipsis when input exceeds 16 characters
+- [x] `TabBar.tsx` derives `displayLabel` from `tab.inputText` — zero extra state or props needed
+- [x] Updated resolved decision Q5: max visible tabs is now **5**
 
 ### Phase 10 — Polish & QA
 - [ ] Keyboard shortcut audit

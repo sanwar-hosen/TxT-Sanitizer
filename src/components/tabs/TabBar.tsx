@@ -25,6 +25,11 @@ export default function TabBar({
     <div className="flex items-end gap-px">
       {tabs.map((tab) => {
         const isActive = tab.id === activeTabId;
+        const rawInput = tab.inputText?.trim() ?? '';
+        const displayLabel =
+          rawInput.length > 0
+            ? rawInput.slice(0, 16) + (rawInput.length > 16 ? '…' : '')
+            : tab.label;
         return (
           <button
             key={tab.id}
@@ -40,14 +45,14 @@ export default function TabBar({
             ].join(' ')}
           >
             <span className="truncate flex-grow text-left pointer-events-none">
-              {tab.label}
+              {displayLabel}
             </span>
 
             {/* Close button — red accent like clear-input X */}
             {canCloseTab && (
               <span
                 role="button"
-                aria-label={`Close ${tab.label}`}
+                aria-label={`Close ${displayLabel}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onClose(tab.id);

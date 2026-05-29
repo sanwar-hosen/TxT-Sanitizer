@@ -13,7 +13,7 @@ import {
 import { shiftExemptRanges } from '@/lib/restore';
 import { DEFAULT_PRESETS } from '@/data/defaultPresets';
 
-const MAX_TABS = 3;
+const MAX_TABS = 5;
 
 function makeTab(label: string, presetId: string): TabState {
   return {
