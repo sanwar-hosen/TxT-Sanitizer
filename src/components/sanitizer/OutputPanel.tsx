@@ -78,7 +78,7 @@ export default function OutputPanel({
 
   return (
     <section
-      className="flex-1 flex flex-col relative min-h-0"
+      className="flex-1 flex flex-col relative min-h-0 min-w-0 overflow-hidden"
       data-purpose="output-pane"
     >
       {fr && (
@@ -89,7 +89,7 @@ export default function OutputPanel({
             className={`flex items-center justify-center w-7 h-7 rounded-[4px] transition-all duration-200 border shadow-sm hover:shadow-md hover:scale-105 active:scale-95 ${
               fr.isOpen
                 ? 'bg-primary text-white border-primary hover:bg-primary-hover'
-                : 'text-on-surface-variant bg-white dark:bg-[var(--surface-2)] border-outline-variant dark:border-[var(--border)] hover:bg-surface-2 dark:hover:bg-surface-dim'
+                : 'text-on-surface-variant bg-transparent dark:bg-transparent border-outline-variant dark:border-[var(--border)] hover:bg-surface-2 dark:hover:bg-surface-dim'
             }`}
             title="Find & Replace (Ctrl+Shift+F)"
             type="button"
@@ -194,7 +194,8 @@ export default function OutputPanel({
             title="Copy output"
             onClick={onCopy}
             variant="secondary"
-            className={copied ? 'border-secondary bg-secondary/10 text-secondary hover:bg-secondary/10' : 'p-2 min-w-0'}
+            size="sm"
+            className={copied ? 'border-secondary bg-secondary/10 text-secondary hover:bg-secondary/10 px-3' : 'btn-square min-w-0'}
           >
             {copied ? (
               <>
@@ -220,7 +221,8 @@ export default function OutputPanel({
             title="Send output to input"
             onClick={onReinput}
             variant="secondary"
-            className="p-2 min-w-0"
+            size="sm"
+            className="btn-square min-w-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

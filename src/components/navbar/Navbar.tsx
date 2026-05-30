@@ -22,22 +22,43 @@ const THEMES: { id: ThemeId; name: string; preview: string[] }[] = [
   { id: 'silk', name: 'Silk', preview: ['#9aa5b1', '#f3f4f6', '#1f2937'] },
 ];
 
-const NAV_BTN_BASE = "flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 hover:shadow-md hover:scale-110 active:scale-95";
+const NAV_BTN_BASE = "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200 hover:shadow-md hover:scale-110 active:scale-95";
 
 export default function Navbar() {
   const { theme, selectTheme } = useDarkMode();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Delayed close so mouse can travel from button → panel without flicker
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function openMenu() {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+    if (typeof window !== 'undefined' && window.innerWidth >= 640) {
+      setIsOpen(true);
+    }
+  }
+
+  function scheduleClose() {
+    closeTimer.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 120);
+  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    };
   }, []);
 
   function navCls(href: string) {
@@ -51,39 +72,24 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-sm)]">
-      <div className="mx-auto flex h-14 max-w-screen-xl items-center justify-between px-5">
-        {/* Logo */}
-        <Link href="/" className="flex flex-col select-none group relative">
-          <div className="flex items-center gap-1 transition-all duration-200 group-hover:drop-shadow-[0_0_6px_var(--color-accent)]">
-            <span
-              className="text-xl font-bold tracking-tight"
-              style={{ color: "var(--brand)" }}
-            >
-              TxT
-            </span>
-            <span className="text-xl font-semibold text-[var(--text)]">
-              Sanitizer
-            </span>
+      <div className="mx-auto flex h-12 max-w-screen-xl items-center justify-between px-5">
+        <Link href="/" className="flex items-center gap-1.5 select-none group relative">
+          <div className="flex items-center gap-1 transition-all duration-200 drop-shadow-[0_0_0px_var(--color-accent)] group-hover:drop-shadow-[0_0_6px_var(--color-accent)]">
+            <span className="text-xl font-bold tracking-tight" style={{ color: "var(--brand)" }}>TxT</span>
+            <span className="text-xl font-semibold text-[var(--text)]">Sanitizer</span>
           </div>
-          <span className="self-start -mt-1 rounded-full bg-[var(--brand)] px-1.5 py-0.5 text-[8px] font-bold text-white tracking-wider uppercase transition-all duration-200">
-            v2
-          </span>
+          <span className="rounded-full bg-[var(--brand)] px-1.5 py-0.5 text-[8px] font-bold text-white tracking-wider uppercase transition-all duration-200">v2</span>
         </Link>
  
-        {/* Nav links */}
         <nav className="flex items-center gap-1">
-          {/* Theme selection dropdown */}
           <div
-            ref={dropdownRef}
-            className={`dropdown sm:dropdown-hover dropdown-end z-50 ${isOpen ? 'dropdown-open' : ''}`}
+            ref={containerRef}
+            className="relative"
+            onMouseEnter={openMenu}
+            onMouseLeave={scheduleClose}
           >
             <button
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.innerWidth < 640) {
-                  setIsOpen((prev) => !prev);
-                }
-              }}
-              tabIndex={0}
+              onClick={() => setIsOpen(!isOpen)}
               className={`${NAV_BTN_BASE} text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]`}
               title="Select Theme"
             >
@@ -92,9 +98,20 @@ export default function Navbar() {
                 <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" />
               </svg>
             </button>
+            
+            {/* Panel — always rendered, animated via opacity/scale/translate */}
             <div
-              tabIndex={0}
-              className="dropdown-content p-2 shadow-lg bg-base-100 border border-base-300 rounded-xl z-50 fixed left-1/2 -translate-x-1/2 top-16 w-[calc(100vw-2rem)] max-w-sm sm:absolute sm:left-auto sm:right-0 sm:translate-x-0 sm:top-auto sm:w-80"
+              className={`
+                fixed left-1/2 -translate-x-1/2 top-14
+                sm:absolute sm:left-auto sm:right-0 sm:top-10 sm:translate-x-0
+                p-2 shadow-xl bg-[var(--surface)] border border-[var(--border)] rounded-xl z-50
+                w-[calc(100vw-2rem)] max-w-sm sm:w-80
+                transition-all duration-200 ease-out origin-top-right
+                ${isOpen
+                  ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                  : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
+                }
+              `}
             >
               <div className="grid grid-cols-2 gap-2">
                 {THEMES.map((t) => {
@@ -103,13 +120,7 @@ export default function Navbar() {
                     <button
                       key={t.id}
                       data-theme={t.id}
-                      onClick={() => {
-                        selectTheme(t.id);
-                        setIsOpen(false);
-                        if (document.activeElement instanceof HTMLElement) {
-                          document.activeElement.blur();
-                        }
-                      }}
+                      onClick={() => { selectTheme(t.id); setIsOpen(false); }}
                       className={`flex rounded-lg overflow-hidden text-left border text-xs font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 shadow-xs cursor-pointer ${
                         isActive
                           ? 'border-primary ring-1 ring-primary'
@@ -118,7 +129,7 @@ export default function Navbar() {
                     >
                       {/* Left vertical strip */}
                       <div className="w-3 bg-base-300 shrink-0" />
-                      
+
                       {/* Right content */}
                       <div className="flex-1 p-2 bg-base-100 text-base-content flex flex-col gap-1.5 min-w-0">
                         <span className="font-bold tracking-wide capitalize text-[10px] truncate">{t.name}</span>
@@ -136,7 +147,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* History */}
           <Link href="/history" title="History" className={navCls('/history')}>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
@@ -145,7 +155,6 @@ export default function Navbar() {
             </svg>
           </Link>
 
-          {/* Settings */}
           <Link href="/settings" title="Settings" className={navCls('/settings')}>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />
@@ -153,7 +162,6 @@ export default function Navbar() {
             </svg>
           </Link>
 
-          {/* About */}
           <Link href="/about" title="About" className={navCls('/about')}>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -161,16 +169,10 @@ export default function Navbar() {
             </svg>
           </Link>
 
-          {/* By Sano */}
           <div className="hidden sm:block ml-2 h-6 w-px bg-[var(--border)]" />
           <span className="hidden sm:inline ml-2 text-xs font-medium text-[var(--text-muted)]">
             By{" "}
-            <a
-              href="https://linkedin.com/in/sanwar-hosen"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-[var(--brand)] hover:underline"
-            >
+            <a href="https://linkedin.com/in/sanwar-hosen" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand)] hover:underline">
               Sano
             </a>
           </span>

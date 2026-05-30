@@ -8,7 +8,7 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="mt-auto border-t border-[var(--border)] bg-[var(--surface)] py-4">
+      <footer className="mt-auto border-t border-[var(--border)] bg-[var(--surface)] py-3">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-3 px-5 text-xs text-[var(--text-muted)]">
           <span>
             Made with{" "}

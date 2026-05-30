@@ -121,7 +121,7 @@ export default function InputPanel({
 
   return (
     <section
-      className="flex-1 flex flex-col relative border-b md:border-b-0 md:border-r border-outline-variant dark:border-[var(--border)] min-h-0"
+      className="flex-1 flex flex-col relative border-b md:border-b-0 md:border-r border-outline-variant dark:border-[var(--border)] min-h-0 min-w-0 overflow-hidden"
       data-purpose="input-pane"
     >
       {/* Clear button — top-right */}
@@ -216,7 +216,8 @@ export default function InputPanel({
           title="Paste from clipboard"
           onClick={handlePaste}
           variant="secondary"
-          className="p-2 min-w-0"
+          size="sm"
+          className="btn-square min-w-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -237,6 +238,7 @@ export default function InputPanel({
             disabled={isSanitizing}
             title="Sanitize (Ctrl+Enter)"
             variant="primary"
+            size="sm"
           >
             Sanitize
           </Button>

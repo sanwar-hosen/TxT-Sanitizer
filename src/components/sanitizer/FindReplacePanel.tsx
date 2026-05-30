@@ -138,7 +138,7 @@ export default function FindReplacePanel({
         <Button
           onClick={onReplaceOne}
           disabled={matchesCount === 0}
-          variant="secondary"
+          variant="ghost"
           size="sm"
         >
           Replace
@@ -146,7 +146,7 @@ export default function FindReplacePanel({
         <Button
           onClick={onReplaceAll}
           disabled={matchesCount === 0}
-          variant="secondary"
+          variant="ghost"
           size="sm"
         >
           Replace All

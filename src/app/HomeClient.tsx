@@ -249,7 +249,7 @@ export default function HomeClient() {
         <div className="hidden lg:block w-[12.5%] shrink-0" />
 
         {/* ── Main card ──────────────────────────────────────────────────────────── */}
-        <div className="w-full lg:w-[75%] lg:flex-1 lg:min-h-0 lg:h-auto bg-white dark:bg-[var(--surface)] rounded-lg shadow-sm border border-outline-variant dark:border-[var(--border)] flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
+        <div className="w-full lg:w-[75%] lg:flex-1 lg:min-h-0 min-w-0 bg-white dark:bg-[var(--surface)] rounded-lg shadow-sm border border-outline-variant dark:border-[var(--border)] flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
 
           {/* ── TopToolbar ─────────────────────────────────────────────────────── */}
           <header className="flex flex-col md:flex-row md:items-end justify-between px-4 border-b border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface)] pt-3 shrink-0 gap-2 md:gap-0">
@@ -283,7 +283,7 @@ export default function HomeClient() {
 
           {/* ── Workspace Area ──────────────────────────────────────────────────── */}
           <main className="flex-1 bg-white dark:bg-[var(--surface)] overflow-hidden flex min-h-0">
-            <div className="flex-1 flex flex-col md:flex-row w-full min-h-0">
+            <div className="flex-1 flex flex-col md:flex-row w-full min-h-0 min-w-0">
 
               <InputPanel
                 value={activeTab?.inputText ?? ''}
