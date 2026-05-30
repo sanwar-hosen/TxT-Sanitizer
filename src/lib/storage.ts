@@ -13,6 +13,7 @@ const KEYS = {
   userPresets:   'txts_v2_userPresets',
   presetOverrides: 'txts_v2_presetOverrides',
   manualSanitize: 'txts_v2_manualSanitize',
+  adsConfig:     'txts_v2_adsConfig',
 } as const;
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -182,6 +183,23 @@ export function loadManualSanitize(): boolean {
 
 export function saveManualSanitize(enabled: boolean): void {
   set(KEYS.manualSanitize, enabled);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Ads configuration
+// ──────────────────────────────────────────────────────────────────────────────
+
+export interface AdsConfig {
+  belowNavbar: boolean;
+  sidebar: boolean;
+}
+
+export function loadAdsConfig(): AdsConfig {
+  return get<AdsConfig>(KEYS.adsConfig, { belowNavbar: false, sidebar: false });
+}
+
+export function saveAdsConfig(config: AdsConfig): void {
+  set(KEYS.adsConfig, config);
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

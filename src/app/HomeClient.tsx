@@ -42,12 +42,36 @@ export default function HomeClient() {
   const [copied, setCopied] = useState(false);
   const [isSanitizing, setIsSanitizing] = useState(false);
   const [manualSanitize, setManualSanitize] = useState(false);
+  const [adsConfig, setAdsConfig] = useState({ belowNavbar: false, sidebar: false });
 
   useEffect(() => {
     if (!hydrated) return;
-    const { loadManualSanitize } = require('@/lib/storage');
+    const { loadManualSanitize, loadAdsConfig } = require('@/lib/storage');
     setManualSanitize(loadManualSanitize());
+    setAdsConfig(loadAdsConfig());
   }, [hydrated]);
+
+  // Lock body height on desktop to prevent page-level scrolling
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    document.body.classList.add('lg:h-screen', 'lg:overflow-hidden');
+    return () => {
+      document.body.classList.remove('lg:h-screen', 'lg:overflow-hidden');
+    };
+  }, []);
+
+  // Dynamically show/hide below-navbar ad container in layout.tsx
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const adBelowNavbar = document.getElementById('ad-below-navbar');
+    if (adBelowNavbar) {
+      if (adsConfig.belowNavbar) {
+        adBelowNavbar.classList.remove('hidden');
+      } else {
+        adBelowNavbar.classList.add('hidden');
+      }
+    }
+  }, [adsConfig.belowNavbar]);
 
   // ── Pick up "Edit in Workspace" from History page ───────────────────────────
   useEffect(() => {
@@ -210,133 +234,150 @@ export default function HomeClient() {
     );
   }
 
+  const inputCharCount = countChars(activeTab?.inputText ?? '');
+  const outputCharCount = countChars(activeTab?.outputText ?? '');
+  const charDiff = outputCharCount - inputCharCount;
+  const charDiffStr = charDiff >= 0 ? `+${charDiff}` : `${charDiff}`;
+
   return (
-    <div className="flex-1 flex flex-col font-sans p-4 md:p-8">
+    <div className="flex-1 flex flex-col font-sans p-4 md:p-8 lg:p-6 min-h-0">
 
-      {/* ── Main card ──────────────────────────────────────────────────────────── */}
-      <div className="max-w-[1400px] w-full mx-auto bg-white dark:bg-[var(--surface)] rounded-lg shadow-sm border border-outline-variant dark:border-[var(--border)] flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
+      {/* Row wrapper for desktop layout columns */}
+      <div className="flex-1 flex flex-row items-stretch w-full min-h-0">
 
-        {/* ── TopToolbar ─────────────────────────────────────────────────────── */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between px-4 border-b border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface)] pt-3 shrink-0 gap-2 md:gap-0">
+        {/* Left Spacer (Desktop only) */}
+        <div className="hidden lg:block w-[12.5%] shrink-0" />
 
-          {/* LEFT: Preset tabs */}
-          <div className="order-2 md:order-1 flex items-end">
-            <PresetTabs
-              visiblePresets={visiblePresets}
-              overflowPresets={overflowPresets}
-              hasOverflow={hasOverflow}
-              activePresetId={activePresetId}
-              onSelect={handleSelectPreset}
-            />
-          </div>
+        {/* ── Main card ──────────────────────────────────────────────────────────── */}
+        <div className="w-full lg:w-[75%] lg:flex-1 lg:min-h-0 lg:h-auto bg-white dark:bg-[var(--surface)] rounded-lg shadow-sm border border-outline-variant dark:border-[var(--border)] flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
 
-          {/* RIGHT: Workspace tabs */}
-          <div className="order-1 md:order-2 flex items-end justify-between md:justify-end w-full md:w-auto min-w-0">
-            <TabBar
-              tabs={tabs}
-              activeTabId={activeTabId}
-              canAddTab={canAddTab}
-              canCloseTab={canCloseTab}
-              onSwitch={switchTab}
-              onAdd={addTab}
-              onClose={closeTab}
-            />
-          </div>
+          {/* ── TopToolbar ─────────────────────────────────────────────────────── */}
+          <header className="flex flex-col md:flex-row md:items-end justify-between px-4 border-b border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface)] pt-3 shrink-0 gap-2 md:gap-0">
 
-        </header>
-        {/* ── END TopToolbar ─────────────────────────────────────────────────── */}
+            {/* LEFT: Preset tabs */}
+            <div className="order-2 md:order-1 flex items-end">
+              <PresetTabs
+                visiblePresets={visiblePresets}
+                overflowPresets={overflowPresets}
+                hasOverflow={hasOverflow}
+                activePresetId={activePresetId}
+                onSelect={handleSelectPreset}
+              />
+            </div>
 
-        {/* ── Workspace Area ──────────────────────────────────────────────────── */}
-        <main className="flex-1 bg-white dark:bg-[var(--surface)] overflow-hidden flex min-h-0">
-          {/* ── Sidebar Ad Slot ─────────────────────────────────────────────────
-               Hidden by default (hidden class). Admin dashboard controls visibility.
-               Always in the DOM so ad code can be injected without a reload. */}
+            {/* RIGHT: Workspace tabs */}
+            <div className="order-1 md:order-2 flex items-end justify-between md:justify-end w-full md:w-auto min-w-0">
+              <TabBar
+                tabs={tabs}
+                activeTabId={activeTabId}
+                canAddTab={canAddTab}
+                canCloseTab={canCloseTab}
+                onSwitch={switchTab}
+                onAdd={addTab}
+                onClose={closeTab}
+              />
+            </div>
+
+          </header>
+          {/* ── END TopToolbar ─────────────────────────────────────────────────── */}
+
+          {/* ── Workspace Area ──────────────────────────────────────────────────── */}
+          <main className="flex-1 bg-white dark:bg-[var(--surface)] overflow-hidden flex min-h-0">
+            <div className="flex-1 flex flex-col md:flex-row w-full min-h-0">
+
+              <InputPanel
+                value={activeTab?.inputText ?? ''}
+                onChange={handleInputChange}
+                onSanitize={handleSanitize}
+                isSanitizing={isSanitizing}
+                frMatches={fr.matches}
+                frActiveIndex={fr.activeIndex}
+                manualSanitize={manualSanitize}
+                presetMatches={activeTab?.matches ?? []}
+              />
+
+              <OutputPanel
+                value={activeTab?.outputText ?? ''}
+                matches={activeTab?.matches ?? []}
+                onCopy={handleCopy}
+                onReinput={handleReinput}
+                onRestoreMatch={handleRestoreMatch}
+                copied={copied}
+                fr={fr}
+                onReplaceOne={handleReplaceOne}
+                onReplaceAll={handleReplaceAll}
+              />
+
+            </div>
+          </main>
+          {/* ── END Workspace Area ───────────────────────────────────────────────── */}
+
+          {/* ── Status Bar ──────────────────────────────────────────────────────── */}
+          <footer className="px-4 flex flex-col sm:flex-row justify-center sm:justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[var(--surface-2)] border-t border-outline-variant dark:border-[var(--border)] py-2 sm:py-0 h-auto sm:h-10 shrink-0 gap-1.5 sm:gap-0">
+            
+            {/* Left: input stats */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1">
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {countWords(activeTab?.inputText ?? '').toLocaleString()}
+                </span>
+                <span className="text-slate-400 dark:text-slate-400/80">Words</span>
+              </div>
+              <div className="h-3 w-px bg-slate-300" />
+              <div className="flex items-center space-x-1">
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {countChars(activeTab?.inputText ?? '').toLocaleString()}
+                </span>
+                <span className="text-slate-400 dark:text-slate-400/80">Characters</span>
+              </div>
+            </div>
+
+            {/* Right: output stats */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1">
+                <span className="text-slate-400 dark:text-slate-400/80 mr-0.5">
+                  ({charDiffStr})
+                </span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {outputCharCount.toLocaleString()}
+                </span>
+                <span className="text-slate-400 dark:text-slate-400/80">Characters</span>
+              </div>
+              <div className="h-3 w-px bg-slate-300" />
+              {(() => {
+                const flagged = activeTab?.matches?.length ?? 0;
+                const hasFlagged = flagged > 0;
+                return (
+                  <div className={`flex items-center space-x-1 transition-colors duration-300 ${hasFlagged ? 'text-red-500' : 'text-slate-400 dark:text-slate-400/80'}`}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                      {hasFlagged ? 'flag' : 'check'}
+                    </span>
+                    <span className={`font-bold ${hasFlagged ? 'text-red-600' : 'text-slate-800 dark:text-slate-200'}`}>{flagged}</span>
+                    <span>Flagged</span>
+                  </div>
+                );
+              })()}
+            </div>
+
+          </footer>
+          {/* ── END Status Bar ──────────────────────────────────────────────────── */}
+
+        </div>
+        {/* ── END Main card ──────────────────────────────────────────────────────── */}
+
+        {/* Right Ad Container (Desktop only) */}
+        <div className="hidden lg:flex w-[12.5%] shrink-0 flex-col items-stretch justify-stretch" id="ad-sidebar-container">
           <div
             id="ad-sidebar"
-            className="hidden w-[160px] shrink-0 flex-col items-center justify-start pt-4 gap-4 border-r border-base-300 bg-base-200/50"
+            className={`${adsConfig.sidebar ? 'flex' : 'hidden'} w-full h-full flex-col items-center justify-start pt-4 gap-4 border-l border-[var(--border)] bg-base-200/50`}
             aria-hidden="true"
           >
-            {/* Sidebar ad code goes here */}
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500">Advertisement</span>
+            {/* Sidebar ad content goes here */}
           </div>
-
-          <div className="flex-1 flex flex-col md:flex-row w-full min-h-0">
-
-            <InputPanel
-              value={activeTab?.inputText ?? ''}
-              onChange={handleInputChange}
-              onSanitize={handleSanitize}
-              isSanitizing={isSanitizing}
-              frMatches={fr.matches}
-              frActiveIndex={fr.activeIndex}
-              manualSanitize={manualSanitize}
-              presetMatches={activeTab?.matches ?? []}
-            />
-
-            <OutputPanel
-              value={activeTab?.outputText ?? ''}
-              matches={activeTab?.matches ?? []}
-              onCopy={handleCopy}
-              onReinput={handleReinput}
-              onRestoreMatch={handleRestoreMatch}
-              copied={copied}
-              fr={fr}
-              onReplaceOne={handleReplaceOne}
-              onReplaceAll={handleReplaceAll}
-            />
-
-          </div>
-        </main>
-        {/* ── END Workspace Area ───────────────────────────────────────────────── */}
-
-        {/* ── Status Bar ──────────────────────────────────────────────────────── */}
-        <footer className="px-4 flex flex-col sm:flex-row justify-center sm:justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[var(--surface-2)] border-t border-outline-variant dark:border-[var(--border)] py-2 sm:py-0 h-auto sm:h-10 shrink-0 gap-1.5 sm:gap-0">
-          
-          {/* Left: input stats */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1">
-              <span className="font-bold text-slate-800 dark:text-slate-200">
-                {countWords(activeTab?.inputText ?? '').toLocaleString()}
-              </span>
-              <span className="text-slate-400 dark:text-slate-400/80">Words</span>
-            </div>
-            <div className="h-3 w-px bg-slate-300" />
-            <div className="flex items-center space-x-1">
-              <span className="font-bold text-slate-800 dark:text-slate-200">
-                {countChars(activeTab?.inputText ?? '').toLocaleString()}
-              </span>
-              <span className="text-slate-400 dark:text-slate-400/80">Characters</span>
-            </div>
-          </div>
-
-          {/* Right: output stats */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1">
-              <span className="font-bold text-slate-800 dark:text-slate-200">
-                {countChars(activeTab?.outputText ?? '').toLocaleString()}
-              </span>
-              <span className="text-slate-400 dark:text-slate-400/80">Characters</span>
-            </div>
-            <div className="h-3 w-px bg-slate-300" />
-            {(() => {
-              const flagged = activeTab?.matches?.length ?? 0;
-              const hasFlagged = flagged > 0;
-              return (
-                <div className={`flex items-center space-x-1 transition-colors duration-300 ${hasFlagged ? 'text-red-500' : 'text-slate-400 dark:text-slate-400/80'}`}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                    {hasFlagged ? 'flag' : 'check'}
-                  </span>
-                  <span className={`font-bold ${hasFlagged ? 'text-red-600' : 'text-slate-800 dark:text-slate-200'}`}>{flagged}</span>
-                  <span>Flagged</span>
-                </div>
-              );
-            })()}
-          </div>
-
-        </footer>
-        {/* ── END Status Bar ──────────────────────────────────────────────────── */}
+        </div>
 
       </div>
-      {/* ── END Main card ──────────────────────────────────────────────────────── */}
 
     </div>
   );

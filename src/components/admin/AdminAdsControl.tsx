@@ -18,6 +18,11 @@ export default function AdminAdsControl({ initialConfig }: Props) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
+    const { loadAdsConfig } = require('@/lib/storage');
+    setConfig(loadAdsConfig());
+  }, []);
+
+  useEffect(() => {
     if (saveStatus !== 'idle') {
       const t = setTimeout(() => setSaveStatus('idle'), 3000);
       return () => clearTimeout(t);
@@ -32,7 +37,13 @@ export default function AdminAdsControl({ initialConfig }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
       });
-      setSaveStatus(res.ok ? 'success' : 'error');
+      if (res.ok) {
+        const { saveAdsConfig } = require('@/lib/storage');
+        saveAdsConfig(config);
+        setSaveStatus('success');
+      } else {
+        setSaveStatus('error');
+      }
     } catch {
       setSaveStatus('error');
     } finally {
