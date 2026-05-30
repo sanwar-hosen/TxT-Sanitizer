@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDarkMode, ThemeId } from "@/hooks/useDarkMode";
@@ -26,6 +27,18 @@ const NAV_BTN_BASE = "flex h-9 w-9 items-center justify-center rounded-lg transi
 export default function Navbar() {
   const { theme, selectTheme } = useDarkMode();
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   function navCls(href: string) {
     const isActive = pathname === href;
@@ -58,8 +71,12 @@ export default function Navbar() {
         {/* Nav links */}
         <nav className="flex items-center gap-1">
           {/* Theme selection dropdown */}
-          <div className="dropdown dropdown-hover dropdown-end z-50">
+          <div
+            ref={dropdownRef}
+            className={`dropdown sm:dropdown-hover dropdown-end z-50 ${isOpen ? 'dropdown-open' : ''}`}
+          >
             <button
+              onClick={() => setIsOpen((prev) => !prev)}
               tabIndex={0}
               className={`${NAV_BTN_BASE} text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]`}
               title="Select Theme"
@@ -71,7 +88,7 @@ export default function Navbar() {
             </button>
             <div
               tabIndex={0}
-              className="dropdown-content p-2 shadow-lg bg-base-100 border border-base-300 rounded-xl w-80 z-50"
+              className="dropdown-content p-2 shadow-lg bg-base-100 border border-base-300 rounded-xl z-50 fixed left-1/2 -translate-x-1/2 top-16 w-[calc(100vw-2rem)] max-w-sm sm:absolute sm:left-auto sm:right-0 sm:translate-x-0 sm:top-auto sm:w-80"
             >
               <div className="grid grid-cols-2 gap-2">
                 {THEMES.map((t) => {
@@ -80,7 +97,13 @@ export default function Navbar() {
                     <button
                       key={t.id}
                       data-theme={t.id}
-                      onClick={() => selectTheme(t.id)}
+                      onClick={() => {
+                        selectTheme(t.id);
+                        setIsOpen(false);
+                        if (document.activeElement instanceof HTMLElement) {
+                          document.activeElement.blur();
+                        }
+                      }}
                       className={`flex rounded-lg overflow-hidden text-left border text-xs font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 shadow-xs cursor-pointer ${
                         isActive
                           ? 'border-primary ring-1 ring-primary'

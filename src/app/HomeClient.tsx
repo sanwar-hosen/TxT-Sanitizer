@@ -289,7 +289,7 @@ export default function HomeClient() {
         {/* ── END Workspace Area ───────────────────────────────────────────────── */}
 
         {/* ── Status Bar ──────────────────────────────────────────────────────── */}
-        <footer className="px-4 flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[var(--surface-2)] border-t border-outline-variant dark:border-[var(--border)] h-10 shrink-0">
+        <footer className="px-4 flex flex-col sm:flex-row justify-center sm:justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[var(--surface-2)] border-t border-outline-variant dark:border-[var(--border)] py-2 sm:py-0 h-auto sm:h-10 shrink-0 gap-1.5 sm:gap-0">
           
           {/* Left: input stats */}
           <div className="flex items-center space-x-4">

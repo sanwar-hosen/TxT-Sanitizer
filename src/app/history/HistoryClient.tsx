@@ -284,11 +284,12 @@ export default function HistoryClient() {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-outline-variant/30">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-3 pt-3 border-t border-outline-variant/30">
                           {/* Copy output */}
                           <Button
                             variant="secondary"
                             size="sm"
+                            className="justify-center w-full sm:w-auto"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCopy(entry.outputText, entry.id);
@@ -316,6 +317,7 @@ export default function HistoryClient() {
                           <Button
                             variant="outline"
                             size="sm"
+                            className="justify-center w-full sm:w-auto"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleEditToWorkspace(entry.inputText);
@@ -329,12 +331,13 @@ export default function HistoryClient() {
                           </Button>
 
                           {/* Spacer */}
-                          <div className="flex-1" />
+                          <div className="hidden sm:block flex-1" />
 
                           {/* Delete — alert themed */}
                           <Button
                             variant="danger-outline"
                             size="sm"
+                            className="justify-center w-full sm:w-auto"
                             onClick={(e) => {
                               e.stopPropagation();
                               deleteEntry(entry.id);

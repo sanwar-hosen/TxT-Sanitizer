@@ -617,6 +617,8 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
   - [x] History page header stack/wrap neatly on mobile
   - [x] Settings page PresetEditorModal stack find/replace inputs vertically with rotating arrow on mobile
   - [x] Admin panel navigation tab wrapping on mobile
+  - [x] Status bar statistics wrap onto two rows on narrow viewports
+  - [x] Theme dropdown toggle on click (instead of hover) and centered on mobile viewports
 - [ ] Responsive layout validation & cross-device compatibility check
 - [ ] Accessibility: focus management, ARIA labels, contrast
 - [ ] Performance: code splitting, font optimization
@@ -650,6 +652,21 @@ All environment variables are set in `.env.local` for local development and in t
 
 > [!NOTE]
 > `GMAIL_USER` and `GMAIL_APP_PASSWORD` are **no longer used for sending**. They were part of an earlier Nodemailer plan that was discarded — Nodemailer requires Node.js runtime which is incompatible with Cloudflare Pages Edge. `GMAIL_USER` can still act as a **fallback recipient** if `FEEDBACK_EMAIL` is not set, but setting `FEEDBACK_EMAIL` explicitly is preferred. Both variables can otherwise be safely removed.
+
+### 8. Theme Dropdown Interaction & Positioning (`Navbar.tsx`)
+- Configured the theme dropdown to be click-to-toggle (`dropdown-open` class controlled by React state) on mobile viewports while retaining CSS hover-to-open logic (`sm:dropdown-hover`) on desktop screens.
+- Centered the dropdown panel on mobile devices using viewport-relative fixed positioning (`fixed left-1/2 -translate-x-1/2 top-16 w-[calc(100vw-2rem)] max-w-sm`) to prevent cutting off, reverting to right-aligned absolute positioning on desktop viewports.
+- Wired a click-outside listener and auto-blur handler to close the dropdown immediately upon theme selection or tapping outside.
+
+### 9. History Entry Action Buttons (`HistoryClient.tsx`)
+- Changed the action buttons inside the expanded history cards to stack vertically (`flex-col`) on mobile viewports to prevent overflow clipping of the "Delete" button, reverting to a horizontal layout (`sm:flex-row`) with a spacer on desktop.
+- Made each action button stretch full-width (`w-full sm:w-auto`) and center its content (`justify-center`) for improved mobile ergonomics.
+
+### 10. Touch Reordering fallback for Custom Presets (`SettingsClient.tsx`)
+- Added Up/Down arrow buttons (`moveRule` helper) inside `PresetEditorModal` specifically for mobile viewports (`flex sm:hidden`). This provides precise and accessible list sorting for touch screens where HTML5 drag-and-drop handles do not natively function.
+- Hidden the drag-reorder handle on mobile screen sizes (`hidden sm:inline-block`) to avoid visual clutter.
+
+## Verification
 
 > [!TIP]
 > For local development without a Resend key, `POST /api/feedback` simulates a successful send and logs a warning — the UI works normally without credentials.

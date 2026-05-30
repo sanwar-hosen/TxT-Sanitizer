@@ -59,6 +59,15 @@ function PresetEditorModal({
     setRules(rules.map((r, i) => (i === idx ? { ...r, [field]: value } : r)));
   };
 
+  const moveRule = (idx: number, direction: 'up' | 'down') => {
+    const nextIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (nextIdx < 0 || nextIdx >= rules.length) return;
+    const reordered = [...rules];
+    const [moved] = reordered.splice(idx, 1);
+    reordered.splice(nextIdx, 0, moved);
+    setRules(reordered);
+  };
+
   const handleDragStart = (idx: number) => {
     dragIdx.current = idx;
     setDraggingIdx(idx);
@@ -188,10 +197,35 @@ function PresetEditorModal({
                     dropLineClass,
                   ].join(' ')}
                 >
-                  {/* Drag handle — 6 dots */}
-                  <span className="shrink-0 cursor-grab active:cursor-grabbing text-on-surface-variant/40 hover:text-on-surface-variant transition-colors" title="Drag to reorder">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
-                  </span>
+                  {/* Reorder controls */}
+                  <div className="flex items-center justify-center shrink-0">
+                    {/* Drag handle — hidden on mobile, visible on sm and up */}
+                    <span className="hidden sm:inline-block cursor-grab active:cursor-grabbing text-on-surface-variant/40 hover:text-on-surface-variant transition-colors p-1" title="Drag to reorder">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </span>
+
+                    {/* Up/Down buttons — visible on mobile, hidden on sm and up */}
+                    <div className="flex sm:hidden items-center gap-0.5">
+                      <button
+                        type="button"
+                        onClick={() => moveRule(idx, 'up')}
+                        disabled={idx === 0}
+                        className="p-1 rounded text-on-surface-variant/60 hover:bg-base-200 disabled:opacity-30 disabled:hover:bg-transparent"
+                        title="Move rule up"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveRule(idx, 'down')}
+                        disabled={idx === rules.length - 1}
+                        className="p-1 rounded text-on-surface-variant/60 hover:bg-base-200 disabled:opacity-30 disabled:hover:bg-transparent"
+                        title="Move rule down"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                    </div>
+                  </div>
                   <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 sm:gap-2 min-w-0">
                     <input value={rule.find} onChange={(e) => updateRule(idx, 'find', e.target.value)} placeholder="Find" className="flex-1 px-2.5 py-1.5 rounded-md border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-xs font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors min-w-0" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-on-surface-variant shrink-0 self-center rotate-90 sm:rotate-0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
