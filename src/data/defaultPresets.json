@@ -1,0 +1,516 @@
+[
+  {
+    "id": "default_01",
+    "name": "ChatGPT + Fiverr",
+    "isDefault": true,
+    "rules": [
+      {
+        "priority": 1,
+        "find": "***",
+        "replace": ""
+      },
+      {
+        "priority": 2,
+        "find": "**",
+        "replace": ""
+      },
+      {
+        "priority": 3,
+        "find": "*",
+        "replace": "-"
+      },
+      {
+        "priority": 4,
+        "find": "###",
+        "replace": ""
+      },
+      {
+        "priority": 5,
+        "find": "##",
+        "replace": ""
+      },
+      {
+        "priority": 6,
+        "find": "#",
+        "replace": ""
+      },
+      {
+        "priority": 7,
+        "find": "---",
+        "replace": ""
+      },
+      {
+        "priority": 8,
+        "find": "___",
+        "replace": ""
+      },
+      {
+        "priority": 9,
+        "find": "_",
+        "replace": ""
+      },
+      {
+        "priority": 10,
+        "find": "> ",
+        "replace": ""
+      },
+      {
+        "priority": 11,
+        "find": "`",
+        "replace": ""
+      },
+      {
+        "priority": 12,
+        "find": "email",
+        "replace": "em-ail"
+      },
+      {
+        "priority": 13,
+        "find": "mail",
+        "replace": "ma-il"
+      },
+      {
+        "priority": 14,
+        "find": "sexual",
+        "replace": "sex-ual"
+      },
+      {
+        "priority": 15,
+        "find": "sex",
+        "replace": "se-x"
+      },
+      {
+        "priority": 16,
+        "find": "paypal",
+        "replace": "pay-pal"
+      },
+      {
+        "priority": 17,
+        "find": "payoneer",
+        "replace": "payo-neer"
+      },
+      {
+        "priority": 18,
+        "find": "payment",
+        "replace": "pay-ment"
+      },
+      {
+        "priority": 19,
+        "find": "pay",
+        "replace": "pa-y"
+      },
+      {
+        "priority": 20,
+        "find": "cashapp",
+        "replace": "cash-app"
+      },
+      {
+        "priority": 21,
+        "find": "cash",
+        "replace": "ca-sh"
+      },
+      {
+        "priority": 22,
+        "find": "westernunion",
+        "replace": "western-union"
+      },
+      {
+        "priority": 23,
+        "find": "phone",
+        "replace": "pho-ne"
+      },
+      {
+        "priority": 24,
+        "find": "number",
+        "replace": "num-ber"
+      },
+      {
+        "priority": 25,
+        "find": "call",
+        "replace": "ca-ll"
+      },
+      {
+        "priority": 26,
+        "find": "outside",
+        "replace": "out-side"
+      },
+      {
+        "priority": 27,
+        "find": "whatsapp",
+        "replace": "whats-app"
+      },
+      {
+        "priority": 28,
+        "find": "telegram",
+        "replace": "teleg-ram"
+      },
+      {
+        "priority": 29,
+        "find": "signal",
+        "replace": "sig-nal"
+      },
+      {
+        "priority": 30,
+        "find": "skype",
+        "replace": "sky-pe"
+      },
+      {
+        "priority": 31,
+        "find": "discord",
+        "replace": "disc-ord"
+      },
+      {
+        "priority": 32,
+        "find": "wechat",
+        "replace": "wec-hat"
+      },
+      {
+        "priority": 33,
+        "find": "instagram",
+        "replace": "insta-gram"
+      },
+      {
+        "priority": 34,
+        "find": "messenger",
+        "replace": "mess-enger"
+      },
+      {
+        "priority": 35,
+        "find": "facebook",
+        "replace": "face-book"
+      },
+      {
+        "priority": 36,
+        "find": "twitter",
+        "replace": "tw-itter"
+      },
+      {
+        "priority": 37,
+        "find": "bank",
+        "replace": "ba-nk"
+      },
+      {
+        "priority": 38,
+        "find": "onlyfans",
+        "replace": "only-fans"
+      },
+      {
+        "priority": 39,
+        "find": "porn",
+        "replace": "po-rn"
+      },
+      {
+        "priority": 40,
+        "find": "nude",
+        "replace": "nu-de"
+      },
+      {
+        "priority": 41,
+        "find": "drugs",
+        "replace": "dru-gs"
+      },
+      {
+        "priority": 42,
+        "find": "cracked",
+        "replace": "crac-ked"
+      },
+      {
+        "priority": 43,
+        "find": "pirated",
+        "replace": "pira-ted"
+      },
+      {
+        "priority": 44,
+        "find": "scam",
+        "replace": "sc-am"
+      },
+      {
+        "priority": 45,
+        "find": "fraud",
+        "replace": "fra-ud"
+      },
+      {
+        "priority": 46,
+        "find": "review",
+        "replace": "rev-iew"
+      },
+      {
+        "priority": 47,
+        "find": "rating",
+        "replace": "ra-ting"
+      },
+      {
+        "priority": 48,
+        "find": "stripe",
+        "replace": "stri-pe"
+      },
+      {
+        "priority": 49,
+        "find": "money",
+        "replace": "mo-ney"
+      },
+      {
+        "priority": 50,
+        "find": "slack",
+        "replace": "sl-ack"
+      },
+      {
+        "priority": 51,
+        "find": "teamviewer",
+        "replace": "team-viewer"
+      },
+      {
+        "priority": 52,
+        "find": "anydesk",
+        "replace": "any-desk"
+      },
+      {
+        "priority": 53,
+        "find": "bitcoin",
+        "replace": "bit-coin"
+      },
+      {
+        "priority": 54,
+        "find": "wise",
+        "replace": "wi-se"
+      },
+      {
+        "priority": 55,
+        "find": "cheating",
+        "replace": "chea-ting"
+      },
+      {
+        "priority": 56,
+        "find": "external",
+        "replace": "exter-nal"
+      },
+      {
+        "priority": 57,
+        "find": "viber",
+        "replace": "vi-ber"
+      },
+      {
+        "priority": 58,
+        "find": "venmo",
+        "replace": "ven-mo"
+      },
+      {
+        "priority": 59,
+        "find": "zelle",
+        "replace": "zel-le"
+      },
+      {
+        "priority": 60,
+        "find": "🤖",
+        "replace": ""
+      },
+      {
+        "priority": 61,
+        "find": "🚀",
+        "replace": ""
+      },
+      {
+        "priority": 62,
+        "find": "✨",
+        "replace": ""
+      },
+      {
+        "priority": 63,
+        "find": "💡",
+        "replace": ""
+      },
+      {
+        "priority": 64,
+        "find": "📝",
+        "replace": ""
+      },
+      {
+        "priority": 65,
+        "find": "📌",
+        "replace": ""
+      },
+      {
+        "priority": 66,
+        "find": "🌟",
+        "replace": ""
+      },
+      {
+        "priority": 67,
+        "find": "🎨",
+        "replace": ""
+      },
+      {
+        "priority": 68,
+        "find": "🛠️",
+        "replace": ""
+      },
+      {
+        "priority": 70,
+        "find": "💻",
+        "replace": ""
+      },
+      {
+        "priority": 71,
+        "find": "📈",
+        "replace": ""
+      },
+      {
+        "priority": 72,
+        "find": "🔍",
+        "replace": ""
+      },
+      {
+        "priority": 73,
+        "find": "⚠️",
+        "replace": ""
+      },
+      {
+        "priority": 74,
+        "find": "✔️",
+        "replace": ""
+      },
+      {
+        "priority": 75,
+        "find": "❌",
+        "replace": ""
+      },
+      {
+        "priority": 76,
+        "find": "🔑",
+        "replace": ""
+      },
+      {
+        "priority": 77,
+        "find": "📅",
+        "replace": ""
+      },
+      {
+        "priority": 78,
+        "find": "💬",
+        "replace": ""
+      },
+      {
+        "priority": 79,
+        "find": "🙋",
+        "replace": ""
+      },
+      {
+        "priority": 80,
+        "find": "🤔",
+        "replace": ""
+      },
+      {
+        "priority": 81,
+        "find": "👍",
+        "replace": ""
+      },
+      {
+        "priority": 82,
+        "find": "👋",
+        "replace": ""
+      },
+      {
+        "priority": 83,
+        "find": "🎉",
+        "replace": ""
+      },
+      {
+        "priority": 84,
+        "find": "🔥",
+        "replace": ""
+      },
+      {
+        "priority": 85,
+        "find": "✅",
+        "replace": ""
+      },
+      {
+        "priority": 86,
+        "find": "✍️",
+        "replace": ""
+      },
+      {
+        "priority": 87,
+        "find": "🎯",
+        "replace": ""
+      },
+      {
+        "priority": 88,
+        "find": "🧠",
+        "replace": ""
+      },
+      {
+        "priority": 89,
+        "find": "🛡️",
+        "replace": ""
+      },
+      {
+        "priority": 90,
+        "find": "🤝",
+        "replace": ""
+      }
+    ]
+  },
+  {
+    "id": "chatgpt_normal",
+    "name": "ChatGPT → Normal",
+    "isDefault": true,
+    "rules": [
+      {
+        "priority": 1,
+        "find": "***",
+        "replace": ""
+      },
+      {
+        "priority": 2,
+        "find": "**",
+        "replace": ""
+      },
+      {
+        "priority": 3,
+        "find": "*",
+        "replace": "-"
+      },
+      {
+        "priority": 4,
+        "find": "###",
+        "replace": ""
+      },
+      {
+        "priority": 5,
+        "find": "##",
+        "replace": ""
+      },
+      {
+        "priority": 6,
+        "find": "#",
+        "replace": ""
+      },
+      {
+        "priority": 7,
+        "find": "---",
+        "replace": ""
+      },
+      {
+        "priority": 8,
+        "find": "___",
+        "replace": ""
+      },
+      {
+        "priority": 9,
+        "find": "_",
+        "replace": ""
+      },
+      {
+        "priority": 10,
+        "find": "> ",
+        "replace": ""
+      },
+      {
+        "priority": 11,
+        "find": "`",
+        "replace": ""
+      }
+    ]
+  }
+]
