@@ -28,8 +28,16 @@ type Range = '30d' | '6m' | '12m';
 type EventType = 'page_view' | 'sanitize' | 'feedback';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function formatMonth(ym: string): string {
-  const [y, m] = ym.split('-');
+function formatPeriod(period: string): string {
+  const parts = period.split('-');
+  if (parts.length === 3) {
+    // Daily format: YYYY-MM-DD
+    const [y, m, d] = parts;
+    const date = new Date(Number(y), Number(m) - 1, Number(d));
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+  // Monthly format: YYYY-MM
+  const [y, m] = parts;
   const date = new Date(Number(y), Number(m) - 1, 1);
   return date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
 }
@@ -48,9 +56,12 @@ interface LineChartProps {
 }
 
 function LineChart({ months, series, height = 180 }: LineChartProps) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+
   const W = 600;
   const H = height;
-  const PADDING = { top: 16, right: 20, bottom: 32, left: 48 };
+  const PADDING = { top: 24, right: 20, bottom: 36, left: 52 };
   const chartW = W - PADDING.left - PADDING.right;
   const chartH = H - PADDING.top - PADDING.bottom;
 
@@ -72,12 +83,42 @@ function LineChart({ months, series, height = 180 }: LineChartProps) {
     return { v, y };
   });
 
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (months.length === 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * W;
+    const y = ((e.clientY - rect.top) / rect.height) * H;
+
+    const index = Math.max(
+      0,
+      Math.min(
+        months.length - 1,
+        Math.round(((x - PADDING.left) / chartW) * (months.length - 1))
+      )
+    );
+
+    setHoveredIndex(index);
+
+    const tooltipWidth = 140;
+    const tooltipHeight = 24 + series.length * 18;
+    const tooltipX = xPos(index) + 12 > W - (tooltipWidth + 10) ? xPos(index) - (tooltipWidth + 12) : xPos(index) + 12;
+    const tooltipY = Math.max(10, Math.min(H - (tooltipHeight + 10), y - (tooltipHeight / 2)));
+    setTooltipPos({ x: tooltipX, y: tooltipY });
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+    setTooltipPos(null);
+  };
+
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      className="w-full h-full"
+      className="w-full h-full cursor-crosshair select-none"
       style={{ maxHeight: height }}
       aria-hidden="true"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Grid lines */}
       {gridLines.map(({ v, y }, i) => (
@@ -88,16 +129,16 @@ function LineChart({ months, series, height = 180 }: LineChartProps) {
             y1={y}
             y2={y}
             stroke="currentColor"
-            strokeOpacity="0.08"
+            strokeOpacity="0.15"
             strokeWidth="1"
           />
           <text
-            x={PADDING.left - 6}
+            x={PADDING.left - 8}
             y={y + 4}
             textAnchor="end"
-            fontSize="9"
+            fontSize="11"
             fill="currentColor"
-            opacity="0.4"
+            opacity="0.75"
           >
             {formatNum(v)}
           </text>
@@ -106,21 +147,42 @@ function LineChart({ months, series, height = 180 }: LineChartProps) {
 
       {/* X-axis labels */}
       {months.map((m, i) => {
-        if (months.length > 6 && i % 2 !== 0) return null;
+        const isDaily = m.split('-').length === 3;
+        if (isDaily) {
+          // If there are 30 days, we only show every 5th label and the last label, to keep it clean.
+          if (i % 5 !== 0 && i !== months.length - 1) return null;
+        } else {
+          // Monthly view: skip every second label if there are more than 6 months
+          if (months.length > 6 && i % 2 !== 0) return null;
+        }
         return (
           <text
             key={m}
             x={xPos(i)}
             y={H - 4}
             textAnchor="middle"
-            fontSize="9"
+            fontSize="11"
             fill="currentColor"
-            opacity="0.45"
+            opacity="0.75"
           >
-            {formatMonth(m)}
+            {formatPeriod(m)}
           </text>
         );
       })}
+
+      {/* Vertical Hover Tracking Line */}
+      {hoveredIndex !== null && (
+        <line
+          x1={xPos(hoveredIndex)}
+          x2={xPos(hoveredIndex)}
+          y1={PADDING.top}
+          y2={PADDING.top + chartH}
+          stroke="currentColor"
+          strokeOpacity="0.25"
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+        />
+      )}
 
       {/* Series */}
       {series.map((s) => {
@@ -133,25 +195,101 @@ function LineChart({ months, series, height = 180 }: LineChartProps) {
         return (
           <g key={s.label}>
             {/* Area fill */}
-            <polygon points={areaPoints} fill={s.color} fillOpacity="0.06" />
+            <polygon points={areaPoints} fill={s.color} fillOpacity="0.12" />
             {/* Line */}
             <polyline
               points={points}
               fill="none"
               stroke={s.color}
-              strokeWidth="2"
+              strokeWidth="3.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             {/* Dots */}
             {s.values.map((v, i) => (
-              <circle key={i} cx={xPos(i)} cy={yPos(v)} r="3" fill={s.color} fillOpacity="0.85">
-                <title>{`${formatMonth(months[i])}: ${v}`}</title>
-              </circle>
+              <circle
+                key={i}
+                cx={xPos(i)}
+                cy={yPos(v)}
+                r="4.5"
+                fill={s.color}
+                stroke="var(--surface)"
+                strokeWidth="1.5"
+                fillOpacity={hoveredIndex === i ? 0 : 1}
+                style={{ transition: 'opacity 0.15s ease' }}
+              />
             ))}
+            {/* Hover indicator dot */}
+            {hoveredIndex !== null && (
+              <circle
+                cx={xPos(hoveredIndex)}
+                cy={yPos(s.values[hoveredIndex])}
+                r="6.5"
+                fill={s.color}
+                stroke="var(--surface)"
+                strokeWidth="2"
+                style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.18))' }}
+              />
+            )}
           </g>
         );
       })}
+
+      {/* Tooltip box */}
+      {hoveredIndex !== null && tooltipPos && (
+        <g style={{ transition: 'transform 0.08s ease-out' }}>
+          {/* Background Card */}
+          <rect
+            x={tooltipPos.x}
+            y={tooltipPos.y}
+            width="140"
+            height={24 + series.length * 18}
+            rx="8"
+            fill="var(--color-base-100)"
+            stroke="var(--border)"
+            strokeWidth="1.5"
+            style={{
+              filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.12))',
+              transition: 'x 0.08s ease-out, y 0.08s ease-out'
+            }}
+            className="fill-base-100 stroke-base-300"
+          />
+          {/* Period Title */}
+          <text
+            x={tooltipPos.x + 12}
+            y={tooltipPos.y + 16}
+            fontSize="10"
+            fontWeight="bold"
+            className="fill-base-content"
+            opacity="0.5"
+            style={{ transition: 'x 0.08s ease-out, y 0.08s ease-out' }}
+          >
+            {formatPeriod(months[hoveredIndex])}
+          </text>
+          {/* Series values */}
+          {series.map((s, idx) => (
+            <g key={s.label}>
+              <circle
+                cx={tooltipPos.x + 16}
+                cy={tooltipPos.y + 30 + idx * 16}
+                r="3"
+                fill={s.color}
+                style={{ transition: 'cx 0.08s ease-out, cy 0.08s ease-out' }}
+              />
+              <text
+                x={tooltipPos.x + 24}
+                y={tooltipPos.y + 33 + idx * 16}
+                fontSize="11"
+                fontWeight="semibold"
+                className="fill-base-content"
+                style={{ transition: 'x 0.08s ease-out, y 0.08s ease-out' }}
+              >
+                {`${formatNum(s.values[hoveredIndex])} ${s.label}`}
+              </text>
+            </g>
+          ))}
+        </g>
+      )}
     </svg>
   );
 }
@@ -320,9 +458,9 @@ export default function AdminAnalytics() {
             <h3 className="text-sm font-semibold text-base-content">Page Views Over Time</h3>
           </div>
           {months.length > 0 ? (
-            <LineChart months={months} series={pageViewSeries} height={160} />
+            <LineChart months={months} series={pageViewSeries} height={200} />
           ) : (
-            <div className="h-40 flex items-center justify-center text-xs text-base-content/30">No data for this period</div>
+            <div className="h-52 flex items-center justify-center text-xs text-base-content/30">No data for this period</div>
           )}
         </div>
 
@@ -333,10 +471,10 @@ export default function AdminAnalytics() {
               <span className="h-3 w-3 rounded-full shrink-0" style={{ background: '#10b981' }} />
               <h3 className="text-sm font-semibold text-base-content">Sanitizations</h3>
             </div>
-            {months.length > 0 ? (
-              <LineChart months={months} series={sanitizeSeries} height={140} />
+             {months.length > 0 ? (
+              <LineChart months={months} series={sanitizeSeries} height={180} />
             ) : (
-              <div className="h-36 flex items-center justify-center text-xs text-base-content/30">No data</div>
+              <div className="h-48 flex items-center justify-center text-xs text-base-content/30">No data</div>
             )}
           </div>
 
@@ -346,10 +484,10 @@ export default function AdminAnalytics() {
               <span className="h-3 w-3 rounded-full shrink-0" style={{ background: '#f59e0b' }} />
               <h3 className="text-sm font-semibold text-base-content">Feedbacks</h3>
             </div>
-            {months.length > 0 ? (
-              <LineChart months={months} series={feedbackSeries} height={140} />
+             {months.length > 0 ? (
+              <LineChart months={months} series={feedbackSeries} height={180} />
             ) : (
-              <div className="h-36 flex items-center justify-center text-xs text-base-content/30">No data</div>
+              <div className="h-48 flex items-center justify-center text-xs text-base-content/30">No data</div>
             )}
           </div>
         </div>
