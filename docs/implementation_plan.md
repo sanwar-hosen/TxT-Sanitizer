@@ -612,6 +612,7 @@ Integrating DaisyUI into a pre-styled Tailwind v4 codebase carries specific layo
 - [x] Mobile responsive layout updates (Phase 10.1)
   - [x] Workspace input/output panel stacked top and bottom on mobile (desktop stays side-by-side)
   - [x] Workspace tab row on top and preset row underneath on mobile (desktop stays side-by-side)
+  - [x] Workspace tab bar scrollable horizontally when overflowing (in all dimensions)
   - [x] Navbar optimization on narrow screens (hide "By Sano" author block below sm breakpoint)
   - [x] History page header stack/wrap neatly on mobile
   - [x] Settings page PresetEditorModal stack find/replace inputs vertically with rotating arrow on mobile

@@ -231,7 +231,7 @@ export default function HomeClient() {
           </div>
 
           {/* RIGHT: Workspace tabs */}
-          <div className="order-1 md:order-2 flex items-end justify-between md:justify-end w-full md:w-auto">
+          <div className="order-1 md:order-2 flex items-end justify-between md:justify-end w-full md:w-auto min-w-0">
             <TabBar
               tabs={tabs}
               activeTabId={activeTabId}

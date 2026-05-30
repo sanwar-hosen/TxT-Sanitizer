@@ -22,7 +22,7 @@ export default function TabBar({
   onClose,
 }: Props) {
   return (
-    <div className="flex items-end gap-px">
+    <div className="flex items-end gap-px overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {tabs.map((tab) => {
         const isActive = tab.id === activeTabId;
         const rawInput = tab.inputText?.trim() ?? '';
