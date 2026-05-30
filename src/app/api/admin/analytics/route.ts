@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 
     if (!db) {
       // Return mock data for local dev
-      return NextResponse.json(buildMockData());
+      return NextResponse.json(buildMockData(range));
     }
 
     // ── Summary totals ─────────────────────────────────────────────────────────
@@ -56,11 +56,13 @@ export async function GET(request: Request) {
       summary[row.event_type] = row.count;
     }
 
+    const dateFormat = range === '30d' ? '%Y-%m-%d' : '%Y-%m';
+
     // ── Monthly breakdown (year-month bucketing) ───────────────────────────────
     const { results: monthly } = await db
       .prepare(
         `SELECT
-           strftime('%Y-%m', created_at) as month,
+           strftime('${dateFormat}', created_at) as month,
            event_type,
            COUNT(*) as count
          FROM analytics
@@ -148,29 +150,50 @@ export async function GET(request: Request) {
 }
 
 // ── Mock data for local dev (no D1) ──────────────────────────────────────────
-function buildMockData() {
+function buildMockData(range: string) {
   const now = new Date();
   const monthly = [];
 
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    monthly.push(
-      { month, event_type: 'page_view', count: Math.floor(Math.random() * 400) + 50 },
-      { month, event_type: 'sanitize', count: Math.floor(Math.random() * 200) + 20 },
-      { month, event_type: 'feedback', count: Math.floor(Math.random() * 15) + 1 }
-    );
+  if (range === '30d') {
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      monthly.push(
+        { month, event_type: 'page_view', count: Math.floor(Math.random() * 50) + 10 },
+        { month, event_type: 'sanitize', count: Math.floor(Math.random() * 30) + 5 },
+        { month, event_type: 'feedback', count: Math.random() > 0.8 ? 1 : 0 }
+      );
+    }
+  } else {
+    const limit = range === '6m' ? 5 : 11;
+    for (let i = limit; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      monthly.push(
+        { month, event_type: 'page_view', count: Math.floor(Math.random() * 400) + 50 },
+        { month, event_type: 'sanitize', count: Math.floor(Math.random() * 200) + 20 },
+        { month, event_type: 'feedback', count: Math.floor(Math.random() * 15) + 1 }
+      );
+    }
+  }
+
+  // Calculate mock summary based on range
+  let summary = { page_view: 3240, sanitize: 1587, feedback: 42 };
+  if (range === '30d') {
+    summary = { page_view: 980, sanitize: 540, feedback: 5 };
+  } else if (range === '6m') {
+    summary = { page_view: 1850, sanitize: 920, feedback: 22 };
   }
 
   return {
-    summary: { page_view: 3240, sanitize: 1587, feedback: 42 },
+    summary,
     monthly,
     topPresets: [
-      { presetId: 'default01', presetName: 'ChatGPT → Normal', count: 823 },
-      { presetId: 'default02', presetName: 'Fiverr Words', count: 412 },
-      { presetId: 'custom-user-1', presetName: 'My Custom Preset', count: 187 },
+      { presetId: 'default01', presetName: 'ChatGPT → Normal', count: range === '30d' ? 240 : 823 },
+      { presetId: 'default02', presetName: 'Fiverr Words', count: range === '30d' ? 120 : 412 },
+      { presetId: 'custom-user-1', presetName: 'My Custom Preset', count: range === '30d' ? 55 : 187 },
     ],
-    avgCharCount: 342,
-    range: '12m',
+    avgCharCount: range === '30d' ? 310 : 342,
+    range,
   };
 }
