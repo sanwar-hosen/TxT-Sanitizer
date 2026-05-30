@@ -98,6 +98,29 @@ export default function HomeClient() {
     }
   }, [manualSanitize, activeTab?.inputText, activePreset, updateActiveTab, activeTab?.outputText, activeTab?.matches, activeTab?.exemptRanges]);
 
+  // ── Debounced Auto-Sanitize Analytics Tracking ──────────────────────────────
+  useEffect(() => {
+    if (manualSanitize) return;
+    if (!activeTab || !activeTab.inputText.trim() || !activePreset) return;
+
+    // Trigger page analytics event after 2 seconds of inactivity
+    const timer = setTimeout(() => {
+      fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: 'sanitize',
+          metadata: {
+            presetId: activePreset.id,
+            charCount: activeTab.inputText.length,
+          },
+        }),
+      }).catch(() => {});
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [activeTab?.inputText, activePreset?.id, manualSanitize]);
+
   // F&R logic is lifted here because it operates on Input text but UI is in Output panel
   const fr = useFindReplace(activeTab?.inputText ?? '');
 
@@ -154,6 +177,19 @@ export default function HomeClient() {
         outputText: output,
         matchCount: matches.length,
       });
+
+      // Track manual sanitization event
+      fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: 'sanitize',
+          metadata: {
+            presetId: activePreset.id,
+            charCount: activeTab.inputText.length,
+          },
+        }),
+      }).catch(() => {});
 
       setIsSanitizing(false);
     });

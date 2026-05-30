@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import NotificationAlert from "@/components/notification/NotificationAlert";
+import AnalyticsTracker from "@/components/analytics/AnalyticsTracker";
 
 export default function RootLayout({
   children,
@@ -46,6 +47,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased min-h-screen flex flex-col">
+        <AnalyticsTracker />
         {/*
          * NotificationAlert renders as position:fixed — no layout shift.
          * It slides in from the top and collapses to a 4px peek strip.
