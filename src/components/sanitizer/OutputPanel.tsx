@@ -78,7 +78,7 @@ export default function OutputPanel({
 
   return (
     <section
-      className="flex-1 flex flex-col relative"
+      className="flex-1 flex flex-col relative min-h-0"
       data-purpose="output-pane"
     >
       {fr && (
