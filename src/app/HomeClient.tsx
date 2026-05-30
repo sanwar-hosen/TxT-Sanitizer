@@ -63,7 +63,7 @@ export default function HomeClient() {
   // Dynamically show/hide below-navbar ad container in layout.tsx
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const adBelowNavbar = document.getElementById('ad-below-navbar');
+    const adBelowNavbar = document.getElementById('header-promo-slot');
     if (adBelowNavbar) {
       if (adsConfig.belowNavbar) {
         adBelowNavbar.classList.remove('hidden');
@@ -283,11 +283,11 @@ export default function HomeClient() {
       {/* Row wrapper for desktop layout columns */}
       <div className="flex-1 flex flex-row items-stretch w-full min-h-0">
 
-        {/* Left Spacer (Desktop only) */}
-        <div className="hidden lg:block w-[12.5%] shrink-0" />
+        {/* Left Spacer (Desktop only) - Collapses when ads are enabled to give space, otherwise balances the right space to center the card */}
+        <div className={`hidden lg:block shrink-0 transition-all duration-300 ${adsConfig.sidebar ? 'w-0' : 'w-[12.5%]'}`} />
 
         {/* ── Main card ──────────────────────────────────────────────────────────── */}
-        <div className="w-full lg:w-[75%] lg:flex-1 lg:min-h-0 min-w-0 bg-white dark:bg-[var(--surface)] rounded-lg shadow-sm border border-outline-variant dark:border-[var(--border)] flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
+        <div className="w-full lg:w-[75%] lg:shrink-0 lg:min-h-0 min-w-0 bg-white dark:bg-[var(--surface)] rounded-lg shadow-sm border border-outline-variant dark:border-[var(--border)] flex flex-col overflow-hidden h-[calc(100vh-9rem)] min-h-[500px]">
 
           {/* ── TopToolbar ─────────────────────────────────────────────────────── */}
           <header className="flex flex-col md:flex-row md:items-end justify-between px-4 border-b border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface)] pt-3 shrink-0 gap-2 md:gap-0">
@@ -403,10 +403,10 @@ export default function HomeClient() {
         </div>
         {/* ── END Main card ──────────────────────────────────────────────────────── */}
 
-        {/* Right Ad Container (Desktop only) */}
-        <div className="hidden lg:flex w-[12.5%] shrink-0 flex-col items-stretch justify-stretch" id="ad-sidebar-container">
+        {/* Right Ad Container (Desktop only) - Takes up 25% (leftover space) when ads are enabled, otherwise balances to 12.5% empty space */}
+        <div className={`hidden lg:flex shrink-0 flex-col items-stretch justify-stretch transition-all duration-300 ${adsConfig.sidebar ? 'w-[25%]' : 'w-[12.5%]'}`} id="sidebar-promo-container">
           <div
-            id="ad-sidebar"
+            id="sidebar-promo-slot"
             className={`${adsConfig.sidebar ? 'flex' : 'hidden'} w-full h-full flex-col items-center justify-start pt-4 gap-4 border-l border-[var(--border)] bg-base-200/50`}
             aria-hidden="true"
           >
