@@ -71,6 +71,14 @@ export async function GET(request: Request) {
       .all();
 
     // ── Top presets from sanitize events ──────────────────────────────────────
+    const { results: dbPresets } = await db
+      .prepare('SELECT id, name FROM presets')
+      .all();
+    const presetNames: Record<string, string> = {};
+    for (const p of dbPresets as { id: string; name: string }[]) {
+      presetNames[p.id] = p.name;
+    }
+
     const { results: sanitizeEvents } = await db
       .prepare(
         `SELECT metadata
@@ -80,13 +88,19 @@ export async function GET(request: Request) {
       )
       .all();
 
-    const presetCounts: Record<string, number> = {};
+    const presetCounts: Record<string, { count: number; name?: string }> = {};
     for (const row of sanitizeEvents as { metadata: string | null }[]) {
       if (row.metadata) {
         try {
           const meta = JSON.parse(row.metadata);
           if (meta.presetId) {
-            presetCounts[meta.presetId] = (presetCounts[meta.presetId] ?? 0) + 1;
+            if (!presetCounts[meta.presetId]) {
+              presetCounts[meta.presetId] = { count: 0, name: meta.presetName };
+            }
+            presetCounts[meta.presetId].count += 1;
+            if (meta.presetName && !presetCounts[meta.presetId].name) {
+              presetCounts[meta.presetId].name = meta.presetName;
+            }
           }
         } catch {
           // skip
@@ -95,9 +109,12 @@ export async function GET(request: Request) {
     }
 
     const topPresets = Object.entries(presetCounts)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1].count - a[1].count)
       .slice(0, 10)
-      .map(([presetId, count]) => ({ presetId, count }));
+      .map(([presetId, item]) => {
+        const name = presetNames[presetId] || item.name || presetId;
+        return { presetId, presetName: name, count: item.count };
+      });
 
     // ── Average char count ────────────────────────────────────────────────────
     let totalChars = 0;
@@ -149,9 +166,9 @@ function buildMockData() {
     summary: { page_view: 3240, sanitize: 1587, feedback: 42 },
     monthly,
     topPresets: [
-      { presetId: 'default01', count: 823 },
-      { presetId: 'default02', count: 412 },
-      { presetId: 'custom-user-1', count: 187 },
+      { presetId: 'default01', presetName: 'ChatGPT → Normal', count: 823 },
+      { presetId: 'default02', presetName: 'Fiverr Words', count: 412 },
+      { presetId: 'custom-user-1', presetName: 'My Custom Preset', count: 187 },
     ],
     avgCharCount: 342,
     range: '12m',

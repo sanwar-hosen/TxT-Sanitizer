@@ -12,6 +12,7 @@ interface MonthlyRow {
 
 interface TopPreset {
   presetId: string;
+  presetName?: string;
   count: number;
 }
 
@@ -371,7 +372,7 @@ export default function AdminAnalytics() {
                     <span className="w-4 text-xs font-mono text-base-content/30 text-right shrink-0">{i + 1}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium text-base-content truncate">{p.presetId}</span>
+                        <span className="text-xs font-medium text-base-content truncate">{p.presetName || p.presetId}</span>
                         <span className="text-xs font-mono text-base-content/60 shrink-0 ml-2">{formatNum(p.count)}</span>
                       </div>
                       <div className="h-1.5 w-full rounded-full bg-base-200 overflow-hidden">

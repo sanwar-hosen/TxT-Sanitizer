@@ -112,6 +112,7 @@ export default function HomeClient() {
           event_type: 'sanitize',
           metadata: {
             presetId: activePreset.id,
+            presetName: activePreset.name,
             charCount: activeTab.inputText.length,
           },
         }),
@@ -186,6 +187,7 @@ export default function HomeClient() {
           event_type: 'sanitize',
           metadata: {
             presetId: activePreset.id,
+            presetName: activePreset.name,
             charCount: activeTab.inputText.length,
           },
         }),
