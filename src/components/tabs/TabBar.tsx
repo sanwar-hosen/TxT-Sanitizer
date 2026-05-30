@@ -22,7 +22,7 @@ export default function TabBar({
   onClose,
 }: Props) {
   return (
-    <div className="flex items-end gap-px overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="flex items-end gap-px overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-2">
       {tabs.map((tab) => {
         const isActive = tab.id === activeTabId;
         const rawInput = tab.inputText?.trim() ?? '';
@@ -79,7 +79,7 @@ export default function TabBar({
           aria-label="Add new tab"
           title="New Tab"
           onClick={onAdd}
-          className="p-1.5 ml-1 mb-1 rounded-md border border-transparent text-gray-400 hover:bg-primary/10 hover:text-primary hover:border-primary/30 hover:shadow-lg hover:scale-[1.15] active:scale-90 transition-all duration-200 shrink-0"
+          className="p-1.5 ml-1 mb-1 rounded-md border border-transparent text-gray-400 hover:bg-primary/10 hover:text-primary hover:border-primary/30 hover:shadow-lg hover:scale-105 active:scale-90 transition-all duration-200 shrink-0"
         >
           <svg fill="none" height="16" width="16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
             <line x1="12" x2="12" y1="5" y2="19" />
