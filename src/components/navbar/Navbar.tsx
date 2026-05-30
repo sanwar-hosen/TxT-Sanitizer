@@ -53,17 +53,19 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-sm)]">
       <div className="mx-auto flex h-14 max-w-screen-xl items-center justify-between px-5">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 select-none group">
-          <span
-            className="text-xl font-bold tracking-tight transition-all duration-200 group-hover:scale-105"
-            style={{ color: "var(--brand)" }}
-          >
-            TxT
-          </span>
-          <span className="text-xl font-semibold text-[var(--text)] transition-all duration-200 group-hover:scale-105">
-            Sanitizer
-          </span>
-          <span className="ml-1 rounded-full bg-[var(--brand)] px-2 py-0.5 text-[10px] font-bold text-white tracking-wider uppercase transition-all duration-200 group-hover:shadow-md group-hover:scale-110">
+        <Link href="/" className="flex flex-col select-none group relative">
+          <div className="flex items-center gap-1 transition-all duration-200 group-hover:drop-shadow-[0_0_6px_var(--color-accent)]">
+            <span
+              className="text-xl font-bold tracking-tight"
+              style={{ color: "var(--brand)" }}
+            >
+              TxT
+            </span>
+            <span className="text-xl font-semibold text-[var(--text)]">
+              Sanitizer
+            </span>
+          </div>
+          <span className="self-start -mt-1 rounded-full bg-[var(--brand)] px-1.5 py-0.5 text-[8px] font-bold text-white tracking-wider uppercase transition-all duration-200">
             v2
           </span>
         </Link>
@@ -76,7 +78,11 @@ export default function Navbar() {
             className={`dropdown sm:dropdown-hover dropdown-end z-50 ${isOpen ? 'dropdown-open' : ''}`}
           >
             <button
-              onClick={() => setIsOpen((prev) => !prev)}
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.innerWidth < 640) {
+                  setIsOpen((prev) => !prev);
+                }
+              }}
               tabIndex={0}
               className={`${NAV_BTN_BASE} text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]`}
               title="Select Theme"
@@ -159,7 +165,14 @@ export default function Navbar() {
           <div className="hidden sm:block ml-2 h-6 w-px bg-[var(--border)]" />
           <span className="hidden sm:inline ml-2 text-xs font-medium text-[var(--text-muted)]">
             By{" "}
-            <span className="font-semibold text-[var(--brand)]">Sano</span>
+            <a
+              href="https://linkedin.com/in/sanwar-hosen"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[var(--brand)] hover:underline"
+            >
+              Sano
+            </a>
           </span>
         </nav>
       </div>

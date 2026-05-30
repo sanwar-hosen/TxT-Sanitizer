@@ -13,7 +13,14 @@ export default function Footer() {
           <span>
             Made with{" "}
             <span className="text-[var(--brand)]">💙</span> by{" "}
-            <span className="font-semibold text-[var(--brand)]">Sano</span>
+            <a
+              href="https://linkedin.com/in/sanwar-hosen"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[var(--brand)] hover:underline"
+            >
+              Sano
+            </a>
           </span>
 
           <div className="flex items-center gap-4">
@@ -28,7 +35,7 @@ export default function Footer() {
             <span className="text-[var(--border)]">|</span>
 
             <a
-              href="https://github.com"
+              href="https://github.com/sanwar-hosen/TxT-Sanitizer"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 transition hover:text-[var(--brand)]"
@@ -46,7 +53,7 @@ export default function Footer() {
             </a>
 
             <a
-              href="https://t.me"
+              href="https://t.me/TheSano"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 transition hover:text-[var(--brand)]"
