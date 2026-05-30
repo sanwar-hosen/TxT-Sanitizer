@@ -204,7 +204,7 @@ erDiagram
 
 ### 1. Clone the Project
 ```bash
-git clone https://github.com/<your-username>/TxT-Sanitizer.git
+git clone https://github.com/sanwar-hosen/TxT-Sanitizer.git
 cd TxT-Sanitizer
 ```
 
@@ -230,13 +230,13 @@ cp .env.local.example .env.local
 Fill in the configuration details:
 ```env
 # Credentials for the Admin Panel (/admin)
-ADMIN_PASSWORD=change_this_to_a_secure_password
+ADMIN_PASSWORD=this_is_a_meow_password
 
 # Resend API Key for Feedback Email Submissions (Get a free key at resend.com)
-RESEND_API_KEY=re_123456789abcdef
+RESEND_API_KEY=re_1234meowmeowdef
 
 # Feedback target inbox
-FEEDBACK_EMAIL=your-recipient-email@domain.com
+FEEDBACK_EMAIL=meow-recipient-email@meow.com
 ```
 
 *Note: If `RESEND_API_KEY` is not configured in local development, the API route will print warning logs and mock a successful email transmission so you can test user submissions.*
@@ -299,4 +299,39 @@ Go to your **Cloudflare Pages project Settings > Functions**:
 ---
 
 ## 📄 License
-This project is licensed under the [MIT License](LICENSE).
+
+This project is licensed under a **Non-Commercial License**.
+
+### ✅ **What You CAN Do:**
+- **Personal Use** - Use for your own projects and learning
+- **Educational Use** - Use in academic institutions and coursework
+- **Modify & Adapt** - Create your own versions and improvements
+- **Share & Distribute** - Share with others (with same license restrictions)
+- **Portfolio Showcase** - Include in your portfolio and demonstrations
+- **Open Source Contributions** - Contribute back to the project
+
+### ❌ **What You CANNOT Do:**
+- **Commercial Use** - Cannot sell or use in for-profit business
+- **Monetization** - Cannot make money from ads, subscriptions, etc.
+- **Commercial Products** - Cannot integrate into commercial software/services
+
+For commercial licensing opportunities, please [contact the creator](https://www.linkedin.com/in/sanwar-hosen/).
+
+**Full License**: [LICENSE](LICENSE)
+
+---
+
+## ⭐ Show Your Support
+
+Give a ⭐️ if this project helped you!
+
+---
+
+<div align="center">
+
+**TxT Sanitizer - Making text cleaning simple and efficient** ✨
+
+[![GitHub stars](https://img.shields.io/github/stars/sanwar-hosen/TxT-Sanitizer?style=social)](https://github.com/sanwar-hosen/TxT-Sanitizer/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/sanwar-hosen/TxT-Sanitizer?style=social)](https://github.com/sanwar-hosen/TxT-Sanitizer/network)
+
+</div>
