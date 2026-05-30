@@ -65,7 +65,7 @@ export default function RootLayout({
          * The slot itself is always in the DOM so ad code can be injected.
          */}
         <div
-          id="ad-below-navbar"
+          id="header-promo-slot"
           className="w-full flex items-center justify-center bg-base-200 border-b border-base-300 hidden"
           style={{ minHeight: '90px' }}
           aria-hidden="true"

@@ -76,7 +76,7 @@ export default function AdminAdsControl({ initialConfig }: Props) {
             <p className="text-sm font-semibold text-base-content">Below Navbar Slot</p>
             <p className="text-xs text-base-content/50 mt-0.5">
               Horizontal banner below the main navigation bar
-              {' · '}<code className="font-mono text-base-content/40">id="ad-below-navbar"</code>
+              {' · '}<code className="font-mono text-base-content/40">id="header-promo-slot"</code>
             </p>
           </div>
           <label className="flex cursor-pointer items-center gap-3 select-none">
@@ -98,7 +98,7 @@ export default function AdminAdsControl({ initialConfig }: Props) {
             <p className="text-sm font-semibold text-base-content">Right Sidebar Slot</p>
             <p className="text-xs text-base-content/50 mt-0.5">
               Vertical banner in the right sidebar area
-              {' · '}<code className="font-mono text-base-content/40">id="ad-sidebar"</code>
+              {' · '}<code className="font-mono text-base-content/40">id="sidebar-promo-slot"</code>
             </p>
           </div>
           <label className="flex cursor-pointer items-center gap-3 select-none">
