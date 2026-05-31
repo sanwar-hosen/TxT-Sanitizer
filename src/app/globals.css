@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: light --default, dark --prefersdark, cupcake, emerald, synthwave, retro, halloween, forest, wireframe, dracula, coffee, abyss, sunset, silk;
+  themes: light --default, dark, cupcake, emerald, synthwave, retro, halloween, forest, wireframe, dracula, coffee, abyss, sunset, silk;
 }
 
 /* ── Custom Theme Overrides via DaisyUI 5 ──────────────────────────────────── */

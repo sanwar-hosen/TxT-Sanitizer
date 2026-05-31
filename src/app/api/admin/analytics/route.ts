@@ -72,6 +72,37 @@ export async function GET(request: Request) {
       )
       .all();
 
+    // ── Generate dense time-series for the selected range to fill date/month gaps ──
+    const expectedPeriods: string[] = [];
+    const now = new Date();
+    if (range === '30d') {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        expectedPeriods.push(d.toISOString().split('T')[0]);
+      }
+    } else {
+      const monthsCount = range === '6m' ? 6 : 12;
+      for (let i = monthsCount - 1; i >= 0; i--) {
+        const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+        expectedPeriods.push(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`);
+      }
+    }
+
+    const eventTypes = ['page_view', 'sanitize', 'feedback'];
+    const resultMap = new Map<string, number>();
+
+    for (const row of monthly as { month: string; event_type: string; count: number }[]) {
+      resultMap.set(`${row.month}:${row.event_type}`, row.count);
+    }
+
+    const filledMonthly: { month: string; event_type: string; count: number }[] = [];
+    for (const period of expectedPeriods) {
+      for (const type of eventTypes) {
+        const count = resultMap.get(`${period}:${type}`) ?? 0;
+        filledMonthly.push({ month: period, event_type: type, count });
+      }
+    }
+
     // ── Top presets from sanitize events ──────────────────────────────────────
     const { results: dbPresets } = await db
       .prepare('SELECT id, name FROM presets')
@@ -138,7 +169,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       summary,
-      monthly,
+      monthly: filledMonthly,
       topPresets,
       avgCharCount,
       range,

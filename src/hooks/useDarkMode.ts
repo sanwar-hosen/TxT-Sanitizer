@@ -21,13 +21,12 @@ export function useDarkMode() {
   const [theme, setTheme] = useState<ThemeId>('light');
 
   useEffect(() => {
-    // Check local storage or system preference on mount
+    // Check local storage or default to light theme on mount
     const stored = localStorage.getItem('txts_v2_theme') as ThemeId | null;
     if (stored) {
       setTheme(stored);
     } else {
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(systemPrefersDark ? 'dark' : 'light');
+      setTheme('light');
     }
   }, []);
 

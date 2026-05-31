@@ -219,14 +219,28 @@ export async function POST(request: Request) {
     );
   }
 
-  // Log analytics event — truly fire-and-forget (no await, errors are swallowed)
-  fetch(new URL('/api/analytics', request.url), {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ event_type: 'feedback' }),
-  }).catch(() => {
-    // Non-critical — never surface analytics errors to the user
-  });
+  // Log analytics event — directly to D1 if available, fallback to awaiting fetch
+  const db = getDB();
+  if (db) {
+    try {
+      await db
+        .prepare('INSERT INTO analytics (event_type) VALUES (?)')
+        .bind('feedback')
+        .run();
+    } catch (err) {
+      console.error('[feedback] Failed to log feedback analytics to D1:', err);
+    }
+  } else {
+    try {
+      await fetch(new URL('/api/analytics', request.url), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ event_type: 'feedback' }),
+      });
+    } catch {
+      // ignore
+    }
+  }
 
   return NextResponse.json({ ok: true });
 }
