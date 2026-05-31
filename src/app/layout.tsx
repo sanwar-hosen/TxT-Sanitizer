@@ -9,8 +9,10 @@ const rubik = Rubik({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://txt-sanitizer.pages.dev';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://txt-sanitizer.pages.dev'),
+  metadataBase: new URL(siteUrl),
   title: "TxT Sanitizer — Clean & Transform Your Text",
   description:
     "A free, fast, browser-based text sanitizer. Remove markdown, bypass platform word filters, and clean your text with custom presets.",
