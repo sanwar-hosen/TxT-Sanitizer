@@ -47,7 +47,6 @@ async function checkRateLimit(
     if (lastSent && now - lastSent < COOLDOWN_MS) {
       return { limited: true, retryAfterMs: COOLDOWN_MS - (now - lastSent) };
     }
-    memoryLog.set(ip, now);
     return { limited: false };
   }
 
@@ -71,7 +70,21 @@ async function checkRateLimit(
     return { limited: true, retryAfterMs: COOLDOWN_MS - (now - row.last_sent_at) };
   }
 
-  // Upsert the timestamp
+  return { limited: false };
+}
+
+/**
+ * Persists the cooldown timestamp for the given IP address after a successful send.
+ */
+async function recordRateLimit(ip: string): Promise<void> {
+  const db = getDB();
+  const now = Date.now();
+
+  if (!db) {
+    memoryLog.set(ip, now);
+    return;
+  }
+
   await db
     .prepare(
       `INSERT INTO feedback_rate_limit (ip, last_sent_at)
@@ -80,8 +93,6 @@ async function checkRateLimit(
     )
     .bind(ip, now)
     .run();
-
-  return { limited: false };
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -166,6 +177,16 @@ export async function POST(request: Request) {
     );
   }
 
+  if (email && email.trim() !== '') {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return NextResponse.json(
+        { error: 'Please enter a valid email address or leave it empty.' },
+        { status: 400 }
+      );
+    }
+  }
+
   // ── Resolve recipient & sender credentials ────────────────────────────────
   const resendApiKey = getCfEnv('RESEND_API_KEY' as keyof CloudflareEnv);
   // FEEDBACK_EMAIL is the preferred recipient; fall back to GMAIL_USER
@@ -218,6 +239,9 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+
+  // Record rate limit (cooldown) only on successful email send!
+  await recordRateLimit(ip);
 
   // Log analytics event — directly to D1 if available, fallback to awaiting fetch
   const db = getDB();

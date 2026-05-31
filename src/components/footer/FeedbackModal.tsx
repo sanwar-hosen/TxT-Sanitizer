@@ -13,6 +13,7 @@ interface FeedbackModalProps {
 type Status = 'idle' | 'sending' | 'success' | 'error' | 'cooldown';
 
 const LS_COOLDOWN_KEY = 'txts_v2_feedbackCooldownUntil';
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Returns ms until cooldown ends, or 0 if not in cooldown. */
 function getCooldownRemaining(): number {
@@ -85,8 +86,14 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
     };
   }, [status]);
 
+  const isEmailValid = !email.trim() || emailRegex.test(email.trim());
+
   const canSubmit =
-    subject.trim() && message.trim() && status !== 'sending' && status !== 'cooldown';
+    subject.trim() &&
+    message.trim() &&
+    isEmailValid &&
+    status !== 'sending' &&
+    status !== 'cooldown';
 
   const handleSubmit = useCallback(async () => {
     if (!canSubmit) return;
@@ -261,8 +268,15 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full px-3 py-2 rounded-lg border border-outline-variant dark:border-[var(--border)] bg-white dark:bg-[var(--surface-2)] text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+              className={`w-full px-3 py-2 rounded-lg border bg-white dark:bg-[var(--surface-2)] text-sm text-on-surface focus:outline-none focus:ring-2 transition-colors ${
+                email.trim() && !emailRegex.test(email.trim())
+                  ? 'border-error focus:ring-error/30 focus:border-error'
+                  : 'border-outline-variant dark:border-[var(--border)] focus:ring-primary/30 focus:border-primary'
+              }`}
             />
+            {email.trim() && !emailRegex.test(email.trim()) && (
+              <p className="text-[11px] text-error mt-1">Please enter a valid email address.</p>
+            )}
           </div>
 
           {/* Subject */}
