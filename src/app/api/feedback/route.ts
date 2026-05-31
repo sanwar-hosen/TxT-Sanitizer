@@ -214,7 +214,7 @@ export async function POST(request: Request) {
   if (!sendResult.ok) {
     console.error('[feedback] Failed to send email:', sendResult.error);
     return NextResponse.json(
-      { error: 'Failed to send feedback. Please try again later.' },
+      { error: `Failed to send feedback: ${sendResult.error || 'Unknown error'}` },
       { status: 500 }
     );
   }
