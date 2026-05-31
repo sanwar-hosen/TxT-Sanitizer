@@ -50,11 +50,17 @@ export default function Home() {
     '@type': 'WebApplication',
     'name': 'TxT Sanitizer',
     'url': siteUrl,
+    'image': `${siteUrl}/og-image.png`,
     'description':
       'A free, fast, browser-based text sanitizer and clean text editor. Remove formatting, clean markdown, and bypass Fiverr restriction words dynamically.',
     'applicationCategory': 'UtilityApplication',
     'operatingSystem': 'All',
     'browserRequirements': 'Requires HTML5 support',
+    'author': {
+      '@type': 'Person',
+      'name': 'Sano (Sanwar Hosen)',
+      'url': 'https://github.com/sanwar-hosen'
+    },
     'offers': {
       '@type': 'Offer',
       'price': '0.00',
