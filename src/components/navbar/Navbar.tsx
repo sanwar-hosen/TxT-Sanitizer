@@ -63,11 +63,10 @@ export default function Navbar() {
 
   function navCls(href: string) {
     const isActive = pathname === href;
-    return `${NAV_BTN_BASE} ${
-      isActive
+    return `${NAV_BTN_BASE} ${isActive
         ? 'text-[var(--brand)] bg-[var(--brand)]/10 shadow-sm'
         : 'text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]'
-    }`;
+      }`;
   }
 
   return (
@@ -80,7 +79,7 @@ export default function Navbar() {
           </div>
           <span className="rounded-full bg-[var(--brand)] px-1.5 py-0.5 text-[8px] font-bold text-white tracking-wider uppercase transition-all duration-200">v2</span>
         </Link>
- 
+
         <nav className="flex items-center gap-1">
           <div
             ref={containerRef}
@@ -98,7 +97,7 @@ export default function Navbar() {
                 <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" />
               </svg>
             </button>
-            
+
             {/* Panel — always rendered, animated via opacity/scale/translate */}
             <div
               className={`
@@ -121,11 +120,10 @@ export default function Navbar() {
                       key={t.id}
                       data-theme={t.id}
                       onClick={() => { selectTheme(t.id); setIsOpen(false); }}
-                      className={`flex rounded-lg overflow-hidden text-left border text-xs font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 shadow-xs cursor-pointer ${
-                        isActive
+                      className={`flex rounded-lg overflow-hidden text-left border text-xs font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 shadow-xs cursor-pointer ${isActive
                           ? 'border-primary ring-1 ring-primary'
                           : 'border-base-content/10 bg-base-100'
-                      }`}
+                        }`}
                     >
                       {/* Left vertical strip */}
                       <div className="w-3 bg-base-300 shrink-0" />
@@ -168,14 +166,6 @@ export default function Navbar() {
               <path d="M12 16v-4M12 8h.01" />
             </svg>
           </Link>
-
-          <div className="hidden sm:block ml-2 h-6 w-px bg-[var(--border)]" />
-          <span className="hidden sm:inline ml-2 text-xs font-medium text-[var(--text-muted)]">
-            By{" "}
-            <a href="https://linkedin.com/in/sanwar-hosen" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand)] hover:underline">
-              Sano
-            </a>
-          </span>
         </nav>
       </div>
     </header>
