@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import SettingsClient from './SettingsClient';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://txt-sanitizer.pages.dev';
+
 export const metadata: Metadata = {
   title: 'Settings — TxT Sanitizer',
   description: 'Configure your custom text sanitization presets, import/export rules, and manage workspace preferences.',
   openGraph: {
     title: 'Settings — TxT Sanitizer',
     description: 'Configure your custom text sanitization presets, import/export rules, and manage workspace preferences.',
-    url: 'https://txt-sanitizer.pages.dev/settings',
+    url: `${siteUrl}/settings`,
     siteName: 'TxT Sanitizer',
     images: [
       {
-        url: '/og-image.png',
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: 'TxT Sanitizer — Clean & Transform Your Text',
@@ -24,7 +26,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Settings — TxT Sanitizer',
     description: 'Configure your custom text sanitization presets, import/export rules, and manage workspace preferences.',
-    images: ['/og-image.png'],
+    images: [`${siteUrl}/og-image.png`],
   },
 };
 

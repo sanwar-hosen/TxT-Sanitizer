@@ -4,17 +4,19 @@ import { getDB } from '@/lib/db';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://txt-sanitizer.pages.dev';
+
 export const metadata: Metadata = {
-  title: 'About — TxT Sanitizer',
-  description: 'Learn how TxT Sanitizer helps you clean, sanitize, and transform text using custom presets, bypass word filters, and manage rules.',
+  title: 'About TxT Sanitizer — Text Editor & Fiverr Sanitizer Guide',
+  description: 'Learn how TxT Sanitizer cleans and formats text. Discover custom presets, Fiverr word sanitizer rule configuration, and restriction filters.',
   openGraph: {
-    title: 'About — TxT Sanitizer',
-    description: 'Learn how TxT Sanitizer helps you clean, sanitize, and transform text using custom presets, bypass word filters, and manage rules.',
-    url: 'https://txt-sanitizer.pages.dev/about',
+    title: 'About TxT Sanitizer — Text Editor & Fiverr Sanitizer Guide',
+    description: 'Learn how TxT Sanitizer cleans and formats text. Discover custom presets, Fiverr word sanitizer rule configuration, and restriction filters.',
+    url: `${siteUrl}/about`,
     siteName: 'TxT Sanitizer',
     images: [
       {
-        url: '/og-image.png',
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: 'TxT Sanitizer — Clean & Transform Your Text',
@@ -25,9 +27,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'About — TxT Sanitizer',
-    description: 'Learn how TxT Sanitizer helps you clean, sanitize, and transform text using custom presets, bypass word filters, and manage rules.',
-    images: ['/og-image.png'],
+    title: 'About TxT Sanitizer — Text Editor & Fiverr Sanitizer Guide',
+    description: 'Learn how TxT Sanitizer cleans and formats text. Discover custom presets, Fiverr word sanitizer rule configuration, and restriction filters.',
+    images: [`${siteUrl}/og-image.png`],
   },
 };
 
@@ -187,6 +189,27 @@ const DEFAULT_ABOUT_HTML = `
             <span><strong>Sort:</strong> Reorder history entries by date (newest/oldest first).</span>
           </li>
         </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Concepts & Use Cases Card -->
+  <div class="bg-base-100 rounded-lg border border-base-300 p-8 mb-8">
+    <h2 class="text-2xl font-bold text-base-content mb-6 flex items-center">
+      <span class="text-2xl mr-2">💡</span>Key Concepts &amp; Use Cases
+    </h2>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold text-base-content/90 mb-3">Fiverr Word Sanitizer</h3>
+        <p class="text-base-content/75 mb-3 text-sm">
+          Freelancers working on platforms like Fiverr often run into restrictions regarding terms like email, skype, pay, WhatsApp, or phone numbers. The <strong>Fiverr Sanitizer</strong> preset allows you to automatically detect potentially problematic contact words and apply formatting bypasses (e.g. em-ail, pho-ne, sky-pe) to avoid platform restriction flags while maintaining legibility for clients.
+        </p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-base-content/90 mb-3">Restriction Word Sanitizer</h3>
+        <p class="text-base-content/75 mb-3 text-sm">
+          A <strong>restriction word sanitizer</strong> scans text documents to filter out terms that violate specific forum or marketplace platform guidelines. By configuring custom find-and-replace rules in this online text editor, you can automatically replace or sanitize restricted phrases, ensuring compliance with automatic automated submission filters.
+        </p>
       </div>
     </div>
   </div>
@@ -444,7 +467,7 @@ export default async function AboutPage() {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     'name': 'About TxT Sanitizer',
-    'url': 'https://txt-sanitizer.pages.dev/about',
+    'url': `${siteUrl}/about`,
     'description': 'Learn how TxT Sanitizer helps you clean, sanitize, and transform text using custom presets, bypass word filters, and manage rules.',
     'breadcrumb': {
       '@type': 'BreadcrumbList',
@@ -453,13 +476,13 @@ export default async function AboutPage() {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://txt-sanitizer.pages.dev',
+          'item': siteUrl,
         },
         {
           '@type': 'ListItem',
           'position': 2,
           'name': 'About',
-          'item': 'https://txt-sanitizer.pages.dev/about',
+          'item': `${siteUrl}/about`,
         },
       ],
     },

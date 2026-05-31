@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import HistoryClient from './HistoryClient';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://txt-sanitizer.pages.dev';
+
 export const metadata: Metadata = {
   title: 'History — TxT Sanitizer',
   description: 'Review, copy, and restore your previous text sanitization history entries on TxT Sanitizer.',
   openGraph: {
     title: 'History — TxT Sanitizer',
     description: 'Review, copy, and restore your previous text sanitization history entries on TxT Sanitizer.',
-    url: 'https://txt-sanitizer.pages.dev/history',
+    url: `${siteUrl}/history`,
     siteName: 'TxT Sanitizer',
     images: [
       {
-        url: '/og-image.png',
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: 'TxT Sanitizer — Clean & Transform Your Text',
@@ -24,7 +26,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'History — TxT Sanitizer',
     description: 'Review, copy, and restore your previous text sanitization history entries on TxT Sanitizer.',
-    images: ['/og-image.png'],
+    images: [`${siteUrl}/og-image.png`],
   },
 };
 
