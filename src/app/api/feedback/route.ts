@@ -177,15 +177,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (email && email.trim() !== '') {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return NextResponse.json(
-        { error: 'Please enter a valid email address or leave it empty.' },
-        { status: 400 }
-      );
-    }
-  }
+
 
   // ── Resolve recipient & sender credentials ────────────────────────────────
   const resendApiKey = getCfEnv('RESEND_API_KEY' as keyof CloudflareEnv);
