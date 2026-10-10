@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: 'TxT Sanitizer — Clean Text Editor & Fiverr Word Sanitizer',
   description:
     'A free, fast, browser-based text sanitizer and text editor. Clean markdown, bypass Fiverr word filters, sanitize restriction words, and format text with custom rules.',
+  verification: {
+    google: '2Rb9RF107Y8y68Qj8SYrlzmc4zfsrAckgG5uCgsjKf8',
+  },
   keywords: [
     'text sanitizer',
     'text editor',
