@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 @plugin "daisyui" {
   themes: light --default, dark, cupcake, emerald, synthwave, retro, halloween, forest, wireframe, dracula, coffee, abyss, sunset, silk;
 }
@@ -30,57 +31,207 @@
   --color-error-content: #0f172a;
 }
 
+@plugin "daisyui/theme" {
+  name: "cupcake";
+  --color-primary: #65c3c8;
+  --color-primary-hover: #54b2b7;
+  --color-base-100: #faf7f5;
+  --color-base-200: #efeae6;
+  --color-base-300: #e7e0da;
+  --color-base-content: #291334;
+  --color-neutral: #a992ad;
+  --color-error: #e58b8b;
+  --color-error-content: #ffffff;
+}
+
+@plugin "daisyui/theme" {
+  name: "emerald";
+  --color-primary: #66cc8a;
+  --color-primary-hover: #55bb79;
+  --color-base-100: #ffffff;
+  --color-base-200: #f4fbf7;
+  --color-base-300: #e6f6ed;
+  --color-base-content: #223d30;
+  --color-neutral: #80aba9;
+  --color-error: #e13d3d;
+  --color-error-content: #ffffff;
+}
+
+@plugin "daisyui/theme" {
+  name: "synthwave";
+  --color-primary: #ff00a0;
+  --color-primary-hover: #d00078;
+  --color-base-100: #241242;
+  --color-base-200: #170b2e;
+  --color-base-300: #0f0521;
+  --color-base-content: #ecfeff;
+  --color-neutral: #a78bfa;
+  --color-error: #fb7185;
+  --color-error-content: #0f0521;
+}
+
+@plugin "daisyui/theme" {
+  name: "retro";
+  --color-primary: #ef9995;
+  --color-primary-hover: #de8884;
+  --color-base-100: #ece3ca;
+  --color-base-200: #e4d8b4;
+  --color-base-300: #dbcc9d;
+  --color-base-content: #282425;
+  --color-neutral: #a49780;
+  --color-error: #db5c5c;
+  --color-error-content: #ffffff;
+}
+
+@plugin "daisyui/theme" {
+  name: "halloween";
+  --color-primary: #ff7a00;
+  --color-primary-hover: #e06c00;
+  --color-base-100: #141414;
+  --color-base-200: #0a0a0a;
+  --color-base-300: #020202;
+  --color-base-content: #fff7ed;
+  --color-neutral: #fdba74;
+  --color-error: #ea580c;
+  --color-error-content: #020202;
+}
+
+@plugin "daisyui/theme" {
+  name: "forest";
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-base-100: #0b1710;
+  --color-base-200: #060e0a;
+  --color-base-300: #030705;
+  --color-base-content: #ecfdf5;
+  --color-neutral: #6ee7b7;
+  --color-error: #ef4444;
+  --color-error-content: #030705;
+}
+
+@plugin "daisyui/theme" {
+  name: "wireframe";
+  --color-primary: #18181b;
+  --color-primary-hover: #3f3f46;
+  --color-base-100: #ffffff;
+  --color-base-200: #f4f4f5;
+  --color-base-300: #e4e4e7;
+  --color-base-content: #09090b;
+  --color-neutral: #71717a;
+  --color-error: #000000;
+  --color-error-content: #ffffff;
+}
+
+@plugin "daisyui/theme" {
+  name: "dracula";
+  --color-primary: #bd93f9;
+  --color-primary-hover: #a370f7;
+  --color-base-100: #282a36;
+  --color-base-200: #1e1f29;
+  --color-base-300: #181920;
+  --color-base-content: #f8f8f2;
+  --color-neutral: #6272a4;
+  --color-error: #ff5555;
+  --color-error-content: #181920;
+}
+
+@plugin "daisyui/theme" {
+  name: "coffee";
+  --color-primary: #db924b;
+  --color-primary-hover: #b87532;
+  --color-base-100: #20161f;
+  --color-base-200: #170f17;
+  --color-base-300: #0e080d;
+  --color-base-content: #fdfcf7;
+  --color-neutral: #a38c7a;
+  --color-error: #ef4444;
+  --color-error-content: #0e080d;
+}
+
+/* ── Abyss theme — Deep Sea Bioluminescence ──────────────────────────────────── */
+@plugin "daisyui/theme" {
+  name: "abyss";
+  --color-primary: #06f0b6;
+  --color-primary-hover: #04d4a0;
+  --color-base-100: #05161a;
+  --color-base-200: #031016;
+  --color-base-300: #020a0f;
+  --color-base-content: #e1f7f0;
+  --color-neutral: #4a9eaa;
+  --color-error: #ff5757;
+  --color-error-content: #020a0f;
+}
+
+/* ── Sunset theme — Desert Dusk / Terracotta Sands ───────────────────────────── */
+@plugin "daisyui/theme" {
+  name: "sunset";
+  --color-primary: #e07a5f;
+  --color-primary-hover: #c8684f;
+  --color-base-100: #fdf8f2;
+  --color-base-200: #f4ece1;
+  --color-base-300: #e8dccc;
+  --color-base-content: #2c1e12;
+  --color-neutral: #bfa68e;
+  --color-error: #c44536;
+  --color-error-content: #fdf8f2;
+}
+
+/* ── Silk theme — Modern Luxe with Black/White Contrast ────────────────────────
+   Vibe: clean, modern luxury with high contrast.
+   Left side: warm ivory/cream surfaces with dark text
+   Right side: pure black background with gold accents and white text
+   Perfect for two-column layouts where right panel needs black background.
+──────────────────────────────────────────────────────────────────────────── */
+@plugin "daisyui/theme" {
+  name: "silk";
+  --color-primary: #c9a03d;
+  --color-primary-hover: #b8902e;
+  --color-base-100: #faf8f2;
+  --color-base-200: #f0ede3;
+  --color-base-300: #e5e0d4;
+  --color-base-content: #1a1a1a;
+  --color-neutral: #6b6b6b;
+  --color-error: #c44536;
+  --color-error-content: #ffffff;
+}
+
 /* ── Tailwind v4: enable class-based dark mode ─────────────────────────────── */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ── Theme tokens via CSS custom properties ────────────────────────────────── */
 :root {
-  /* Brand */
   --brand: var(--color-primary);
   --brand-hover: var(--color-primary-hover, var(--color-primary));
-
-  /* Surfaces */
   --surface: var(--color-base-100);
   --surface-2: var(--color-base-200);
   --surface-dim: var(--color-base-300);
-
-  /* Text */
   --text: var(--color-base-content);
   --text-muted: var(--color-neutral);
-
-  /* Borders & Outlines */
   --border: var(--color-base-300);
-
-  /* Errors & Alerts */
   --error: var(--color-error);
   --error-hover: var(--color-error);
   --error-container: color-mix(in srgb, var(--color-error) 15%, transparent);
   --on-error-container: var(--color-error);
   --on-error: var(--color-error-content);
-
-  /* Selection */
   --selection-bg: color-mix(in srgb, var(--color-primary) 20%, transparent);
   --selection-text: var(--color-base-content);
-
-  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .dark {
-  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* ── Theme Overrides for Dark mode ────────────────────────────────────────── */
 [data-theme="dark"] {
-  --color-primary: #38bdf8;            /* Sky blue accents */
+  --color-primary: #38bdf8;
   --color-primary-hover: #0ea5e9;
-  --color-base-100: #090d16;           /* Extremely dark/black Card foreground */
-  --color-base-200: #05070f;           /* Pitch-black Secondary panels */
-  --color-base-300: #030408;           /* Deep black body background */
-  --color-base-content: #f8fafc;       /* Clear Slate-50 text */
-  --color-neutral: #94a3b8;           /* Slate-400 muted text */
-  --border: #1e3a8a;                   /* Glowing Blue-Indigo Border */
+  --color-base-100: #090d16;
+  --color-base-200: #05070f;
+  --color-base-300: #030408;
+  --color-base-content: #f8fafc;
+  --color-neutral: #94a3b8;
+  --border: #1e3a8a;
 }
 
 [data-theme="dark"] body {
@@ -90,7 +241,371 @@
   overflow-x: hidden;
 }
 
-/* ── Base body styles ──────────────────────────────────────────────────────── */
+/* ── Theme Overrides for Forest theme ───────────────────────────────────────── */
+[data-theme="forest"] {
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-base-100: #0b1710;
+  --color-base-200: #060e0a;
+  --color-base-300: #030705;
+  --color-base-content: #ecfdf5;
+  --color-neutral: #6ee7b7;
+  --border: #065f46;
+}
+
+[data-theme="forest"] body {
+  background-color: #030705 !important;
+  background-image: radial-gradient(circle at 50% 50%, #064e3b 0%, #030705 100%) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Theme Overrides for Halloween theme ───────────────────────────────────── */
+[data-theme="halloween"] {
+  --color-primary: #ff7a00;
+  --color-primary-hover: #e06c00;
+  --color-base-100: #141414;
+  --color-base-200: #0a0a0a;
+  --color-base-300: #020202;
+  --color-base-content: #fff7ed;
+  --color-neutral: #fdba74;
+  --border: #ea580c;
+}
+
+[data-theme="halloween"] body {
+  background-color: #020202 !important;
+  background-image: radial-gradient(circle at 50% 50%, #451a03 0%, #020202 100%) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Theme Overrides for Synthwave theme ───────────────────────────────────── */
+[data-theme="synthwave"] {
+  --color-primary: #ff00a0;
+  --color-primary-hover: #d00078;
+  --color-base-100: #241242;
+  --color-base-200: #170b2e;
+  --color-base-300: #0f0521;
+  --color-base-content: #ecfeff;
+  --color-neutral: #a78bfa;
+  --border: #06b6d4;
+}
+
+[data-theme="synthwave"] body {
+  background-color: #0f0521 !important;
+  background-image: radial-gradient(circle at 50% 50%, #440c60 0%, #0f0521 100%) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Theme Overrides for Wireframe theme ───────────────────────────────────── */
+[data-theme="wireframe"] {
+  --color-primary: #18181b;
+  --color-primary-hover: #3f3f46;
+  --color-base-100: #ffffff;
+  --color-base-200: #f4f4f5;
+  --color-base-300: #e4e4e7;
+  --color-base-content: #09090b;
+  --color-neutral: #71717a;
+  --border: #09090b;
+}
+
+[data-theme="wireframe"] body {
+  background-color: #f4f4f5 !important;
+  background-image:
+    linear-gradient(#e4e4e7 1px, transparent 1px),
+    linear-gradient(90deg, #e4e4e7 1px, transparent 1px) !important;
+  background-size: 20px 20px !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Theme Overrides for Dracula theme ─────────────────────────────────────── */
+[data-theme="dracula"] {
+  --color-primary: #bd93f9;
+  --color-primary-hover: #a370f7;
+  --color-base-100: #282a36;
+  --color-base-200: #1e1f29;
+  --color-base-300: #181920;
+  --color-base-content: #f8f8f2;
+  --color-neutral: #6272a4;
+  --border: #44475a;
+}
+
+[data-theme="dracula"] body {
+  background-color: #181920 !important;
+  background-image: radial-gradient(circle at 50% 50%, #282a36 0%, #181920 100%) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Theme Overrides for Coffee theme ──────────────────────────────────────── */
+[data-theme="coffee"] {
+  --color-primary: #db924b;
+  --color-primary-hover: #b87532;
+  --color-base-100: #20161f;
+  --color-base-200: #170f17;
+  --color-base-300: #0e080d;
+  --color-base-content: #fdfcf7;
+  --color-neutral: #a38c7a;
+  --border: #583e26;
+}
+
+[data-theme="coffee"] body {
+  background-color: #0e080d !important;
+  background-image: radial-gradient(circle at 50% 50%, #20161f 0%, #0e080d 100%) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Theme Overrides for Abyss theme ───────────────────────────────────────── */
+[data-theme="abyss"] {
+  --color-primary: #06f0b6;
+  --color-primary-hover: #04d4a0;
+  --color-base-100: #05161a;
+  --color-base-200: #031016;
+  --color-base-300: #020a0f;
+  --color-base-content: #e1f7f0;
+  --color-neutral: #4a9eaa;
+  --border: #0d7377;
+}
+
+[data-theme="abyss"] body {
+  background-color: #020a0f !important;
+  background-image: radial-gradient(circle at 50% 80%, #0a3a3a 0%, #020a0f 75%) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Theme Overrides for Sunset theme ──────────────────────────────────────── */
+[data-theme="sunset"] {
+  --color-primary: #e07a5f;
+  --color-primary-hover: #c8684f;
+  --color-base-100: #fdf8f2;
+  --color-base-200: #f4ece1;
+  --color-base-300: #e8dccc;
+  --color-base-content: #2c1e12;
+  --color-neutral: #bfa68e;
+  --border: #d4b49c;
+}
+
+[data-theme="sunset"] body {
+  background-color: #fdf8f2 !important;
+  background-image: radial-gradient(circle at 50% 0%, #fae6d8 0%, #fdf8f2 100%) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SILK THEME - Two Column Layout Support
+   Left side: Light/cream background with dark text
+   Right side: Pure black background with white/gold text
+   ════════════════════════════════════════════════════════════════════════════ */
+
+[data-theme="silk"] {
+  --color-primary: #c9a03d;
+  --color-primary-hover: #b8902e;
+  --color-base-100: #faf8f2;
+  --color-base-200: #f0ede3;
+  --color-base-300: #e5e0d4;
+  --color-base-content: #1a1a1a;
+  --color-neutral: #6b6b6b;
+  --border: #d4cfc0;
+}
+
+/* Body background - light/cream for left side default */
+[data-theme="silk"] body {
+  background-color: #faf8f2 !important;
+  background-image: none !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── RIGHT SIDE BLACK PANEL STYLES ────────────────────────────────────────────
+   Use class "silk-right-panel" or "bg-black-panel" on your right column
+   This makes the right side pure black with white/gold text for maximum contrast
+*/
+[data-theme="silk"] .silk-right-panel,
+[data-theme="silk"] .bg-black-panel,
+[data-theme="silk"] .right-side-black {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* All text inside black panel becomes white */
+[data-theme="silk"] .silk-right-panel *,
+[data-theme="silk"] .bg-black-panel *,
+[data-theme="silk"] .right-side-black * {
+  color: #ffffff !important;
+}
+
+/* Gold accents inside black panel */
+[data-theme="silk"] .silk-right-panel .text-primary,
+[data-theme="silk"] .silk-right-panel [class*="primary"],
+[data-theme="silk"] .bg-black-panel .text-primary,
+[data-theme="silk"] .right-side-black .text-primary {
+  color: #c9a03d !important;
+}
+
+/* Logo inside black panel - white or gold */
+[data-theme="silk"] .silk-right-panel .logo,
+[data-theme="silk"] .silk-right-panel img,
+[data-theme="silk"] .bg-black-panel .logo,
+[data-theme="silk"] .right-side-black .logo {
+  filter: brightness(0) invert(1);
+}
+
+[data-theme="silk"] .silk-right-panel .logo-gold,
+[data-theme="silk"] .bg-black-panel .logo-gold {
+  filter: brightness(0) invert(0.78) sepia(1) saturate(3) hue-rotate(350deg);
+}
+
+/* Buttons inside black panel */
+[data-theme="silk"] .silk-right-panel button,
+[data-theme="silk"] .silk-right-panel .btn,
+[data-theme="silk"] .bg-black-panel button,
+[data-theme="silk"] .right-side-black .btn {
+  background-color: #c9a03d !important;
+  color: #000000 !important;
+}
+
+[data-theme="silk"] .silk-right-panel button:hover,
+[data-theme="silk"] .silk-right-panel .btn:hover,
+[data-theme="silk"] .bg-black-panel button:hover,
+[data-theme="silk"] .right-side-black .btn:hover {
+  background-color: #b8902e !important;
+  color: #000000 !important;
+}
+
+/* Outline buttons in black panel */
+[data-theme="silk"] .silk-right-panel .btn-outline,
+[data-theme="silk"] .bg-black-panel .btn-outline {
+  background-color: transparent !important;
+  border-color: #c9a03d !important;
+  color: #c9a03d !important;
+}
+
+[data-theme="silk"] .silk-right-panel .btn-outline:hover,
+[data-theme="silk"] .bg-black-panel .btn-outline:hover {
+  background-color: #c9a03d !important;
+  color: #000000 !important;
+}
+
+/* Inputs inside black panel - dark backgrounds */
+[data-theme="silk"] .silk-right-panel input,
+[data-theme="silk"] .silk-right-panel textarea,
+[data-theme="silk"] .silk-right-panel select,
+[data-theme="silk"] .bg-black-panel input,
+[data-theme="silk"] .right-side-black input {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+}
+
+[data-theme="silk"] .silk-right-panel input:focus,
+[data-theme="silk"] .bg-black-panel input:focus {
+  border-color: #c9a03d !important;
+  box-shadow: inset 0 0 0 1px #c9a03d !important;
+}
+
+[data-theme="silk"] .silk-right-panel input::placeholder,
+[data-theme="silk"] .bg-black-panel input::placeholder {
+  color: #888888 !important;
+}
+
+/* Links in black panel */
+[data-theme="silk"] .silk-right-panel a:not(.btn),
+[data-theme="silk"] .bg-black-panel a:not(.btn) {
+  color: #c9a03d !important;
+}
+
+[data-theme="silk"] .silk-right-panel a:not(.btn):hover,
+[data-theme="silk"] .bg-black-panel a:not(.btn):hover {
+  color: #dab45a !important;
+}
+
+/* Cards inside black panel */
+[data-theme="silk"] .silk-right-panel .card,
+[data-theme="silk"] .bg-black-panel .card {
+  background-color: #111111 !important;
+  border-color: #2a2a2a !important;
+}
+
+/* ── LEFT SIDE (default) stays cream with dark text ───────────────────────── */
+[data-theme="silk"] .silk-left-panel,
+[data-theme="silk"] .bg-cream-panel {
+  background-color: #faf8f2 !important;
+  color: #1a1a1a !important;
+}
+
+/* Global Silk theme input styles (left side) */
+[data-theme="silk"] textarea,
+[data-theme="silk"] input,
+[data-theme="silk"] .input,
+[data-theme="silk"] .textarea,
+[data-theme="silk"] .pane-textarea,
+[data-theme="silk"] [class*="input"],
+[data-theme="silk"] [class*="textarea"] {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  caret-color: #c9a03d !important;
+  border-color: #d4cfc0 !important;
+}
+
+[data-theme="silk"] textarea::placeholder,
+[data-theme="silk"] input::placeholder,
+[data-theme="silk"] .input::placeholder,
+[data-theme="silk"] .textarea::placeholder {
+  color: #6b6b6b !important;
+  opacity: 1 !important;
+}
+
+[data-theme="silk"] textarea:focus,
+[data-theme="silk"] input:focus,
+[data-theme="silk"] .input:focus,
+[data-theme="silk"] .textarea:focus,
+[data-theme="silk"] .pane-textarea:focus {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border-color: #c9a03d !important;
+  outline: none !important;
+  box-shadow: inset 0 0 0 1px #c9a03d !important;
+}
+
+/* Select & dropdowns */
+[data-theme="silk"] select,
+[data-theme="silk"] .select {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border-color: #d4cfc0 !important;
+}
+
+/* Scrollbar */
+[data-theme="silk"] .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #d4cfc0;
+}
+
+[data-theme="silk"] .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #c9a03d;
+}
+
+/* Selection highlight */
+[data-theme="silk"] ::selection {
+  background-color: rgba(201, 160, 61, 0.25);
+  color: #1a1a1a;
+}
+
+/* Buttons on left side */
+[data-theme="silk"] .btn-primary {
+  background-color: #c9a03d !important;
+  color: #1a1a1a !important;
+}
+
+[data-theme="silk"] .btn-primary:hover {
+  background-color: #b8902e !important;
+}
+
+/* ── Global base styles ────────────────────────────────────────────────────── */
 ::selection {
   background-color: var(--selection-bg);
   color: var(--selection-text);
@@ -109,24 +624,29 @@ body {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Custom scrollbar — matches your HTML */
+/* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 4px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #94a3b8;
 }
+
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #475569;
 }
+
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #64748b;
 }
@@ -143,83 +663,145 @@ body {
   user-select: none;
 }
 
-/* Modal animations */
+/* ── Animations ─────────────────────────────────────────────────────────────── */
 @keyframes modalFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes modalSlideUp {
-  from { opacity: 0; transform: translateY(12px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
-/* Drag-reorder list animations */
-@keyframes shiftDown {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(6px); }
-  100% { transform: translateY(0); }
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
+
+@keyframes shiftDown {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(6px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
 @keyframes shiftUp {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .drag-shift-down {
   animation: shiftDown 0.28s ease-in-out;
 }
+
 .drag-shift-up {
   animation: shiftUp 0.28s ease-in-out;
 }
+
 .drag-item-dragging {
   opacity: 0.45;
   scale: 0.97;
-  box-shadow: 0 8px 24px rgba(0, 74, 173, 0.18), 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 24px rgba(0, 74, 173, 0.18), 0 2px 8px rgba(0, 0, 0, 0.12);
   border-color: var(--brand) !important;
   transition: opacity 0.15s, scale 0.15s, box-shadow 0.15s;
   cursor: grabbing !important;
 }
+
 .drag-drop-above {
   border-top: 2px solid var(--brand) !important;
   box-shadow: 0 -2px 0 0 var(--brand);
 }
+
 .drag-drop-below {
   border-bottom: 2px solid var(--brand) !important;
   box-shadow: 0 2px 0 0 var(--brand);
 }
 
-/* Preset-tab swap animation — 4 keyframes for a conveyor-belt exchange */
-
-/* Old active tab exits toward the direction of the new tab */
+/* Preset-tab swap animations */
 @keyframes tabExitRight {
-  from { opacity: 1; transform: translateX(0) scaleX(1); }
-  to   { opacity: 0; transform: translateX(16px) scaleX(0.88); }
+  from {
+    opacity: 1;
+    transform: translateX(0) scaleX(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(16px) scaleX(0.88);
+  }
 }
+
 @keyframes tabExitLeft {
-  from { opacity: 1; transform: translateX(0) scaleX(1); }
-  to   { opacity: 0; transform: translateX(-16px) scaleX(0.88); }
+  from {
+    opacity: 1;
+    transform: translateX(0) scaleX(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-16px) scaleX(0.88);
+  }
 }
-/* New tab enters from the same direction (slightly delayed so exit leads) */
+
 @keyframes tabEnterFromRight {
-  from { opacity: 0; transform: translateX(16px) scaleX(0.88); }
-  to   { opacity: 1; transform: translateX(0) scaleX(1); }
+  from {
+    opacity: 0;
+    transform: translateX(16px) scaleX(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scaleX(1);
+  }
 }
+
 @keyframes tabEnterFromLeft {
-  from { opacity: 0; transform: translateX(-16px) scaleX(0.88); }
-  to   { opacity: 1; transform: translateX(0) scaleX(1); }
+  from {
+    opacity: 0;
+    transform: translateX(-16px) scaleX(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scaleX(1);
+  }
 }
 
 .preset-tab-exit-right {
   animation: tabExitRight 0.15s ease-in forwards;
 }
+
 .preset-tab-exit-left {
   animation: tabExitLeft 0.15s ease-in forwards;
 }
+
 .preset-tab-enter-right {
   animation: tabEnterFromRight 0.2s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
 .preset-tab-enter-left {
   animation: tabEnterFromLeft 0.2s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-
-

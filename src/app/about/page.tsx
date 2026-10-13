@@ -408,7 +408,7 @@ const DEFAULT_ABOUT_HTML = `
       </div>
     </div>
     <div class="bg-base-100 rounded-lg border border-base-300 p-8">
-      <h2 class="text-2xl font-bold mb-6 flex items-center text-base-content text-gray-900">
+      <h2 class="text-2xl font-bold mb-6 flex items-center text-base-content text-white-900">
         <span class="text-2xl mr-2">🤝</span>About the Creator
       </h2>
       <div class="space-y-4">
@@ -495,7 +495,7 @@ export default async function AboutPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      
+
       <div className="max-w-[1200px] w-full mx-auto">
         <article
           className="about-content text-base-content leading-relaxed"
